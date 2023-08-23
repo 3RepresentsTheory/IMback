@@ -5,7 +5,7 @@
 
 #include "types.h"
 #include "utils.h"
-#include "Dao/userDao.h"
+#include "../Dao/userDao.h"
 #include <QtHttpServer/QHttpServer>
 #include <QtConcurrent/qtconcurrentrun.h>
 #include <string>
@@ -25,26 +25,37 @@ public:
     {
         const auto json = byteArrayToJsonObject(request.body());
         if (!json)
-            return QHttpServerResponse(QHttpServerResponder::StatusCode::BadRequest);
+            return QHttpServerResponse("接收消息失败或为空",QHttpServerResponder::StatusCode::BadRequest);
         SessionEntry* sessionEntry = factory->fromJson(*json);
-        if (sessionEntry)
-            return QHttpServerResponse(QHttpServerResponder::StatusCode::BadRequest);
+        if (!sessionEntry)
+            return QHttpServerResponse("请输入完整的username,password,nickname,且不能为空",QHttpServerResponder::StatusCode::BadRequest);
+        if(userDao->isUsernameExists(sessionEntry->username.toStdString())){
+            return QHttpServerResponse("用户名已存在，请重试",QHttpServerResponder::StatusCode::BadRequest);
+        }
+        if(userDao->isNicknameExists(sessionEntry->nickname.toStdString())){
+            return QHttpServerResponse("昵称已存在，请重试",QHttpServerResponder::StatusCode::BadRequest);
+        }
         userDao->insertUser(sessionEntry->username.toStdString(),sessionEntry->password.toStdString(),sessionEntry->nickname.toStdString());
-
-        return QHttpServerResponse(session->toJson());
+        sessionEntry->id = userDao->selectIdByName(sessionEntry->username.toStdString());
+        sessionEntry->startSession();
+        return QHttpServerResponse(sessionEntry->toJson());
     }
 
     QHttpServerResponse login(const QHttpServerRequest &request)
     {
         const auto json = byteArrayToJsonObject(request.body());
+        if (!json)
+            return QHttpServerResponse("接收消息失败或为空",QHttpServerResponder::StatusCode::BadRequest);
+        if (!json->contains("username") || !json->contains("password")||
+        !json->value("username").isNull()||!json->value("password").isNull())
+            return QHttpServerResponse("请输入完整的username,password,且不能为空",QHttpServerResponder::StatusCode::BadRequest);
 
-        if (!json || !json->contains("username") || !json->contains("password") ||!json->contains("nickname"))
-            return QHttpServerResponse(QHttpServerResponder::StatusCode::BadRequest);
-
-        string username = json->value("username").toString().toStdString();
-        string password = json->value("password").toString().toStdString();
-        string nickname = json->value("nickname").toString().toStdString();
-        userDao->insertUser(username,password,nickname);
+        UserCredentials userCredentials = userDao->validateUserCredentials(json->value("username").toString().toStdString(),json->value("password").toString().toStdString());
+        if(!get<0>(userCredentials)){
+            QHttpServerResponse("用户名或密码错误",QHttpServerResponder::StatusCode::BadRequest);
+        } else{
+            //
+        }
         auto maybeSession = std::find_if(
                 sessions.begin(), sessions.end(),
                 [email = json->value("username").toString(),
@@ -54,6 +65,7 @@ public:
         if (maybeSession == sessions.end()) {
             return QHttpServerResponse(QHttpServerResponder::StatusCode::NotFound);
         }
+
         maybeSession->startSession();
         return QHttpServerResponse(maybeSession->toJson());
     }
