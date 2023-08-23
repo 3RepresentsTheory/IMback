@@ -35,8 +35,8 @@ struct SessionEntry : public Jsonable
     QString nickname;
     std::optional<QUuid> token;
 
-    explicit SessionEntry(const QString &email, const QString &password, const QString &nickname)
-            : id(nextId()), username(email), password(password), nickname(nickname)
+    explicit SessionEntry(const QString &username, const QString &password, const QString &nickname)
+            : username(username), password(password), nickname(nickname)
     {
     }
 
@@ -72,9 +72,8 @@ struct SessionEntryFactory : public FromJsonFactory<SessionEntry>
     SessionEntry* fromJson(const QJsonObject &json) const override
     {
         if (!json.contains("username") || !json.contains("password") ||!json.contains("nickname")
-        ||!json.value("username").isNull()||!json.value("password").isNull()||!json.value("nickname").isNull())
+        ||json.value("username").isNull()||json.value("password").isNull()||json.value("nickname").isNull())
             return nullptr;
-
         return new SessionEntry(json.value("username").toString(), json.value("password").toString(),json.value("nickname").toString());
     }
 };

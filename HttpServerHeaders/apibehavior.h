@@ -54,7 +54,7 @@ public:
         if(!get<0>(userCredentials)){
             QHttpServerResponse("用户名或密码错误",QHttpServerResponder::StatusCode::BadRequest);
         } else{
-            //
+            new SessionEntry(get<1>(userCredentials))
         }
         auto maybeSession = std::find_if(
                 sessions.begin(), sessions.end(),

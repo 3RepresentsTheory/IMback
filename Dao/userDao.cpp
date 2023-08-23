@@ -194,4 +194,4 @@ bool UserDao::updateUserNickname(const std::string &username, const std::string 
     return true;
 }
 
-string UserDao::dbPath = "C:/Users/28443/Desktop/qt/test.db";
+string UserDao::dbPath = "./test.db";
