@@ -42,8 +42,9 @@ struct SessionEntry
     QJsonObject registerJson()
     {
         return token
-               ? QJsonObject{ { "id", id },
-                              { "token", token->toString(QUuid::StringFormat::WithoutBraces) } }
+               ? QJsonObject{
+                              { "token", token->toString(QUuid::StringFormat::WithoutBraces) }
+                }
                : QJsonObject{};
     }
 
@@ -69,12 +70,6 @@ struct SessionEntry
 private:
     QUuid generateToken() {
         return QUuid::createUuid();
-    }
-
-    static qint64 nextId()
-    {
-        static qint64 lastId = 1;
-        return lastId++;
     }
 };
 
@@ -106,17 +101,17 @@ struct SessionEntryFactory : public FromJsonFactory<SessionEntry>
 
 
 template<typename T>
-class IdMap : public QMap<qint64, T>
+class tokenMap : public QMap<qint64, T>
 {
 public:
-    IdMap() = default;
-    explicit IdMap(const FromJsonFactory<T> &factory, const QJsonArray &array) : QMap<qint64, T>()
+    tokenMap() = default;
+    explicit tokenMap(const FromJsonFactory<T> &factory, const QJsonArray &array) : QMap<qint64, T>()
     {
         for (const auto &jsonValue : array) {
             if (jsonValue.isObject()) {
                 const auto maybeT = factory.fromJson(jsonValue.toObject());
                 if (maybeT) {
-                    QMap<qint64, T>::insert(maybeT->id, *maybeT);
+                    QMap<qint64, T>::insert(maybeT->token, *maybeT);
                 }
             }
         }

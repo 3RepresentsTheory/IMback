@@ -15,7 +15,7 @@
 class SessionApi {
 public:
     explicit SessionApi(
-            const IdMap<SessionEntry> &sessions,
+            const tokenMap<SessionEntry> &sessions,
             std::unique_ptr<FromJsonFactory<SessionEntry>> factory
     )
     : sessions(sessions), factory(std::move(factory)), userDao(new UserDao()) {
@@ -48,6 +48,7 @@ public:
         return QHttpServerResponse(sessionEntry->registerJson());
     }
 
+    // !!wait to fix
     QHttpServerResponse login(const QHttpServerRequest &request) {
         const auto json = byteArrayToJsonObject(request.body());
 
@@ -89,6 +90,7 @@ public:
         return QHttpServerResponse(sessionEntry->loginJson());
     }
 
+    // !!wait to fix
     QHttpServerResponse logout(const QHttpServerRequest &request) {
         const auto maybecookie = getcookieFromRequest(request);
         if (!maybecookie)
@@ -101,7 +103,7 @@ public:
     }
 
 private:
-    IdMap<SessionEntry> sessions;
+    tokenMap<SessionEntry> sessions;
     std::unique_ptr<FromJsonFactory<SessionEntry>> factory;
     UserDao *userDao;
 };
