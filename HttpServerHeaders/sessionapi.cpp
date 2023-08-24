@@ -8,7 +8,7 @@ SessionEntry *SessionApi::createEntryAndStart(qint64 id) {
     sessionEntry->startSession();
     sessionEntry->id = id;
     sessions.insertEntry(sessionEntry);
-    return nullptr;
+    return sessionEntry;
 }
 
 int SessionApi::addtoSessionlist(SessionEntry *entry) {

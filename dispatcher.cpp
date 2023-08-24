@@ -1,13 +1,10 @@
-#include "HttpServerHeaders/sessionapi.h"
-#include "HttpServerHeaders/types.h"
-#include "HttpServerHeaders/utils.h"
 #include <QtCore/QCoreApplication>
 #include <QtHttpServer/QHttpServer>
-
+#include "httpServerHeaders/userapi.h"
 #define PORT 49425
 
 
-void serverRouting(QHttpServer &HttpServer,SessionApi &sessionapi);
+void serverRouting(QHttpServer &HttpServer,UserApi &userApi);
 
 int main(int argc, char *argv[]) {
     QCoreApplication app(argc, argv);
@@ -27,12 +24,12 @@ int main(int argc, char *argv[]) {
         portArg = parser.value("port").toUShort();
 
     // add global session management
-    SessionApi sessionApi;
 
+    UserApi userApi;
     // Setup QHttpServer for normal transaction
     QHttpServer httpServer;
     // route request
-    serverRouting(httpServer,sessionApi);
+    serverRouting(httpServer,userApi);
 
     // start server listen
     const auto port = httpServer.listen(QHostAddress::Any, portArg);
@@ -51,7 +48,7 @@ int main(int argc, char *argv[]) {
 }
 
 
-void serverRouting(QHttpServer &httpServer,SessionApi &sessionApi){
+void serverRouting(QHttpServer &httpServer,UserApi &userApi){
     httpServer.route(
             "/",
             []() {
@@ -61,35 +58,29 @@ void serverRouting(QHttpServer &httpServer,SessionApi &sessionApi){
     // User module
     httpServer.route(
             "/user/login", QHttpServerRequest::Method::Post,
-            [&sessionApi](const QHttpServerRequest &request) {
-                return sessionApi.login(request);
+            [&userApi](const QHttpServerRequest &request) {
+                return userApi.login(request);
             }
     );
 
     httpServer.route(
             "/user/register", QHttpServerRequest::Method::Post,
-            [&sessionApi](const QHttpServerRequest &request) {
-                return sessionApi.registerSession(request);
+            [&userApi](const QHttpServerRequest &request) {
+                return userApi.registerSession(request);
             }
     );
 
-    httpServer.route(
-            "/user/logout", QHttpServerRequest::Method::Post,
-            [&sessionApi](const QHttpServerRequest &request) {
-                return sessionApi.logout(request);
-            }
-    );
 
     // Message transaction module
-    httpServer.route(
-            "/message/send",QHttpServerRequest::Method::Post,
-
-    );
-
-    httpServer.route(
-            "/message/history",QHttpServerRequest::Method::Get,
-
-    );
+//    httpServer.route(
+//            "/message/send",QHttpServerRequest::Method::Post,
+//
+//    );
+//
+//    httpServer.route(
+//            "/message/history",QHttpServerRequest::Method::Get,
+//
+//    );
 
     // Friend transaction module
 }

@@ -42,11 +42,12 @@ bool UserService::isNicknameExists(const string &nickname) {
     return true;
 }
 
-string UserService::validateUserCredentials(const string &username, const string &password) {
+map<string ,string > UserService::validateUserCredentials(const string &username, const string &password) {
     vector<map<string, string>> rc;
-    string sql = "SELECT nickname FROM user WHERE username = ? AND password = ?;";
+    map<string ,string> rcMap;
+    string sql = "SELECT id,nickname FROM user WHERE username = ? AND password = ?;";
     rc = baseDao->executeQuery<string>(sql,username,password);
     if(rc.empty())
-        return "";
-    return rc[0]["nickname"];
+        return rcMap;
+    return rc[0];
 }

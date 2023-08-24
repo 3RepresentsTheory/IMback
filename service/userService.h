@@ -16,7 +16,7 @@ public:
     int selectIdByName(const std::string& username);
     bool isUsernameExists(const std::string& username);
     bool isNicknameExists(const std::string& nickname);
-    string validateUserCredentials(const string& username, const string& password);
+    map<string ,string > validateUserCredentials(const string& username, const string& password);
 };
 
 

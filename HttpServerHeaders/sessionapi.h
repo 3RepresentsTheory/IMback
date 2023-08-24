@@ -14,7 +14,7 @@
 
 class SessionApi {
 public:
-    explicit SessionApi(): userService(new UserService()) {}
+    explicit SessionApi() {}
 
     SessionEntry* createEntryAndStart(qint64 id);
 
@@ -23,88 +23,8 @@ public:
     int removeEntry(SessionEntry * target);
 
 
-    QHttpServerResponse registerSession(const QHttpServerRequest &request) {
-        const auto json = byteArrayToJsonObject(request.body());
-
-        if (!json)
-            return QHttpServerResponse("接收消息失败或为空", QHttpServerResponder::StatusCode::BadRequest);
-
-        SessionEntry *sessionEntry = ;
-        if (!sessionEntry)
-            return QHttpServerResponse("请输入完整的username,password,nickname,且不能为空",
-                                       QHttpServerResponder::StatusCode::BadRequest);
-
-        if (userService->isUsernameExists(sessionEntry->username)) {
-            return QHttpServerResponse("用户名已存在，请重试", QHttpServerResponder::StatusCode::BadRequest);
-        }
-
-        if (userService->isNicknameExists(sessionEntry->nickname)) {
-            return QHttpServerResponse("昵称已存在，请重试", QHttpServerResponder::StatusCode::BadRequest);
-        }
-
-        userService->insertUser(sessionEntry->username, sessionEntry->password, sessionEntry->nickname);
-
-        sessionEntry->id = userService->selectIdByName(sessionEntry->username);
-        sessionEntry->startSession();
-
-        return QHttpServerResponse(sessionEntry->registerJson());
-    }
-
-    // !!wait to fix
-    QHttpServerResponse login(const QHttpServerRequest &request) {
-        const auto json = byteArrayToJsonObject(request.body());
-
-        if (!json)
-            return QHttpServerResponse("接收消息失败或为空", QHttpServerResponder::StatusCode::BadRequest);
-
-        if (
-           !json->contains("username") ||
-           !json->contains("password") ||
-           json->value("username").toString().toStdString().empty() ||
-           json->value("password").toString().toStdString().empty()
-        ) {
-            return QHttpServerResponse(
-                    "请输入完整的username,password,且不能为空",
-                    QHttpServerResponder::StatusCode::BadRequest
-            );
-        }
-
-        string nickname =
-                userService->validateUserCredentials(
-                    json->value("username").toString().toStdString(),
-                    json->value("password").toString().toStdString()
-        );
-
-        SessionEntry *sessionEntry = nullptr;
-
-        if (nickname.length()==0) {
-            return QHttpServerResponse("用户名或密码错误", QHttpServerResponder::StatusCode::BadRequest);
-        } else {
-            sessionEntry = new SessionEntry(
-                    json->value("username").toString().toStdString(),
-                    json->value("password").toString().toStdString(),
-                    nickname
-            );
-        }
-        sessionEntry->startSession();
-        return QHttpServerResponse(sessionEntry->loginJson());
-    }
-
-    // !!wait to fix
-    QHttpServerResponse logout(const QHttpServerRequest &request) {
-        const auto maybecookie = getcookieFromRequest(request);
-        if (!maybecookie)
-            return QHttpServerResponse(QHttpServerResponder::StatusCode::BadRequest);
-
-        auto maybeSession = std::find(sessions.begin(), sessions.end(), *maybecookie);
-        if (maybeSession != sessions.end())
-            maybeSession->endSession();
-        return QHttpServerResponse(QHttpServerResponder::StatusCode::Ok);
-    }
-
 private:
     tokenMap sessions;
-    UserService *userService;
 };
 
 #endif // APIBEHAVIOR_H
