@@ -6,11 +6,15 @@
 #define DEMO02_MESSAGEAPI_H
 
 
+#include <QHttpServerRequest>
+#include <QHttpServerResponse>
+
 class MessageApi {
 public:
-    MessageApi();
+    MessageApi(){};
+    QHttpServerResponse handleSentMessageRequest(const QHttpServerRequest &request);
 private:
-    broadCastToGroup()
+    int broadcastMessageToGroup(int gid, QString messagetext);
 };
 
 

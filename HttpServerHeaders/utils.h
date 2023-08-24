@@ -60,4 +60,6 @@ static std::optional<QString> getcookieFromRequest(const QHttpServerRequest &req
     return cookie;
 }
 
+
+
 #endif // UTILS_H
