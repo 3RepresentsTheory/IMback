@@ -39,14 +39,31 @@ private:
 
 
 
-class tokenMap : public QMap<QUuid, SessionEntry>
+class tokenMap : public QMap<QUuid, SessionEntry*>
 {
 public:
     tokenMap() = default;
     // have to guarantee that token is vaild
-    int insertEntry(SessionEntry*maybeT){
+    int insertEntry(SessionEntry* maybeT){
         if(maybeT&&maybeT->token.has_value()){
-            QMap<QUuid,SessionEntry>::insert(maybeT->token.value(),*maybeT);
+            QMap<QUuid,SessionEntry*>::insert(maybeT->token.value(),maybeT);
+            return 0;
+        }else
+            return -1;
+    }
+
+
+};
+
+
+class idMap : public QMap<SessionEntry*, QUuid>
+{
+public:
+    idMap() = default;
+    // have to guarantee that token is vaild
+    int insertEntry(SessionEntry* maybeT){
+        if(maybeT&&maybeT->token.has_value()){
+            QMap<SessionEntry*,QUuid>::insert(maybeT,maybeT->token.value());
             return 0;
         }else
             return -1;

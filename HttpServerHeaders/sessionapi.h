@@ -18,6 +18,8 @@ public:
 
     SessionEntry* createEntryAndStart(qint64 id);
 
+    int authcookie(QUuid token);
+
     int addtoSessionlist(SessionEntry* entry);
 
     int removeEntry(SessionEntry * target);
@@ -25,6 +27,7 @@ public:
 
 private:
     tokenMap sessions;
+    idMap sessions2;
 };
 
 #endif // APIBEHAVIOR_H

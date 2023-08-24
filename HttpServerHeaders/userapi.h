@@ -13,7 +13,11 @@ public:
     string username;
     string password;
     string nickname;
-    User(const string &username, const string &password, const string &nickname);
+    string color;
+    string avatar;
+
+    User(const string &username, const string &password, const string &nickname,
+         const string &color,const string &avatar);
 
     static User formJsonObject(const QJsonObject &json) ;
     static QJsonObject toJsonObject(const string& nickname,const QUuid& token) ;
@@ -24,11 +28,16 @@ public:
 class UserApi {
 private:
     UserService* userService;
+    SessionApi* sessionApi;
 public:
+
+    UserApi(UserService *userService, SessionApi *sessionApi);
+
     QHttpServerResponse registerSession(const QHttpServerRequest &request);
     QHttpServerResponse login(const QHttpServerRequest &request);
 //    QHttpServerResponse logout(const QHttpServerRequest &request);
 
+    QHttpServerResponse info(const QHttpServerRequest &request);
 };
 
 

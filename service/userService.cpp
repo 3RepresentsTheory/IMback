@@ -52,7 +52,17 @@ map<string ,string > UserService::validateUserCredentials(const string &username
     return rc[0];
 }
 
-bool UserService::updateInfo(const string &nickname, const string &color,const string& avatar){
-    string sql = "UPDATE user SET nickname = CASE WHEN ? = '' THEN nickname ELSE ? END;";
-
+bool UserService::updateInfo(const int &id,const string &nickname, const string &color,const string& avatar){
+    string sql1 = "UPDATE user SET nickname = CASE WHEN ? = '' THEN nickname ELSE ? END WHERE id = ?;";
+    bool rc1 = baseDao->executeUpdate<string>(sql1,nickname,nickname,to_string(id));
+    string sql2 = "UPDATE userDetail SET nickname = CASE WHEN ? = '' THEN nickname ELSE ? END WHERE id = ?;";
+    bool rc2 = baseDao->executeUpdate<string>(sql2,nickname,nickname,to_string(id));
+    string sql3 = "UPDATE userDetail SET color = CASE WHEN ? = '' THEN color ELSE ? END WHERE id = ?;";
+    bool rc3 = baseDao->executeUpdate<string>(sql3,color,color,to_string(id));
+    string sql4 = "UPDATE userDetail SET avatar = CASE WHEN ? = '' THEN avatar ELSE ? END WHERE id = ?;";
+    bool rc4 = baseDao->executeUpdate<string>(sql4,avatar,avatar,to_string(id));
+    if(rc1&&rc2&&rc3&&rc4){
+        return true;
+    }
+    return false;
 }

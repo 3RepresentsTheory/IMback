@@ -6,6 +6,7 @@
 
 void userRouting(QHttpServer &HttpServer, UserApi &userApi);
 
+
 int main(int argc, char *argv[]) {
     QCoreApplication app(argc, argv);
 
@@ -23,9 +24,10 @@ int main(int argc, char *argv[]) {
     if (!parser.value("port").isEmpty())
         portArg = parser.value("port").toUShort();
 
+    SessionApi* sessionApi = new SessionApi();
     // add global session management
 
-    UserApi userApi;
+    UserApi userApi(new UserService(),sessionApi);
     // Setup QHttpServer for normal transaction
     QHttpServer httpServer;
     // route request
@@ -71,7 +73,7 @@ void userRouting(QHttpServer &HttpServer, UserApi &userApi){
     );
 
     HttpServer.route(
-            "/user/info", QHttpServerRequest::Method::Post,
+            "/user/info", QHttpServerRequest::Method::Put,
             [&userApi](const QHttpServerRequest &request) {
                 return userApi.info(request);
             }

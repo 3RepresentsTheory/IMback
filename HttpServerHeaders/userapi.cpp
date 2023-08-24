@@ -6,16 +6,20 @@
 #include "utils.h"
 
 
-User::User(const string &username, const string &password, const string &nickname) :
-            username(username),password(password),nickname(nickname) {}
+User::User(const string &username, const string &password, const string &nickname, const string &color,
+           const string &avatar) : username(username), password(password),
+           nickname(nickname), color(color),avatar(avatar) {}
 
 User::~User() {
 
 }
 
+UserApi::UserApi(UserService *userService, SessionApi *sessionApi) : userService(userService), sessionApi(sessionApi) {}
+
 User User::formJsonObject(const QJsonObject &json){
     map<string,string> reqParams = jsonToString(json);
-    User user = User(reqParams["username"],reqParams["password"],reqParams["nickname"]);
+    User user = User(reqParams["username"],reqParams["password"],
+                     reqParams["nickname"],reqParams["color"],reqParams["avatar"]);
     return user;
 }
 
@@ -25,6 +29,8 @@ QJsonObject User::toJsonObject(const string &nickname,const QUuid& token) {
             {"token",token.toString(QUuid::StringFormat::WithoutBraces)}
     };
 }
+
+
 
 QHttpServerResponse UserApi:: registerSession(const QHttpServerRequest &request) {
     const auto json = byteArrayToJsonObject(request.body());
@@ -73,11 +79,33 @@ QHttpServerResponse UserApi:: login(const QHttpServerRequest &request) {
             userService->validateUserCredentials(username,password);
     if(rc.empty())
         return QHttpServerResponse("用户名或密码错误",QHttpServerResponder::StatusCode::BadRequest);
-    SessionApi sessionApi = SessionApi();
-    SessionEntry *sessionEntry = sessionApi.createEntryAndStart(stoi(rc["id"]));
+
+    SessionEntry *sessionEntry = sessionApi->createEntryAndStart(stoi(rc["id"]));
 
     return QHttpServerResponse(User::toJsonObject(rc["nickname"],sessionEntry->token.value()));
 }
+
+QHttpServerResponse UserApi::info(const QHttpServerRequest &request) {
+    QUuid token = QUuid::fromString(getcookieFromRequest(request).value().toStdString());
+    int id = sessionApi->authcookie(token);
+    if(id==-1)
+        return QHttpServerResponse("无效token",QHttpServerResponder::StatusCode::BadRequest);
+    const auto json = byteArrayToJsonObject(request.body());
+    if (!json)
+        return QHttpServerResponse("Error", QHttpServerResponder::StatusCode::BadRequest);
+
+    User user = User::formJsonObject(json.value());
+    string nickname = user.nickname;
+    string color = user.color;
+    string avatar = user.avatar;
+    bool rc = userService->updateInfo(id,nickname,color,avatar);
+    if(!rc){
+        return QHttpServerResponse("Error", QHttpServerResponder::StatusCode::BadRequest);
+    }
+    return QHttpServerResponse("OK");
+}
+
+
 
 //
 //QHttpServerResponse UserApi::logout(const QHttpServerRequest &request) {
