@@ -14,11 +14,14 @@
 
 class SessionApi {
 public:
-    explicit SessionApi(
-            unique_ptr<FromJsonFactory<SessionEntry>> factory
-    )
-    :factory(std::move(factory)), userService(new UserService()) {
-    }
+    explicit SessionApi(): userService(new UserService()) {}
+
+    SessionEntry* createEntryAndStart(qint64 id);
+
+    int addtoSessionlist(SessionEntry* entry);
+
+    int removeEntry(SessionEntry * target);
+
 
     QHttpServerResponse registerSession(const QHttpServerRequest &request) {
         const auto json = byteArrayToJsonObject(request.body());
@@ -26,7 +29,7 @@ public:
         if (!json)
             return QHttpServerResponse("接收消息失败或为空", QHttpServerResponder::StatusCode::BadRequest);
 
-        SessionEntry *sessionEntry = factory->fromJson(*json);
+        SessionEntry *sessionEntry = ;
         if (!sessionEntry)
             return QHttpServerResponse("请输入完整的username,password,nickname,且不能为空",
                                        QHttpServerResponder::StatusCode::BadRequest);
@@ -100,8 +103,7 @@ public:
     }
 
 private:
-    tokenMap<SessionEntry> sessions;
-    unique_ptr<FromJsonFactory<SessionEntry>> factory;
+    tokenMap sessions;
     UserService *userService;
 };
 

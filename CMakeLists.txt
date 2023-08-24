@@ -12,11 +12,22 @@ find_package(Qt6 COMPONENTS Core Gui Widgets Network HttpServer REQUIRED)
 
 set(SOURCES
         dispatcher.cpp
-        sqlite/sqlite3.c Dao/userDao.cpp service/userService.cpp Dao/BaseDao.cpp )
+        sqlite/sqlite3.c
+        Dao/userDao.cpp
+        service/userService.cpp
+        Dao/BaseDao.cpp
+        HttpServerHeaders/sessionapi.cpp
+        )
 
 set(HEADERS
-        HttpServerHeaders/apibehavior.h HttpServerHeaders/types.h HttpServerHeaders/utils.h
-        sqlite/sqlite3.h  Dao/userDao.h  Dao/BaseDao.h service/userService.h)
+#        HttpServerHeaders/sessionapi.h
+        HttpServerHeaders/types.h
+        HttpServerHeaders/utils.h
+        sqlite/sqlite3.h
+        Dao/userDao.h
+        Dao/BaseDao.h
+        service/userService.h
+        )
 
 add_executable(Demo02 ${SOURCES} ${HEADERS})
 

@@ -1,4 +1,4 @@
-#include "HttpServerHeaders/apibehavior.h"
+#include "HttpServerHeaders/sessionapi.h"
 #include "HttpServerHeaders/types.h"
 #include "HttpServerHeaders/utils.h"
 #include <QtCore/QCoreApplication>
@@ -27,8 +27,7 @@ int main(int argc, char *argv[]) {
         portArg = parser.value("port").toUShort();
 
     // add global session management
-    auto sessionEntryFactory = make_unique<SessionEntryFactory>();
-    SessionApi sessionApi(std::move(sessionEntryFactory));
+    SessionApi sessionApi;
 
     // Setup QHttpServer for normal transaction
     QHttpServer httpServer;
@@ -82,15 +81,15 @@ void serverRouting(QHttpServer &httpServer,SessionApi &sessionApi){
     );
 
     // Message transaction module
-//    httpServer.route(
-//            "/message/send",QHttpServerRequest::Method::Post,
-//
-//    );
-//
-//    httpServer.route(
-//            "/message/history",QHttpServerRequest::Method::Get,
-//
-//    );
+    httpServer.route(
+            "/message/send",QHttpServerRequest::Method::Post,
+
+    );
+
+    httpServer.route(
+            "/message/history",QHttpServerRequest::Method::Get,
+
+    );
 
     // Friend transaction module
 }
