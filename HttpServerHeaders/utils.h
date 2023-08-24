@@ -13,8 +13,7 @@
 #include <optional>
 #include "types.h"
 
-static std::optional<QByteArray> readFileToByteArray(const QString &path)
-{
+static std::optional<QByteArray> readFileToByteArray(const QString &path) {
     QFile file(path);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
         return std::nullopt;
@@ -22,8 +21,7 @@ static std::optional<QByteArray> readFileToByteArray(const QString &path)
     return file.readAll();
 }
 
-static std::optional<QJsonArray> byteArrayToJsonArray(const QByteArray &arr)
-{
+static std::optional<QJsonArray> byteArrayToJsonArray(const QByteArray &arr) {
     QJsonParseError err;
     const auto json = QJsonDocument::fromJson(arr, &err);
     if (err.error || !json.isArray())
@@ -31,8 +29,7 @@ static std::optional<QJsonArray> byteArrayToJsonArray(const QByteArray &arr)
     return json.array();
 }
 
-static std::optional<QJsonObject> byteArrayToJsonObject(const QByteArray &arr)
-{
+static std::optional<QJsonObject> byteArrayToJsonObject(const QByteArray &arr) {
     QJsonParseError err;
     const auto json = QJsonDocument::fromJson(arr, &err);
     if (err.error || !json.isObject())
@@ -41,9 +38,8 @@ static std::optional<QJsonObject> byteArrayToJsonObject(const QByteArray &arr)
 }
 
 static QByteArray getValueFromHeader(const QList<QPair<QByteArray, QByteArray>> &headers,
-                                     const QString &keyToFind)
-{
-    for (const auto &[key, value] : headers) {
+                                     const QString &keyToFind) {
+    for (const auto &[key, value]: headers) {
         if (key == keyToFind) {
             return value;
         }
@@ -51,13 +47,29 @@ static QByteArray getValueFromHeader(const QList<QPair<QByteArray, QByteArray>> 
     return QByteArray();
 }
 
-static std::optional<QString> getcookieFromRequest(const QHttpServerRequest &request)
-{
+static std::optional<QString> getcookieFromRequest(const QHttpServerRequest &request) {
     std::optional<QString> cookie;
     if (auto bytes = getValueFromHeader(request.headers(), "cookie"); !bytes.isEmpty()) {
         cookie = bytes;
     }
     return cookie;
+}
+
+inline map<string, string> jsonToString(const QJsonObject jsonObject) {
+    map<string, string> result;
+
+
+    for (auto it = jsonObject.begin(); it != jsonObject.end(); ++it) {
+        QString key = it.key();
+        QString value = it.value().toString();
+
+        string stdKey = key.toStdString();
+        string stdValue = value.toStdString();
+
+        result[stdKey] = stdValue;
+    }
+
+    return result;
 }
 
 #endif // UTILS_H

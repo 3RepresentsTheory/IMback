@@ -8,6 +8,7 @@ SessionEntry *SessionApi::createEntryAndStart(qint64 id) {
     sessionEntry->startSession();
     sessionEntry->id = id;
     sessions.insertEntry(sessionEntry);
+    sessions2.insertEntry(sessionEntry);
     return sessionEntry;
 }
 
@@ -17,4 +18,12 @@ int SessionApi::addtoSessionlist(SessionEntry *entry) {
 
 int SessionApi::removeEntry(SessionEntry *target) {
     return 0;
+}
+
+int SessionApi::authcookie(QUuid token) {
+    SessionEntry* sessionEntry = sessions[token];
+    if(sessionEntry== nullptr){
+        return -1;
+    }
+    return sessionEntry->id;
 }
