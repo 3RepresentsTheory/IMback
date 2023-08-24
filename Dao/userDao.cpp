@@ -17,7 +17,7 @@ UserDao::~UserDao() {
 }
 
 bool UserDao::insertUser(const string &username, const string &password, const string &nickname) {
-    std::string query = "INSERT INTO user (username, password, nickname) VALUES (?, ?, ?);";
+    std::string query = "INSERT INTO user(username, password, nickname) VALUES (?, ?, ?);";
 
     sqlite3_stmt *stmt;
     int rc = sqlite3_prepare_v2(db, query.c_str(), -1, &stmt, nullptr);
@@ -194,4 +194,4 @@ bool UserDao::updateUserNickname(const std::string &username, const std::string 
     return true;
 }
 
-string UserDao::dbPath = "./test.db";
+string UserDao::dbPath = "../test.db";

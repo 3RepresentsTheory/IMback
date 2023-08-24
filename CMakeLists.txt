@@ -11,7 +11,7 @@ set(CMAKE_AUTORCC ON)
 find_package(Qt6 COMPONENTS Core Gui Widgets Network HttpServer REQUIRED)
 
 set(SOURCES
-        dispacher.cpp
+        dispatcher.cpp
         sqlite/sqlite3.c Dao/userDao.cpp)
 
 set(HEADERS

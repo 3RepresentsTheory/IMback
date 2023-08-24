@@ -10,15 +10,11 @@
 #include <QtCore/QJsonParseError>
 #include <QtCore/QString>
 #include <QtCore/qtypes.h>
-
+#include <string>
 #include <algorithm>
 #include <optional>
 
-struct Jsonable
-{
-    virtual QJsonObject toJson() const = 0;
-    virtual ~Jsonable() = default;
-};
+using namespace std;
 
 template<typename T>
 struct FromJsonFactory
@@ -27,15 +23,15 @@ struct FromJsonFactory
     virtual ~FromJsonFactory() = default;
 };
 
-struct SessionEntry : public Jsonable
+struct SessionEntry
 {
     qint64 id;
-    QString username;
-    QString password;
-    QString nickname;
+    string username;
+    string password;
+    string nickname;
     std::optional<QUuid> token;
 
-    explicit SessionEntry(const QString &username, const QString &password, const QString &nickname)
+    explicit SessionEntry(const string &username, const string &password, const string &nickname)
             : username(username), password(password), nickname(nickname)
     {
     }
@@ -44,13 +40,27 @@ struct SessionEntry : public Jsonable
 
     void endSession() { token = std::nullopt; }
 
-    QJsonObject toJson() const override
+    QJsonObject registerJson()
     {
         return token
                ? QJsonObject{ { "id", id },
                               { "token", token->toString(QUuid::StringFormat::WithoutBraces) } }
                : QJsonObject{};
     }
+
+    QJsonObject loginJson()
+    {
+        QJsonObject jsonObject;
+
+        if (token)
+        {
+            jsonObject["nickname"] = QString::fromStdString(nickname);
+            jsonObject["token"] = token->toString(QUuid::StringFormat::WithoutBraces);
+        }
+
+        return jsonObject;
+    }
+
 
     bool operator==(const QString &otherToken) const
     {
@@ -74,7 +84,7 @@ struct SessionEntryFactory : public FromJsonFactory<SessionEntry>
         if (!json.contains("username") || !json.contains("password") ||!json.contains("nickname")
         ||json.value("username").isNull()||json.value("password").isNull()||json.value("nickname").isNull())
             return nullptr;
-        return new SessionEntry(json.value("username").toString(), json.value("password").toString(),json.value("nickname").toString());
+        return new SessionEntry(json.value("username").toString().toStdString(), json.value("password").toString().toStdString(),json.value("nickname").toString().toStdString());
     }
 };
 
