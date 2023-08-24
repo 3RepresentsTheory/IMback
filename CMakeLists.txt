@@ -18,7 +18,7 @@ set(SOURCES
         Dao/BaseDao.cpp
         HttpServerHeaders/sessionapi.cpp
         HttpServerHeaders/messageapi.cpp
-        )
+        service/messageService.cpp)
 
 set(HEADERS
 #        HttpServerHeaders/sessionapi.h

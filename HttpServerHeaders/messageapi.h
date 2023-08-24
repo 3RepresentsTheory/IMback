@@ -8,6 +8,7 @@
 
 #include <QHttpServerRequest>
 #include <QHttpServerResponse>
+#include "../service/messageService.h"
 
 class Jsonable{
 public:
@@ -32,6 +33,7 @@ public:
 
     bool fromQJsonObject(const QJsonObject &) override;
     QJsonObject toQJsonObject() override;
+
 };
 
 
@@ -39,10 +41,11 @@ public:
 
 class MessageApi {
 public:
-    MessageApi(){};
+    MessageApi():service(MessageService()){};
     QHttpServerResponse handleSentMessageRequest(const QHttpServerRequest &request);
 private:
-    int broadcastMessageToGroup(int gid, QString messagetext);
+    bool broadcastMessageToGroup(Message message);
+    MessageService service;
 };
 
 
