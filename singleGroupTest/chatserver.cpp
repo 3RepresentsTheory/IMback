@@ -103,10 +103,12 @@ void ChatBroadcastServer::onNewConnection()
 
 
 void ChatBroadcastServer::onUpgradeToSocketAuth(const QString &message) {
+    qDebug() << message ;
     QWebSocket *pSender = qobject_cast<QWebSocket *>(sender());
-    if(xx){
+    if(message=="just test"){
         // if auth passed: stop timer and add to broadcast list
         m_socketTimers[pSender]->stop();
+        m_socketTimers[pSender]->deleteLater();
         m_socketTimers.remove(pSender);
         // add to broadcast list
         m_clients <<  pSender;
@@ -115,10 +117,6 @@ void ChatBroadcastServer::onUpgradeToSocketAuth(const QString &message) {
         closeWaitWsocket(pSender,"Connection authentication failed. Access denied.");
     }
 
-//    for (QWebSocket *pClient : std::as_const(m_clients)) {
-//        if (pClient != pSender) //don't echo message back to sender
-//            pClient->sendTextMessage(message);
-//    }
 }
 
 
@@ -130,5 +128,18 @@ void ChatBroadcastServer::socketDisconnected()
     {
         m_clients.removeAll(pClient);
         pClient->deleteLater();
+    }
+}
+
+void ChatBroadcastServer::testBroadCast() {
+    for (QWebSocket *pClient : std::as_const(m_clients)) {
+            pClient->sendTextMessage("broadcast message");
+    }
+}
+
+void ChatBroadcastServer::testOnline() {
+    QTextStream(stdout) <<"current online member:\n";
+    for (QWebSocket *pClient : std::as_const(m_clients)) {
+        QTextStream(stdout) << getIdentifier(pClient) << "is online!\n";
     }
 }

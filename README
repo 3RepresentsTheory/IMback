@@ -1,3 +1,31 @@
 一个简单的IM及时聊天程序后端，使用C++ QT进行开发
 Developer : 伍卓珩，秦崇
 pseudo test
+
+
+commit规范：
+commit message格式
+<type>(<scope>): <subjecta>
+<commit只类型>(影响范围): 具体描述
+
+举例 fix(DAO): fixed invalid user table indexes
+
+type指明git commit的类别，应该使用以下类型，也可根据团队自行增减
+[feat]:新增功能
+[fix] : 修复 bug
+[docs]: 仅仅修改了文档，比如 README,CHANGELOG等等
+[test] : 增加/修改测试用例Q，包括单元测试、集成测试等
+[style]: 修改了空行、缩进格式、引用包排序等等 (不改变代码逻辑)
+[perf] :优化相关内容，比如提升性能、体验、算法等
+[refactor] :代码重构Q，，(没有新功能或者bug修复)
+[chore]:改变构建流程、或者增加依赖库、工具等
+[revert] :回滚到上一个版本
+[merge] :代码合并
+
+scope (可选)
+scope用于说明 commit 影响的范围，根据不同项目有不同层次描述。若没有特殊规定，也可以描述影响的哪些功能等
+
+subiect是commit目的的简短描述，不超过50/80个字符，一般git提交的时候会有颜色提示
+若英文用不惯，那么推荐使用中文
+若是开源代码，一律推荐统一英文，英文不行可以翻译软件只用起来若是开源代码Q，可以再附加对应的issue地址
+结尾不加标点符号

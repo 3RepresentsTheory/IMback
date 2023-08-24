@@ -10,7 +10,7 @@
 #include <QFile>
 #include <QJsonObject>
 #include <QString>
-
+#include <QtConcurrent/QtConcurrent>
 #include "chatserver.h"
 
 using namespace Qt::StringLiterals;
@@ -25,55 +25,70 @@ int main(int argc, char *argv[])
     ChatBroadcastServer server(1235);
     QHttpServer httpServer;
     httpServer.route(
-            "/", []() {
-                return "Hello world";
+            "/broadcast", [&server]() {
+                server.testBroadCast();
+                return QHttpServerResponse("text/plain", "Success\n");
             }
     );
+
     httpServer.route(
-            "/query",
-            [] (const QHttpServerRequest &request) {
-                return host(request) + u"/query/"_s;
+            "/checkonline", [&server]() {
+                server.testOnline();
+                return QHttpServerResponse("text/plain", "Success\n");
             }
     );
-    httpServer.route("/json/", [] {
-        return QJsonObject{
-                {
-                        {"key1", "1"},
-                        {"key2", "2"},
-                        {"key3", "3"}
-                }
-        };
-    });
-
-    httpServer.route("/assets/<arg>", [] (const QUrl &url) {
-        return QHttpServerResponse::fromFile(u":/assets/"_s + url.path());
-    });
-
-    httpServer.route("/remote_address", [](const QHttpServerRequest &request) {
-        return request.remoteAddress().toString();
-    });
-
-    // Basic authentication example (RFC 7617)
-    httpServer.route("/auth", [](const QHttpServerRequest &request) {
-        auto auth = request.value("authorization").simplified();
-
-        if (auth.size() > 6 && auth.first(6).toLower() == "basic ") {
-            auto token = auth.sliced(6);
-            auto userPass = QByteArray::fromBase64(token);
-
-            if (auto colon = userPass.indexOf(':'); colon > 0) {
-                auto userId = userPass.first(colon);
-                auto password = userPass.sliced(colon + 1);
-
-                if (userId == "Aladdin" && password == "open sesame")
-                    return QHttpServerResponse("text/plain", "Success\n");
-            }
-        }
-        QHttpServerResponse response("text/plain", "Authentication required\n",
-                                     QHttpServerResponse::StatusCode::Unauthorized);
-        response.setHeader("WWW-Authenticate", R"(Basic realm="Simple example", charset="UTF-8")");
-        return response;
-    });
+//    httpServer.route(
+//            "/query",
+//            [] (const QHttpServerRequest &request) {
+//                QThread* currentThread = QThread::currentThread();
+//                qDebug() << "Current Thread ID: " << currentThread->currentThreadId();
+//                qDebug() << "Current Thread Name: " << currentThread->objectName();
+//                return host(request) + u"/query/"_s;
+//            }
+//    );
+//    httpServer.route("/json/", [] {
+//        QThread* currentThread = QThread::currentThread();
+//        qDebug() << "Current Thread ID: " << currentThread->currentThreadId();
+//        qDebug() << "Current Thread Name: " << currentThread->objectName();
+//
+//        return QJsonObject{
+//                {
+//                        {"key1", "1"},
+//                        {"key2", "2"},
+//                        {"key3", "3"}
+//                }
+//        };
+//    });
+//
+//    httpServer.route("/assets/<arg>", [] (const QUrl &url) {
+//        return QHttpServerResponse::fromFile(u":/assets/"_s + url.path());
+//    });
+//
+//    httpServer.route("/remote_address", [](const QHttpServerRequest &request) {
+//        return request.remoteAddress().toString();
+//    });
+//
+//    // Basic authentication example (RFC 7617)
+//    httpServer.route("/auth", [](const QHttpServerRequest &request) {
+//        auto auth = request.value("authorization").simplified();
+//
+//        if (auth.size() > 6 && auth.first(6).toLower() == "basic ") {
+//            auto token = auth.sliced(6);
+//            auto userPass = QByteArray::fromBase64(token);
+//
+//            if (auto colon = userPass.indexOf(':'); colon > 0) {
+//                auto userId = userPass.first(colon);
+//                auto password = userPass.sliced(colon + 1);
+//
+//                if (userId == "Aladdin" && password == "open sesame")
+//                    return QHttpServerResponse("text/plain", "Success\n");
+//            }
+//        }
+//        QHttpServerResponse response("text/plain", "Authentication required\n",
+//                                     QHttpServerResponse::StatusCode::Unauthorized);
+//        response.setHeader("WWW-Authenticate", R"(Basic realm="Simple example", charset="UTF-8")");
+//        return response;
+//    });
 
     //! [Using afterRequest()]
     httpServer.afterRequest([](QHttpServerResponse &&resp) {

@@ -19,7 +19,7 @@ qt_add_executable(singleGroupTest
     chatserver.cpp
     chatserver.h
     main.cpp
-)
+        ../testClientAndReceiveApi/ClientListen.h ../testClientAndReceiveApi/ClientListen.cpp)
 
 set_target_properties(singleGroupTest PROPERTIES
     WIN32_EXECUTABLE FALSE

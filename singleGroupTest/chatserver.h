@@ -6,7 +6,7 @@
 #include <QTimer>
 #include <QMap>
 
-#define AUTHTIMEOUT 1000
+#define AUTHTIMEOUT 2000
 
 QT_FORWARD_DECLARE_CLASS(QWebSocketServer)
 QT_FORWARD_DECLARE_CLASS(QWebSocket)
@@ -18,6 +18,10 @@ class ChatBroadcastServer : public QObject
 public:
     explicit ChatBroadcastServer(quint16 port, QObject *parent = nullptr);
     ~ChatBroadcastServer() override;
+
+    void testBroadCast();
+    void testOnline();
+
 private:
     void closeWaitWsocket(QWebSocket*,QString errorMsg);
 
