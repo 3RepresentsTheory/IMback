@@ -6,7 +6,17 @@
 #define DEMO02_MESSAGESERVICE_H
 
 
-class messageService {
+class MessageService {
+private:
+    BaseDao* baseDao;
+public:
+    MessageService();
+    ~MessageService();
+
+    bool StoreMessage(const Message& message );
+
+    Message GetMessage(qint32 message_id );
+    QVector<Message> GetMessagelistByTime(int timestamp);
 
 };
 

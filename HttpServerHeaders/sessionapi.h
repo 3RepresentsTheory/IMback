@@ -29,7 +29,7 @@ public:
         if (!json)
             return QHttpServerResponse("接收消息失败或为空", QHttpServerResponder::StatusCode::BadRequest);
 
-        SessionEntry *sessionEntry = ;
+//        SessionEntry *sessionEntry = ;
         if (!sessionEntry)
             return QHttpServerResponse("请输入完整的username,password,nickname,且不能为空",
                                        QHttpServerResponder::StatusCode::BadRequest);
