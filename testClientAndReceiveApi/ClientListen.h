@@ -19,36 +19,39 @@ QT_FORWARD_DECLARE_CLASS(QWebSocket)
 #define SERVER_URL "127.0.0.1"
 #define BCAST_PORT "1235"
 
+/*
+ * ClientListener : add websocket listener
+ * need to first connect the signals to self defined slots,
+ * then register a listener with auth token,
+ *
+ * use case:
+ *
+ * ClientListener clientlistener(
+ *      handleOpenFunc,
+ *      handleCloseFunc,
+ *      handleMessageFunc,
+ *      handleErrorFunc,
+ * );
+ * clientlistener.registerListener(token)
+ *
+ */
 
-class ClientListen:public QObject
+class ClientListener: public QObject
 {
     Q_OBJECT
 public:
-    explicit ClientListen(QNetworkAccessManager *requester);
-    void registerLisner(QString authtoken);
-
+    explicit ClientListener(
+            const std::function<void()>& onOpen,
+            const std::function<void()>& onClose,
+            const std::function<void(const QString&)>& onMessage,
+            const std::function<void(QAbstractSocket::SocketError)>& onError);
+    void registerListner(QString authtoken);
 signals:
-    void connected();
-    void disconnected();
-    void messageReceived(const QString &message);
-    void errorOccurred(QAbstractSocket::SocketError error);
+    void CLError(QAbstractSocket::SocketError error){onError(error);};
 
-private slots:
-    void onConnected(){
-        emit connected();
-    }
-    void onDisconnected(){
-        emit disconnected();
-    }
-    // can modify later to jsonfy or formalize the broadcast message
-    void onTextMessageReceived(const QString &message){
-        emit messageReceived(message);
-    }
-    void onError(QAbstractSocket::SocketError error){
-        emit errorOccurred(error);
-    }
 private:
     QWebSocket*websocket;
+    const std::function<void(QAbstractSocket::SocketError)>& onError;
 };
 
 

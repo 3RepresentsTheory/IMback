@@ -32,7 +32,6 @@ void ChatBroadcastServer::closeWaitWsocket(QWebSocket *wsocket,QString errorMsg)
 
 }
 
-//! [constructor]
 ChatBroadcastServer::ChatBroadcastServer(quint16 port, QObject *parent) :
     QObject(parent),
     m_pWebSocketServer(
