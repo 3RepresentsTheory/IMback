@@ -9,16 +9,15 @@
 #include <QtHttpServer/QHttpServer>
 #include <QtConcurrent/qtconcurrentrun.h>
 #include <string>
-
+#include "../service/userService.h"
 #include <optional>
 
 class SessionApi {
 public:
     explicit SessionApi(
-            const tokenMap<SessionEntry> &sessions,
-            std::unique_ptr<FromJsonFactory<SessionEntry>> factory
+            unique_ptr<FromJsonFactory<SessionEntry>> factory
     )
-    : sessions(sessions), factory(std::move(factory)), userDao(new UserDao()) {
+    :factory(std::move(factory)), userService(new UserService()) {
     }
 
     QHttpServerResponse registerSession(const QHttpServerRequest &request) {
@@ -32,17 +31,17 @@ public:
             return QHttpServerResponse("请输入完整的username,password,nickname,且不能为空",
                                        QHttpServerResponder::StatusCode::BadRequest);
 
-        if (userDao->isUsernameExists(sessionEntry->username)) {
+        if (userService->isUsernameExists(sessionEntry->username)) {
             return QHttpServerResponse("用户名已存在，请重试", QHttpServerResponder::StatusCode::BadRequest);
         }
 
-        if (userDao->isNicknameExists(sessionEntry->nickname)) {
+        if (userService->isNicknameExists(sessionEntry->nickname)) {
             return QHttpServerResponse("昵称已存在，请重试", QHttpServerResponder::StatusCode::BadRequest);
         }
 
-        userDao->insertUser(sessionEntry->username, sessionEntry->password, sessionEntry->nickname);
+        userService->insertUser(sessionEntry->username, sessionEntry->password, sessionEntry->nickname);
 
-        sessionEntry->id = userDao->selectIdByName(sessionEntry->username);
+        sessionEntry->id = userService->selectIdByName(sessionEntry->username);
         sessionEntry->startSession();
 
         return QHttpServerResponse(sessionEntry->registerJson());
@@ -67,25 +66,23 @@ public:
             );
         }
 
-        UserCredentials userCredentials =
-                userDao->validateUserCredentials(
+        string nickname =
+                userService->validateUserCredentials(
                     json->value("username").toString().toStdString(),
                     json->value("password").toString().toStdString()
         );
 
         SessionEntry *sessionEntry = nullptr;
 
-        if (!get<0>(userCredentials)) {
+        if (nickname.length()==0) {
             return QHttpServerResponse("用户名或密码错误", QHttpServerResponder::StatusCode::BadRequest);
         } else {
             sessionEntry = new SessionEntry(
-                    get<1>(userCredentials),
-                    get<2>(userCredentials),
-                    get<3>(userCredentials)
+                    json->value("username").toString().toStdString(),
+                    json->value("password").toString().toStdString(),
+                    nickname
             );
-            sessionEntry->id = get<4>(userCredentials);
         }
-
         sessionEntry->startSession();
         return QHttpServerResponse(sessionEntry->loginJson());
     }
@@ -104,8 +101,8 @@ public:
 
 private:
     tokenMap<SessionEntry> sessions;
-    std::unique_ptr<FromJsonFactory<SessionEntry>> factory;
-    UserDao *userDao;
+    unique_ptr<FromJsonFactory<SessionEntry>> factory;
+    UserService *userService;
 };
 
 #endif // APIBEHAVIOR_H

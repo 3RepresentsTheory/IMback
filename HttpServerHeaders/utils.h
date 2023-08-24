@@ -40,23 +40,6 @@ static std::optional<QJsonObject> byteArrayToJsonObject(const QByteArray &arr)
     return json.object();
 }
 
-template<typename T>
-static IdMap<T> tryLoadFromFile(const FromJsonFactory<T> &itemFactory, const QString &path)
-{
-    const auto maybeBytes = readFileToByteArray(path);
-    if (maybeBytes) {
-        const auto maybeArray = byteArrayToJsonArray(*maybeBytes);
-        if (maybeArray) {
-            return IdMap<T>(itemFactory, *maybeArray);
-        } else {
-            qDebug() << "Content of " << path << " is not json array.";
-        }
-    } else {
-        qDebug() << "Reading file " << path << " failed.";
-    }
-    return IdMap<T>();
-}
-
 static QByteArray getValueFromHeader(const QList<QPair<QByteArray, QByteArray>> &headers,
                                      const QString &keyToFind)
 {

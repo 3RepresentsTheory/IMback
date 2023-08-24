@@ -27,9 +27,8 @@ int main(int argc, char *argv[]) {
         portArg = parser.value("port").toUShort();
 
     // add global session management
-    auto sessionEntryFactory = std::make_unique<SessionEntryFactory>();
-    auto sessions = tryLoadFromFile<SessionEntry>(*sessionEntryFactory, "./sourceFiles/sessions.json");
-    SessionApi sessionApi(std::move(sessions), std::move(sessionEntryFactory));
+    auto sessionEntryFactory = make_unique<SessionEntryFactory>();
+    SessionApi sessionApi(std::move(sessionEntryFactory));
 
     // Setup QHttpServer for normal transaction
     QHttpServer httpServer;
@@ -83,15 +82,15 @@ void serverRouting(QHttpServer &httpServer,SessionApi &sessionApi){
     );
 
     // Message transaction module
-    httpServer.route(
-            "/message/send",QHttpServerRequest::Method::Post,
-
-    );
-
-    httpServer.route(
-            "/message/history",QHttpServerRequest::Method::Get,
-
-    );
+//    httpServer.route(
+//            "/message/send",QHttpServerRequest::Method::Post,
+//
+//    );
+//
+//    httpServer.route(
+//            "/message/history",QHttpServerRequest::Method::Get,
+//
+//    );
 
     // Friend transaction module
 }
