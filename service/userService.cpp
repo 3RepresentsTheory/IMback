@@ -51,3 +51,8 @@ map<string ,string > UserService::validateUserCredentials(const string &username
         return rcMap;
     return rc[0];
 }
+
+bool UserService::updateInfo(const string &nickname, const string &color,const string& avatar){
+    string sql = "UPDATE user SET nickname = CASE WHEN ? = '' THEN nickname ELSE ? END;";
+
+}

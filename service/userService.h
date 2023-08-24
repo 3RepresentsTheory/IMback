@@ -17,6 +17,7 @@ public:
     bool isUsernameExists(const std::string& username);
     bool isNicknameExists(const std::string& nickname);
     map<string ,string > validateUserCredentials(const string& username, const string& password);
+    bool updateInfo(const string &nickname, const string &color, const string &avatar);
 };
 
 

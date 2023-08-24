@@ -4,7 +4,7 @@
 #define PORT 49425
 
 
-void serverRouting(QHttpServer &HttpServer,UserApi &userApi);
+void userRouting(QHttpServer &HttpServer, UserApi &userApi);
 
 int main(int argc, char *argv[]) {
     QCoreApplication app(argc, argv);
@@ -29,7 +29,7 @@ int main(int argc, char *argv[]) {
     // Setup QHttpServer for normal transaction
     QHttpServer httpServer;
     // route request
-    serverRouting(httpServer,userApi);
+    userRouting(httpServer, userApi);
 
     // start server listen
     const auto port = httpServer.listen(QHostAddress::Any, portArg);
@@ -48,25 +48,32 @@ int main(int argc, char *argv[]) {
 }
 
 
-void serverRouting(QHttpServer &httpServer,UserApi &userApi){
-    httpServer.route(
+void userRouting(QHttpServer &HttpServer, UserApi &userApi){
+    HttpServer.route(
             "/",
             []() {
                 return "Qt Colorpalette example server. Please see documentation for API description";
             }
     );
     // User module
-    httpServer.route(
+    HttpServer.route(
             "/user/login", QHttpServerRequest::Method::Post,
             [&userApi](const QHttpServerRequest &request) {
                 return userApi.login(request);
             }
     );
 
-    httpServer.route(
+    HttpServer.route(
             "/user/register", QHttpServerRequest::Method::Post,
             [&userApi](const QHttpServerRequest &request) {
                 return userApi.registerSession(request);
+            }
+    );
+
+    HttpServer.route(
+            "/user/info", QHttpServerRequest::Method::Post,
+            [&userApi](const QHttpServerRequest &request) {
+                return userApi.info(request);
             }
     );
 
