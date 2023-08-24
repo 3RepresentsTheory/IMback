@@ -1,6 +1,3 @@
-// Copyright (C) 2022 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR BSD-3-Clause
-
 #include "HttpServerHeaders/apibehavior.h"
 #include "HttpServerHeaders/types.h"
 #include "HttpServerHeaders/utils.h"
@@ -9,47 +6,37 @@
 
 #define PORT 49425
 
-int main(int argc, char *argv[])
-{
+
+void serverRouting(QHttpServer &HttpServer,SessionApi &sessionapi);
+
+int main(int argc, char *argv[]) {
     QCoreApplication app(argc, argv);
 
+    // parse start up command line port argument
     QCommandLineParser parser;
-    parser.addOptions({
-                              { "port", QCoreApplication::translate("main", "The port the server listens on."),
-                                "port" },
-                      });
+    parser.addOptions(
+       {
+         {"port", QCoreApplication::translate("main", "The port the server listens on."),
+          "port"},
+       }
+    );
     parser.addHelpOption();
     parser.process(app);
-
     quint16 portArg = PORT;
     if (!parser.value("port").isEmpty())
         portArg = parser.value("port").toUShort();
 
+    // add global session management
     auto sessionEntryFactory = std::make_unique<SessionEntryFactory>();
     auto sessions = tryLoadFromFile<SessionEntry>(*sessionEntryFactory, "./sourceFiles/sessions.json");
     SessionApi sessionApi(std::move(sessions), std::move(sessionEntryFactory));
 
-    // Setup QHttpServer
+    // Setup QHttpServer for normal transaction
     QHttpServer httpServer;
-    httpServer.route("/", []() {
-        return "Qt Colorpalette example server. Please see documentation for API description";
-    });
+    // route request
+    serverRouting(httpServer,sessionApi);
 
-    // Login resource
-    httpServer.route(
-            "/api/login", QHttpServerRequest::Method::Post,
-            [&sessionApi](const QHttpServerRequest &request) { return sessionApi.login(request); });
-
-    httpServer.route("/api/register", QHttpServerRequest::Method::Post,
-                     [&sessionApi](const QHttpServerRequest &request) {
-                         return sessionApi.registerSession(request);
-                     });
-
-    httpServer.route("/api/logout", QHttpServerRequest::Method::Post,
-                     [&sessionApi](const QHttpServerRequest &request) {
-                         return sessionApi.logout(request);
-                     });
-
+    // start server listen
     const auto port = httpServer.listen(QHostAddress::Any, portArg);
     if (!port) {
         qDebug() << QCoreApplication::translate("QHttpServerExample",
@@ -63,4 +50,48 @@ int main(int argc, char *argv[])
             .arg(port);
 
     return app.exec();
+}
+
+
+void serverRouting(QHttpServer &httpServer,SessionApi &sessionApi){
+    httpServer.route(
+            "/",
+            []() {
+                return "Qt Colorpalette example server. Please see documentation for API description";
+            }
+    );
+    // User module
+    httpServer.route(
+            "/user/login", QHttpServerRequest::Method::Post,
+            [&sessionApi](const QHttpServerRequest &request) {
+                return sessionApi.login(request);
+            }
+    );
+
+    httpServer.route(
+            "/user/register", QHttpServerRequest::Method::Post,
+            [&sessionApi](const QHttpServerRequest &request) {
+                return sessionApi.registerSession(request);
+            }
+    );
+
+    httpServer.route(
+            "/user/logout", QHttpServerRequest::Method::Post,
+            [&sessionApi](const QHttpServerRequest &request) {
+                return sessionApi.logout(request);
+            }
+    );
+
+    // Message transaction module
+    httpServer.route(
+            "/message/send",QHttpServerRequest::Method::Post,
+
+    );
+
+    httpServer.route(
+            "/message/history",QHttpServerRequest::Method::Get,
+
+    );
+
+    // Friend transaction module
 }

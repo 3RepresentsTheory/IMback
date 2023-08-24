@@ -26,19 +26,18 @@ struct FromJsonFactory
 struct SessionEntry
 {
     qint64 id;
+
     string username;
     string password;
     string nickname;
+
     std::optional<QUuid> token;
 
     explicit SessionEntry(const string &username, const string &password, const string &nickname)
-            : username(username), password(password), nickname(nickname)
-    {
-    }
+            : username(username), password(password), nickname(nickname){}
 
     void startSession() { token = generateToken(); }
-
-    void endSession() { token = std::nullopt; }
+    void endSession()   { token = std::nullopt   ; }
 
     QJsonObject registerJson()
     {
@@ -55,7 +54,7 @@ struct SessionEntry
         if (token)
         {
             jsonObject["nickname"] = QString::fromStdString(nickname);
-            jsonObject["token"] = token->toString(QUuid::StringFormat::WithoutBraces);
+            jsonObject["token"]    = token->toString(QUuid::StringFormat::WithoutBraces);
         }
 
         return jsonObject;
@@ -68,7 +67,9 @@ struct SessionEntry
     }
 
 private:
-    QUuid generateToken() { return QUuid::createUuid(); }
+    QUuid generateToken() {
+        return QUuid::createUuid();
+    }
 
     static qint64 nextId()
     {
@@ -77,16 +78,32 @@ private:
     }
 };
 
+
+
 struct SessionEntryFactory : public FromJsonFactory<SessionEntry>
 {
     SessionEntry* fromJson(const QJsonObject &json) const override
     {
-        if (!json.contains("username") || !json.contains("password") ||!json.contains("nickname")
-        ||json.value("username").isNull()||json.value("password").isNull()||json.value("nickname").isNull())
+        if (
+           !json.contains("username")||
+           !json.contains("password")||
+           !json.contains("nickname")||
+           json.value("username").isNull()||
+           json.value("password").isNull()||
+           json.value("nickname").isNull()
+        )
             return nullptr;
-        return new SessionEntry(json.value("username").toString().toStdString(), json.value("password").toString().toStdString(),json.value("nickname").toString().toStdString());
+        return new
+            SessionEntry(
+                    json.value("username").toString().toStdString(),
+                    json.value("password").toString().toStdString(),
+                    json.value("nickname").toString().toStdString()
+            );
     }
 };
+
+
+
 
 template<typename T>
 class IdMap : public QMap<qint64, T>

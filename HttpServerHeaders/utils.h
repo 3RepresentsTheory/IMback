@@ -68,13 +68,13 @@ static QByteArray getValueFromHeader(const QList<QPair<QByteArray, QByteArray>> 
     return QByteArray();
 }
 
-static std::optional<QString> getTokenFromRequest(const QHttpServerRequest &request)
+static std::optional<QString> getcookieFromRequest(const QHttpServerRequest &request)
 {
-    std::optional<QString> token;
-    if (auto bytes = getValueFromHeader(request.headers(), "TOKEN"); !bytes.isEmpty()) {
-        token = bytes;
+    std::optional<QString> cookie;
+    if (auto bytes = getValueFromHeader(request.headers(), "cookie"); !bytes.isEmpty()) {
+        cookie = bytes;
     }
-    return token;
+    return cookie;
 }
 
 #endif // UTILS_H
