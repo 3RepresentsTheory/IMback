@@ -3,10 +3,13 @@
 //
 
 #include "messageService.h"
-#include "../HttpServerHeaders/utils.h"
-#include "../Dao/DataClasses.h"
 
 MessageService::~MessageService() {
+    //TODO: might cause double free? had better use like this:
+    /* auto service = MessageService(
+     *         new BaseDao("E:\\programming\\Qt\\IMback\\test\\dbfortest.db")
+     * );
+     */
     if(baseDao!= nullptr)
         delete(baseDao);
 }
@@ -24,6 +27,7 @@ bool MessageService::StoreMessage(const Message &message,int &last_insert_id) {
 }
 
 void MessageService::FillMessageFromDB(Message &original_message) {
+    // have to make sure id has been filled outside
     string sql = "SELECT * FROM message WHERE id = ?";
     vector<map<string, string>>
         ret = baseDao->executeQuery(sql,to_string(original_message.id));
@@ -33,10 +37,10 @@ void MessageService::FillMessageFromDB(Message &original_message) {
     original_message.mid     = std::stoi(ret[0]["mid"]);
 }
 
-QVector<Message> MessageService::GetMessagelistByTime(qint64 mid) {
-    string sql = "SELECT * FROM message WHERE id > ?";
+QVector<Message> MessageService::GetMessagelistByTime(qint64 mid,qint64 gid) {
+    string sql = "SELECT * FROM message WHERE id > ? and gid = ?";
     vector<map<string,string>>
-        ret = baseDao->executeQuery(sql,to_string(mid));
+        ret = baseDao->executeQuery(sql,to_string(mid),to_string(gid));
     auto MessageList = QVector<Message>();
     for(auto row : ret){
         MessageList.emplace_back(Message(row));

@@ -42,6 +42,19 @@ public:
     bool fromQJsonObject(const QJsonObject &) override;
     QJsonObject toQJsonObject() override;
 
+    friend std::ostream& operator<<(std::ostream& os, const  Message &rhs) {
+        os << "Message: " << &rhs << std::endl;
+        os << "id: " <<     rhs.id << std::endl;
+        os << "type: " <<   rhs.type.toStdString() << std::endl;
+        os << "content: " <<rhs.content.toStdString() << std::endl;
+        os << "time: " <<   rhs.time << std::endl;
+        os << "uid: " <<    rhs.uid << std::endl;
+        os << "mid: " <<    rhs.mid << std::endl;
+        os << "gid: " <<    rhs.gid << std::endl;
+
+        return os;
+    }
+
 };
 
 #endif //DEMO02_DATACLASSES_H

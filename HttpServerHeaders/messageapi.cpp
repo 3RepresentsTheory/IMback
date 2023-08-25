@@ -6,33 +6,6 @@
 #include "utils.h"
 
 
-bool Message::fromQJsonObject(const QJsonObject & json) {
-    if(
-        !json.contains("type")     || json.value("type").isNull()||
-        !json.contains("content")  || json.value("content").isNull()||
-        !json.contains("gid")      || json.value("gid").isNull()
-    )
-        return false;
-
-    type    = json.value("type").toString();
-    content = json.value("content").toString();
-    gid     = json.value("gid").toInt();
-
-    return true;
-}
-
-QJsonObject Message::toQJsonObject() {
-    return QJsonObject{
-            {"id",      QString::fromStdString(to_string(id))},
-            {"type",    type   },
-            {"content", content},
-            {"time",    time},
-            {"uid",     uid},
-            {"mid",     QString::fromStdString(to_string(mid))},
-            {"gid",     gid}
-    };
-}
-
 QHttpServerResponse MessageApi::handleSentMessageRequest(const QHttpServerRequest &request) {
     Message message;
     // json convert validating
@@ -58,6 +31,9 @@ QHttpServerResponse MessageApi::handleSentMessageRequest(const QHttpServerReques
     if(!message.fromQJsonObject(json.value())){
         return QHttpServerResponse("接收消息失败或为空", QHttpServerResponder::StatusCode::BadRequest);
     }
+
+    // special validate for json field: is content blank? is gid valid? is uid is in the group gid?
+    // TODO: add validate for content gid uid content
 
     // generate complete database object(store to database ,and have a copy in memory)
     // including:
