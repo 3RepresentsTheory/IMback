@@ -4,9 +4,10 @@
 
 #include "BaseDao.h"
 
-
+std::mutex DaoLock;
 
 sqlite3 *BaseDao::getConnection() {
+    DaoLock.lock();
     sqlite3 * db = nullptr;
     int rc = sqlite3_open(dbPath.c_str(), &db);
     if (rc != SQLITE_OK) {
@@ -19,19 +20,11 @@ sqlite3 *BaseDao::getConnection() {
 void BaseDao::closeConnection(sqlite3 *db) {
     if (db) {
         sqlite3_close(db);
+        DaoLock.unlock();
     }
 }
 
-BaseDao::BaseDao() {
-
-}
-
-
-BaseDao::~BaseDao() {
-
-}
-
-string BaseDao::dbPath = "../test.db";
+BaseDao::~BaseDao() {}
 
 
 

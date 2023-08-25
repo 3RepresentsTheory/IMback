@@ -9,4 +9,8 @@ qt_standard_project_setup()
 
 qt_add_executable(testqt
         test.cpp
+        ../../sqlite/sqlite3.c
 )
+
+target_compile_options(testqt PRIVATE "-DTHREADSAFE=1")
+

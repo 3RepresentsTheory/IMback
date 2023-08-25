@@ -17,7 +17,9 @@ set(SOURCES
         service/userService.cpp
         Dao/BaseDao.cpp
         HttpServerHeaders/sessionapi.cpp
-        httpServerHeaders/friendApi.cpp service/friendService.cpp httpServerHeaders/userapi.cpp httpServerHeaders/messageapi.cpp)
+        httpServerHeaders/friendApi.cpp service/friendService.cpp httpServerHeaders/userapi.cpp httpServerHeaders/messageapi.cpp
+        HttpServerHeaders/messageapi.cpp
+        service/messageService.cpp)
 
 set(HEADERS
 #        HttpServerHeaders/sessionapi.h
@@ -32,3 +34,6 @@ set(HEADERS
 add_executable(Demo02 ${SOURCES} ${HEADERS})
 
 target_link_libraries(Demo02 Qt6::Core Qt6::Gui Qt6::Widgets Qt6::Network Qt6::HttpServer)
+
+add_subdirectory(samplefiles/simpletest)
+add_subdirectory(test)

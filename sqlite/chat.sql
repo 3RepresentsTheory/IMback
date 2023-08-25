@@ -11,10 +11,10 @@ CREATE TABLE friend (
                         FOREIGN KEY (userId) REFERENCES user (id),
                         FOREIGN KEY (friendId) REFERENCES user (id)
 );
-DROP TABLE friendRequest;
 CREATE TABLE friendRequest (
                                id INTEGER PRIMARY KEY AUTOINCREMENT,
                                userId INTEGER,
+--                                TODO: need add local date time
                                timestamp TIMESTAMP default(datetime('now','localtime')),
                                requestText TEXT,
                                requestUserId INTEGER,
@@ -39,7 +39,7 @@ CREATE TABLE message (
                          id INTEGER PRIMARY KEY AUTOINCREMENT,
                          type TEXT,
                          content TEXT,
-                         time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                         time TIMESTAMP DEFAULT (datetime('now','localtime')),
                          uid INTEGER,
                          mid INTEGER,
                          gid INTEGER,

@@ -55,6 +55,7 @@ static std::optional<QString> getcookieFromRequest(const QHttpServerRequest &req
     return cookie;
 }
 
+
 inline map<string, string> jsonToString(const QJsonObject jsonObject) {
     map<string, string> result;
 
@@ -80,4 +81,18 @@ inline map<string, string> jsonToString(const QJsonObject jsonObject) {
 
     return result;
 }
+
+static std::time_t getUnixTimeStampFromString(const string&timestring){
+    std::tm t{};
+    std::istringstream ss(timestring);
+    ss>>std::get_time(&t,"%Y-%m-%d %H:%M:%S");
+    if (ss.fail()) {
+        throw std::runtime_error{"failed to parse time string"};
+    }
+    return mktime(&t);
+}
+
+
+
+
 #endif // UTILS_H

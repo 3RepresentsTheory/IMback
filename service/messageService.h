@@ -6,17 +6,24 @@
 #define DEMO02_MESSAGESERVICE_H
 
 
+#include <QtTypes>
+#include <QVector>
+#include "../Dao/BaseDao.h"
+#include "../Dao/DataClasses.h"
+
 class MessageService {
 private:
     BaseDao* baseDao;
+    //Chatserver *broadcastserver
 public:
-    MessageService();
+    MessageService(BaseDao* dao):baseDao(dao){};
     ~MessageService();
 
-    bool StoreMessage(const Message& message );
+    bool StoreMessage(const Message& message ,int &last_insert_id);
+    void FillMessageFromDB(Message&original_message);
+    QVector<Message> GetMessagelistByTime(qint64 mid,qint64 gid);
 
-    Message GetMessage(qint32 message_id );
-    QVector<Message> GetMessagelistByTime(int timestamp);
+    QVector<qint64> GetGroupUserList(qint64 gid);
 
 };
 
