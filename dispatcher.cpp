@@ -2,11 +2,14 @@
 #include <QtHttpServer/QHttpServer>
 #include "apis/UserApi.h"
 #include "apis/FriendApi.h"
+#include "apis/MessageApi.h"
+
 #define PORT 49425
 
 
 void userRouting(QHttpServer &HttpServer, UserApi &userApi);
 void friendRouting(QHttpServer &HttpServer, FriendApi& friendApi);
+void messageRouting(QHttpServer &HttpServer, MessageApi&messageApi);
 
 int main(int argc, char *argv[]) {
     QCoreApplication app(argc, argv);
@@ -26,15 +29,22 @@ int main(int argc, char *argv[]) {
         portArg = parser.value("port").toUShort();
 
     //TODO: make session singleton
-    SessionApi* sessionApi = new SessionApi();
+
     // add global session management
-    UserApi userApi(new UserService(),sessionApi);
-    FriendApi friendApi(new UserService(),new FriendService,sessionApi);
+    SessionApi* sessionApi = new SessionApi();
+    // add api support
+    UserApi    userApi  (new UserService(),sessionApi);
+    FriendApi  friendApi(new UserService(),new FriendService(),sessionApi);
+    MessageApi messageApi(new MessageService(),sessionApi);
+
     // Setup QHttpServer for normal transaction
     QHttpServer httpServer;
+
     // route request
     userRouting(httpServer, userApi);
     friendRouting(httpServer,friendApi);
+    messageRouting(httpServer,messageApi);
+
     // start server listen
     const auto port = httpServer.listen(QHostAddress::Any, portArg);
     if (!port) {
@@ -86,16 +96,20 @@ void userRouting(QHttpServer &HttpServer, UserApi &userApi){
 }
 
 
-void messageRouting(QHttpServer &HttpServer, UserApi &userApi) {
+void messageRouting(QHttpServer &HttpServer, MessageApi&messageApi) {
     // Message transaction module
     HttpServer.route(
             "/message/send",QHttpServerRequest::Method::Post,
-
+            [&messageApi](const QHttpServerRequest &request) {
+                return messageApi.handleSentMessageRequest(request);
+            }
     );
 
     HttpServer.route(
             "/message/history",QHttpServerRequest::Method::Get,
-
+            [&messageApi](const QHttpServerRequest &request) {
+                return messageApi.retrieveHistoryMsgList(request);
+            }
     );
 }
 

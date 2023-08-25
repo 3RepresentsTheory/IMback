@@ -16,13 +16,14 @@ int SessionApi::addtoSessionlist(SessionEntry *entry) {
 }
 
 int SessionApi::removeEntry(SessionEntry *target) {
+    //TODO:add logout
     return 0;
 }
 
-int SessionApi::authcookie(QUuid token) {
+std::optional<int> SessionApi::getIdByCookie(QUuid token) {
     SessionEntry sessionEntry = sessions.value(token);
     if(sessionEntry.token != token){
-        return -1;
+        return std::nullopt;
     }
     return sessionEntry.id;
 }

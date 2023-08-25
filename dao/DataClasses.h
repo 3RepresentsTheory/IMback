@@ -17,6 +17,7 @@ public:
     virtual bool fromQJsonObject(const QJsonObject& ) = 0;
 };
 
+// message service - api
 class Message:Jsonable{
 public:
     Message(){};
@@ -55,6 +56,16 @@ public:
         return os;
     }
 
+};
+
+class HistoryRqst:Jsonable{
+public:
+    HistoryRqst(){};
+    bool fromQJsonObject(const QJsonObject &) override;
+    QJsonObject toQJsonObject() override;
+
+    qint64  mid;         //string in api
+    qint64  gid;         //ret from request
 };
 
 #endif //DEMO02_DATACLASSES_H
