@@ -4,6 +4,7 @@
 
 #include "messageService.h"
 #include "../HttpServerHeaders/utils.h"
+#include "../Dao/DataClasses.h"
 
 MessageService::~MessageService() {
     if(baseDao!= nullptr)

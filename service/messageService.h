@@ -7,7 +7,9 @@
 
 
 #include <QtTypes>
+#include <QVector>
 #include "../Dao/BaseDao.h"
+#include "../Dao/DataClasses.h"
 
 class MessageService {
 private:

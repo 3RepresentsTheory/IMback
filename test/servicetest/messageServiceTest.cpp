@@ -7,6 +7,7 @@
 
 #include "../../service/messageService.h"
 #include "../../Dao/BaseDao.h"
+#include "../../Dao/DataClasses.h"
 
 using namespace std;
 
