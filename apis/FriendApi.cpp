@@ -2,7 +2,7 @@
 // Created by 28443 on 2023/8/24.
 //
 
-#include "friendApi.h"
+#include "FriendApi.h"
 #include <iostream>
 
 FriendRequest::FriendRequest(const string &username, const string &text):username(username),text(text) {

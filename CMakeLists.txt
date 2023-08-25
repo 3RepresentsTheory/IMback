@@ -13,23 +13,23 @@ find_package(Qt6 COMPONENTS Core Gui Widgets Network HttpServer REQUIRED)
 set(SOURCES
         dispatcher.cpp
         sqlite/sqlite3.c
-        Dao/userDao.cpp
-        service/userService.cpp
-        Dao/BaseDao.cpp
-        HttpServerHeaders/sessionapi.cpp
-        httpServerHeaders/friendApi.cpp service/friendService.cpp httpServerHeaders/userapi.cpp httpServerHeaders/messageapi.cpp
-        HttpServerHeaders/messageapi.cpp
-        service/messageService.cpp)
+        dao/UserDao.cpp
+        service/UserService.cpp
+        dao/BaseDao.cpp
+        apis/SessionApi.cpp
+        apis/FriendApi.cpp service/FriendService.cpp apis/UserApi.cpp apis/MessageApi.cpp
+        apis/MessageApi.cpp
+        service/MessageService.cpp)
 
 set(HEADERS
-#        HttpServerHeaders/sessionapi.h
-        HttpServerHeaders/types.h
-        HttpServerHeaders/utils.h
+#        apis/sessionapi.h
+        utils/types.h
+        utils/utils.h
         sqlite/sqlite3.h
-        Dao/userDao.h
-        Dao/BaseDao.h
-        service/userService.h
-        httpServerHeaders/jsonable.cpp httpServerHeaders/jsonable.h httpServerHeaders/jsonable.h httpServerHeaders/messageapi.h httpServerHeaders/sessionapi.h httpServerHeaders/utils.h)
+        dao/UserDao.h
+        dao/BaseDao.h
+        service/UserService.h
+        utils/Jsonable.cpp utils/Jsonable.h utils/Jsonable.h apis/MessageApi.h apis/SessionApi.h utils/utils.h)
 
 add_executable(Demo02 ${SOURCES} ${HEADERS})
 

@@ -2,7 +2,7 @@
 // Created by no3core on 2023/8/24.
 //
 
-#include "messageService.h"
+#include "MessageService.h"
 
 MessageService::~MessageService() {
     //TODO: might cause double free? had better use like this:

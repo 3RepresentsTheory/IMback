@@ -6,7 +6,7 @@
 #define DEMO02_DATACLASSES_H
 
 #include <QJsonObject>
-#include "../HttpServerHeaders/utils.h"
+#include "../Utils/utils.h"
 
 class Jsonable{
 public:

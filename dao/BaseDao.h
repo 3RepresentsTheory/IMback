@@ -22,7 +22,7 @@ class BaseDao {
 private:
     string dbPath;
 public:
-    explicit BaseDao(string Path = "../test.db"):dbPath(Path){};
+    explicit BaseDao(string Path = "../test.db"): dbPath(Path){};
     ~BaseDao();
     sqlite3* getConnection();
     void closeConnection(sqlite3 *db);

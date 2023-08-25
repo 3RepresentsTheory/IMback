@@ -9,8 +9,8 @@
 
 #include <QHttpServerRequest>
 #include <QHttpServerResponse>
-#include "../service/messageService.h"
-#include "utils.h"
+#include "../service/MessageService.h"
+#include "../Utils/utils.h"
 #include "../Dao/BaseDao.h"
 #include "../Dao/DataClasses.h"
 

@@ -2,8 +2,8 @@
 // Created by no3core on 2023/8/24.
 //
 
-#include "userapi.h"
-#include "utils.h"
+#include "UserApi.h"
+#include "../Utils/utils.h"
 
 
 User::User(const string &username, const string &password, const string &nickname, const string &color,

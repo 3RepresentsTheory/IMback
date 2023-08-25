@@ -3,13 +3,13 @@
 #ifndef APIBEHAVIOR_H
 #define APIBEHAVIOR_H
 
-#include "types.h"
-#include "utils.h"
-#include "../Dao/userDao.h"
+#include "../Utils/types.h"
+#include "../Utils/utils.h"
+#include "../Dao/UserDao.h"
 #include <QtHttpServer/QHttpServer>
 #include <QtConcurrent/qtconcurrentrun.h>
 #include <string>
-#include "../service/userService.h"
+#include "../service/UserService.h"
 #include <optional>
 
 class SessionApi {

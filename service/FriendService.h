@@ -4,7 +4,7 @@
 
 #ifndef DEMO02_FRIENDSERVICE_H
 #define DEMO02_FRIENDSERVICE_H
-#include "../dao/baseDao.h"
+#include "../dao/BaseDao.h"
 
 class FriendService {
 private:

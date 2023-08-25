@@ -1,7 +1,7 @@
 //
 // Created by no3core on 2023/8/24.
 //
-#include "sessionapi.h"
+#include "SessionApi.h"
 
 SessionEntry SessionApi::createEntryAndStart(qint64 id) {
     SessionEntry sessionEntry;

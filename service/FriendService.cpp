@@ -2,7 +2,7 @@
 // Created by 28443 on 2023/8/24.
 //
 
-#include "friendService.h"
+#include "FriendService.h"
 
 FriendService::FriendService() {
     baseDao = new BaseDao();

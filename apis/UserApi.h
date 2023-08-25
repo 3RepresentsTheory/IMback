@@ -4,9 +4,9 @@
 
 #ifndef DEMO02_USERAPI_H
 #define DEMO02_USERAPI_H
-#include "../service/userService.h"
-#include "jsonable.h"
-#include "sessionapi.h"
+#include "../service/UserService.h"
+#include "../Utils/Jsonable.h"
+#include "SessionApi.h"
 
 class User{
 public:

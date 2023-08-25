@@ -16,7 +16,7 @@ private:
     BaseDao* baseDao;
     //Chatserver *broadcastserver
 public:
-    MessageService(BaseDao* dao):baseDao(dao){};
+    MessageService(BaseDao* dao): baseDao(dao){};
     ~MessageService();
 
     bool StoreMessage(const Message& message ,int &last_insert_id);

@@ -4,12 +4,12 @@
 
 #ifndef DEMO02_FRIENDAPI_H
 #define DEMO02_FRIENDAPI_H
-#include "../service/friendService.h"
-#include "../service/userService.h"
-#include "types.h"
-#include "utils.h"
+#include "../service/FriendService.h"
+#include "../service/UserService.h"
+#include "../Utils/types.h"
+#include "../Utils/utils.h"
 #include <QtConcurrent/qtconcurrentrun.h>
-#include "sessionapi.h"
+#include "SessionApi.h"
 
 #include <QtHttpServer/QHttpServer>
 

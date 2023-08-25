@@ -9,9 +9,9 @@ qt_standard_project_setup()
 
 qt_add_executable(messageServiceTest
         ../../sqlite/sqlite3.c
-        ../../Dao/BaseDao.cpp
-        ../../Dao/DataClasses.cpp
-        ../../service/messageService.cpp
+        ../../dao/BaseDao.cpp
+        ../../dao/DataClasses.cpp
+        ../../service/MessageService.cpp
         messageServiceTest.cpp
 )
 
