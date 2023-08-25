@@ -35,3 +35,4 @@ add_executable(Demo02 ${SOURCES} ${HEADERS})
 target_link_libraries(Demo02 Qt6::Core Qt6::Gui Qt6::Widgets Qt6::Network Qt6::HttpServer)
 
 add_subdirectory(samplefiles/simpletest)
+add_subdirectory(test)

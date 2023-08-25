@@ -14,9 +14,9 @@ bool Message::fromQJsonObject(const QJsonObject & json) {
     )
         return false;
 
-    type = json.value("type").toString();
+    type    = json.value("type").toString();
     content = json.value("content").toString();
-    gid  = json.value("gid").toInt();
+    gid     = json.value("gid").toInt();
 
     return true;
 }
@@ -71,13 +71,15 @@ QHttpServerResponse MessageApi::handleSentMessageRequest(const QHttpServerReques
          * uid          (generate - map cookie to id, use sessionapi needed)
          */
     // we simply fill type content gid uid(use session api) ,store to database and read it
-    if(!service.StoreMessage(message)){
+    int message_id = 0;
+    if(!service.StoreMessage(message,message_id)){
         return QHttpServerResponse("Internal server error", QHttpServerResponder::StatusCode::InternalServerError);
     }
 
     // ready to broadcast Message to group
     // broadcastMessageToGroup(gid(fill in), content(fill in))
-    message = service.GetMessage(service.GetLastInsertId());
+    service.FillMessageFromDB(message);
+
     if(!broadcastMessageToGroup(message)){
         return QHttpServerResponse("Internal server error", QHttpServerResponder::StatusCode::InternalServerError);
     }

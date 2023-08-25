@@ -14,6 +14,7 @@ CREATE TABLE friend (
 CREATE TABLE friendRequest (
                                id INTEGER PRIMARY KEY AUTOINCREMENT,
                                userId INTEGER,
+--                                TODO: need add local date time
                                timestamp TEXT,
                                requestText TEXT,
                                requestUserId INTEGER,
@@ -38,7 +39,7 @@ CREATE TABLE message (
                          id INTEGER PRIMARY KEY AUTOINCREMENT,
                          type TEXT,
                          content TEXT,
-                         time INTEGER,
+                         time TIMESTAMP DEFAULT (datetime('now','localtime')),
                          uid INTEGER,
                          mid INTEGER,
                          gid INTEGER,

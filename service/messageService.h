@@ -18,13 +18,12 @@ public:
     MessageService();
     ~MessageService();
 
-    bool StoreMessage(const Message& message );
-    Message GetMessage(qint32 message_id );
-    QVector<Message> GetMessagelistByTime(int timestamp);
+    bool StoreMessage(const Message& message ,int &last_insert_id);
+    void FillMessageFromDB(Message&original_message);
+    QVector<Message> GetMessagelistByTime(qint64 mid);
 
-    QVector<qint32> GetGroupUserList(qint32 gid);
+    QVector<qint64> GetGroupUserList(qint64 gid);
 
-    qint32 GetLastInsertId();
 };
 
 
