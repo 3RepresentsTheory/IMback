@@ -1,7 +1,7 @@
 #include <QtCore/QCoreApplication>
 #include <QtHttpServer/QHttpServer>
-#include "httpServerHeaders/userapi.h"
-#include "httpServerHeaders/friendApi.h"
+#include "apis/UserApi.h"
+#include "apis/FriendApi.h"
 #define PORT 49425
 
 
@@ -25,6 +25,7 @@ int main(int argc, char *argv[]) {
     if (!parser.value("port").isEmpty())
         portArg = parser.value("port").toUShort();
 
+    //TODO: make session singleton
     SessionApi* sessionApi = new SessionApi();
     // add global session management
     UserApi userApi(new UserService(),sessionApi);
@@ -81,22 +82,26 @@ void userRouting(QHttpServer &HttpServer, UserApi &userApi){
     );
 
 
-    // Message transaction module
-//    httpServer.route(
-//            "/message/send",QHttpServerRequest::Method::Post,
-//
-//    );
-//
-//    httpServer.route(
-//            "/message/history",QHttpServerRequest::Method::Get,
-//
-//    );
 
-    // Friend transaction module
 }
 
-void friendRouting(QHttpServer &HttpServer, FriendApi &friendApi){
 
+void messageRouting(QHttpServer &HttpServer, UserApi &userApi) {
+    // Message transaction module
+    HttpServer.route(
+            "/message/send",QHttpServerRequest::Method::Post,
+
+    );
+
+    HttpServer.route(
+            "/message/history",QHttpServerRequest::Method::Get,
+
+    );
+}
+
+
+void friendRouting(QHttpServer &HttpServer, FriendApi &friendApi){
+    // Friend transaction module
     HttpServer.route(
             "/friend/request", QHttpServerRequest::Method::Post,
             [&friendApi](const QHttpServerRequest &request) {
