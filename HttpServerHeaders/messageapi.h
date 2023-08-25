@@ -6,10 +6,9 @@
 #define DEMO02_MESSAGEAPI_H
 
 
-#include <QHttpServerRequest>
-#include <QHttpServerResponse>
 #include "../service/messageService.h"
 #include "utils.h"
+#include "../Dao/BaseDao.h"
 
 class Jsonable{
 public:
@@ -52,7 +51,8 @@ public:
 
 class MessageApi {
 public:
-    MessageApi():service(MessageService()){};
+
+    MessageApi(){};
     QHttpServerResponse handleSentMessageRequest(const QHttpServerRequest &request);
 private:
     bool broadcastMessageToGroup(Message message);

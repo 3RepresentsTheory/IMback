@@ -1,6 +1,9 @@
-CREATE TABLE userDetail (
+DROP TABLE userDetail;
+CREATE TABLE user (
                             id INTEGER PRIMARY KEY,
                             username TEXT,
+                            password TEXT,
+                            nickname TEXT,
                             color TEXT,
                             avatar TEXT
 );

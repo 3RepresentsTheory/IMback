@@ -7,7 +7,6 @@
 
 
 #include <QtTypes>
-#include "../HttpServerHeaders/messageapi.h"
 #include "../Dao/BaseDao.h"
 
 class MessageService {
@@ -15,7 +14,7 @@ private:
     BaseDao* baseDao;
     //Chatserver *broadcastserver
 public:
-    MessageService();
+    MessageService(BaseDao* dao):baseDao(dao){};
     ~MessageService();
 
     bool StoreMessage(const Message& message ,int &last_insert_id);

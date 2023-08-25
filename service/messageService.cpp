@@ -5,10 +5,6 @@
 #include "messageService.h"
 #include "../HttpServerHeaders/utils.h"
 
-MessageService::MessageService() {
-    baseDao = new BaseDao();
-}
-
 MessageService::~MessageService() {
     if(baseDao!= nullptr)
         delete(baseDao);
@@ -16,7 +12,7 @@ MessageService::~MessageService() {
 
 bool MessageService::StoreMessage(const Message &message,int &last_insert_id) {
     string sql = "INSERT INTO message(type, content, gid, uid) VALUES (?, ?, ?, ?);";
-    return baseDao->executeUpdate<string>(
+    return baseDao->executeUpdate(
         last_insert_id,
         sql,
         message.type.toStdString(),
