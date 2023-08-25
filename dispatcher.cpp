@@ -1,11 +1,12 @@
 #include <QtCore/QCoreApplication>
 #include <QtHttpServer/QHttpServer>
 #include "httpServerHeaders/userapi.h"
+#include "httpServerHeaders/friendApi.h"
 #define PORT 49425
 
 
 void userRouting(QHttpServer &HttpServer, UserApi &userApi);
-
+void friendRouting(QHttpServer &HttpServer, FriendApi& friendApi);
 
 int main(int argc, char *argv[]) {
     QCoreApplication app(argc, argv);
@@ -26,13 +27,13 @@ int main(int argc, char *argv[]) {
 
     SessionApi* sessionApi = new SessionApi();
     // add global session management
-
     UserApi userApi(new UserService(),sessionApi);
+    FriendApi friendApi(new UserService(),new FriendService,sessionApi);
     // Setup QHttpServer for normal transaction
     QHttpServer httpServer;
     // route request
     userRouting(httpServer, userApi);
-
+    friendRouting(httpServer,friendApi);
     // start server listen
     const auto port = httpServer.listen(QHostAddress::Any, portArg);
     if (!port) {
@@ -92,4 +93,28 @@ void userRouting(QHttpServer &HttpServer, UserApi &userApi){
 //    );
 
     // Friend transaction module
+}
+
+void friendRouting(QHttpServer &HttpServer, FriendApi &friendApi){
+
+    HttpServer.route(
+            "/friend/request", QHttpServerRequest::Method::Post,
+            [&friendApi](const QHttpServerRequest &request) {
+                return friendApi.request(request);
+            }
+    );
+
+    HttpServer.route(
+            "/friend/accept", QHttpServerRequest::Method::Post,
+            [&friendApi](const QHttpServerRequest &request) {
+                return friendApi.accept(request);
+            }
+    );
+
+    HttpServer.route(
+            "/friend/requests", QHttpServerRequest::Method::Get,
+            [&friendApi](const QHttpServerRequest &request) {
+                return friendApi.requests(request);
+            }
+    );
 }

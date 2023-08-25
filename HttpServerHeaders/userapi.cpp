@@ -80,16 +80,16 @@ QHttpServerResponse UserApi:: login(const QHttpServerRequest &request) {
     if(rc.empty())
         return QHttpServerResponse("用户名或密码错误",QHttpServerResponder::StatusCode::BadRequest);
 
-    SessionEntry *sessionEntry = sessionApi->createEntryAndStart(stoi(rc["id"]));
+    SessionEntry sessionEntry = sessionApi->createEntryAndStart(stoi(rc["id"]));
 
-    return QHttpServerResponse(User::toJsonObject(rc["nickname"],sessionEntry->token.value()));
+    return QHttpServerResponse(User::toJsonObject(rc["nickname"],sessionEntry.token.value()));
 }
 
 QHttpServerResponse UserApi::info(const QHttpServerRequest &request) {
     QUuid token = QUuid::fromString(getcookieFromRequest(request).value().toStdString());
     int id = sessionApi->authcookie(token);
     if(id==-1)
-        return QHttpServerResponse("无效token",QHttpServerResponder::StatusCode::BadRequest);
+        return QHttpServerResponse("身份验证失败",QHttpServerResponder::StatusCode::BadRequest);
     const auto json = byteArrayToJsonObject(request.body());
     if (!json)
         return QHttpServerResponse("Error", QHttpServerResponder::StatusCode::BadRequest);

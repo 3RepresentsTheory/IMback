@@ -16,7 +16,7 @@ class SessionApi {
 public:
     explicit SessionApi() {}
 
-    SessionEntry* createEntryAndStart(qint64 id);
+    SessionEntry createEntryAndStart(qint64 id);
 
     int authcookie(QUuid token);
 
@@ -27,7 +27,6 @@ public:
 
 private:
     tokenMap sessions;
-    idMap sessions2;
 };
 
 #endif // APIBEHAVIOR_H

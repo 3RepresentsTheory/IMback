@@ -49,7 +49,7 @@ static QByteArray getValueFromHeader(const QList<QPair<QByteArray, QByteArray>> 
 
 static std::optional<QString> getcookieFromRequest(const QHttpServerRequest &request) {
     std::optional<QString> cookie;
-    if (auto bytes = getValueFromHeader(request.headers(), "cookie"); !bytes.isEmpty()) {
+    if (auto bytes = getValueFromHeader(request.headers(), "Cookie"); !bytes.isEmpty()) {
         cookie = bytes;
     }
     return cookie;
@@ -61,15 +61,23 @@ inline map<string, string> jsonToString(const QJsonObject jsonObject) {
 
     for (auto it = jsonObject.begin(); it != jsonObject.end(); ++it) {
         QString key = it.key();
-        QString value = it.value().toString();
+        QJsonValue value = it.value();
 
-        string stdKey = key.toStdString();
-        string stdValue = value.toStdString();
-
-        result[stdKey] = stdValue;
+        if (value.isString()) {
+            QString stringValue = value.toString();
+            string stdValue = stringValue.toStdString();
+            result[key.toStdString()] = stdValue;
+        } else if (value.isDouble()) {
+            int doubleValue = value.toInt();
+            string stdValue = to_string(doubleValue);
+            result[key.toStdString()] = stdValue;
+        } else if (value.isBool()) {
+            bool boolValue = value.toBool();
+            string stdValue = boolValue ? "true" : "false";
+            result[key.toStdString()] = stdValue;
+        }
     }
 
     return result;
 }
-
 #endif // UTILS_H

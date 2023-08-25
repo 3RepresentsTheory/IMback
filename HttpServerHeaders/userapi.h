@@ -18,11 +18,9 @@ public:
 
     User(const string &username, const string &password, const string &nickname,
          const string &color,const string &avatar);
-
+    ~User();
     static User formJsonObject(const QJsonObject &json) ;
     static QJsonObject toJsonObject(const string& nickname,const QUuid& token) ;
-
-    virtual ~User();
 };
 
 class UserApi {

@@ -3,12 +3,11 @@
 //
 #include "sessionapi.h"
 
-SessionEntry *SessionApi::createEntryAndStart(qint64 id) {
-    SessionEntry *sessionEntry = new SessionEntry();
-    sessionEntry->startSession();
-    sessionEntry->id = id;
+SessionEntry SessionApi::createEntryAndStart(qint64 id) {
+    SessionEntry sessionEntry;
+    sessionEntry.startSession();
+    sessionEntry.id = id;
     sessions.insertEntry(sessionEntry);
-    sessions2.insertEntry(sessionEntry);
     return sessionEntry;
 }
 
@@ -21,9 +20,9 @@ int SessionApi::removeEntry(SessionEntry *target) {
 }
 
 int SessionApi::authcookie(QUuid token) {
-    SessionEntry* sessionEntry = sessions[token];
-    if(sessionEntry== nullptr){
+    SessionEntry sessionEntry = sessions.value(token);
+    if(sessionEntry.token != token){
         return -1;
     }
-    return sessionEntry->id;
+    return sessionEntry.id;
 }

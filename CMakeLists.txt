@@ -17,7 +17,7 @@ set(SOURCES
         service/userService.cpp
         Dao/BaseDao.cpp
         HttpServerHeaders/sessionapi.cpp
-        httpServerHeaders/friendApi.cpp service/friendService.cpp httpServerHeaders/userapi.cpp)
+        httpServerHeaders/friendApi.cpp service/friendService.cpp httpServerHeaders/userapi.cpp httpServerHeaders/messageapi.cpp)
 
 set(HEADERS
 #        HttpServerHeaders/sessionapi.h
@@ -27,7 +27,7 @@ set(HEADERS
         Dao/userDao.h
         Dao/BaseDao.h
         service/userService.h
-        httpServerHeaders/jsonable.cpp httpServerHeaders/jsonable.h httpServerHeaders/jsonable.h)
+        httpServerHeaders/jsonable.cpp httpServerHeaders/jsonable.h httpServerHeaders/jsonable.h httpServerHeaders/messageapi.h httpServerHeaders/sessionapi.h httpServerHeaders/utils.h)
 
 add_executable(Demo02 ${SOURCES} ${HEADERS})
 
