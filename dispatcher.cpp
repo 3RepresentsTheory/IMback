@@ -1,7 +1,7 @@
 #include <QtCore/QCoreApplication>
 #include <QtHttpServer/QHttpServer>
-#include "httpServerHeaders/userapi.h"
-#include "httpServerHeaders/friendApi.h"
+#include "apis//userapi.h"
+#include "apis//friendApi.h"
 #define PORT 49425
 
 

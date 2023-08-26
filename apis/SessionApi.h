@@ -5,7 +5,6 @@
 
 #include "../Utils/types.h"
 #include "../Utils/utils.h"
-#include "../Dao/UserDao.h"
 #include <QtHttpServer/QHttpServer>
 #include <QtConcurrent/qtconcurrentrun.h>
 #include <string>
@@ -14,7 +13,16 @@
 
 class SessionApi {
 public:
-    explicit SessionApi() {}
+    SessionApi();
+    ~SessionApi();
+
+    static SessionApi* getInstance() {
+        static SessionApi instance;
+        return &instance;
+    }
+
+    SessionApi(const SessionApi&) = delete;
+    SessionApi& operator=(const SessionApi&) = delete;
 
     SessionEntry createEntryAndStart(qint64 id);
 
@@ -27,6 +35,7 @@ public:
 
 private:
     tokenMap sessions;
+    QReadWriteLock lock;
 };
 
 #endif // APIBEHAVIOR_H

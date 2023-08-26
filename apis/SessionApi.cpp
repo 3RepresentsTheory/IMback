@@ -7,7 +7,9 @@ SessionEntry SessionApi::createEntryAndStart(qint64 id) {
     SessionEntry sessionEntry;
     sessionEntry.startSession();
     sessionEntry.id = id;
+    lock.lockForWrite();
     sessions.insertEntry(sessionEntry);
+    lock.unlock();
     return sessionEntry;
 }
 
@@ -20,9 +22,19 @@ int SessionApi::removeEntry(SessionEntry *target) {
 }
 
 int SessionApi::authcookie(QUuid token) {
+    lock.lockForRead();
     SessionEntry sessionEntry = sessions.value(token);
+    lock.unlock();
     if(sessionEntry.token != token){
         return -1;
     }
     return sessionEntry.id;
+}
+
+SessionApi::SessionApi() {
+
+}
+
+SessionApi::~SessionApi() {
+
 }

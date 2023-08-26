@@ -47,7 +47,7 @@ bool FriendService::acceptRequest(const string &userId, const string &friendId,c
 }
 
 vector<map<string ,string >> FriendService::getRequests(const string& userId,const string& lastId){
-    string sql = "SELECT id ,time, text,requestUserId as uid FROM friendRequest WHERE userId = ? AND id > ? AND status = 0 ;";
+    string sql = "SELECT id ,strftime('%s', timestamp) AS time, text,requestUserId as uid FROM friendRequest WHERE userId = ? AND id > ? AND status = 0 ;";
     vector<map<string,string>> rc;
     rc = baseDao->executeQuery<string>(sql,userId,lastId);
     return rc;

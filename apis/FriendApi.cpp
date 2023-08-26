@@ -48,8 +48,8 @@ Requests Requests::fromJsonObject(const QJsonObject &json) {
     return requests;
 }
 
-QJsonObject Requests::toJsonObject(const vector<map<string, string>> &rc) {
-    QJsonObject jsonObject;
+QJsonArray Requests::toJsonObject(const vector<map<string, string>> &rc) {
+    QJsonArray jsonArray;
 
     for (const auto& request : rc) {
         QJsonObject requestObject;
@@ -62,11 +62,10 @@ QJsonObject Requests::toJsonObject(const vector<map<string, string>> &rc) {
         requestObject["time"] = time.toInt();
         requestObject["text"] = text;
         requestObject["uid"] = uid.toInt();
-
-        jsonObject[QString("request_%1").arg(id)] = requestObject;
+        jsonArray.append(requestObject);
     }
 
-    return jsonObject;
+    return jsonArray;
 }
 
 FriendApi::FriendApi(UserService* userService,FriendService *friendService, SessionApi *sessionApi) : userService(userService),friendService(friendService), sessionApi(sessionApi) {}
@@ -131,8 +130,8 @@ QHttpServerResponse FriendApi::requests(const QHttpServerRequest &request) {
         return QHttpServerResponse("身份验证失败",QHttpServerResponder::StatusCode::BadRequest);
     string last = request.query().queryItemValue("last").toStdString();
     vector<map<string ,string >> rc = friendService->getRequests(to_string(id),last);
-    QJsonObject qJsonObject = Requests::toJsonObject(rc);
-    return QHttpServerResponse("OK");
+    QJsonArray qJsonArray = Requests::toJsonObject(rc);
+    return QHttpServerResponse(qJsonArray);
 }
 
 
