@@ -19,7 +19,7 @@ set(SOURCES
         apis/FriendApi.cpp
         service/FriendService.cpp
         apis/UserApi.cpp
-        )
+        apis/MessageApi.cpp broadcast/chatserver.cpp)
 #        apis/MessageApi.cpp
 #        service/MessageService.cpp
 #        utils/Jsonable.cpp)
@@ -33,7 +33,10 @@ set(HEADERS
 #        utils/Jsonable.h
 #        apis/SessionApi.h
 #        apis/MessageApi.h
-        utils/utils.h)
+        utils/utils.h
+        broadcast/BroadCastThread.h
+        broadcast/chatserver.h
+        service/MessageService.h)
 
 add_executable(Demo02 ${SOURCES} ${HEADERS})
 

@@ -16,17 +16,18 @@
 #include "SessionApi.h"
 
 
-class MessageApi {
+class MessageApi :public QObject{
+    Q_OBJECT
 public:
-    MessageApi(MessageService*msgservice,SessionApi*sessionapi):
-        messageService(msgservice),sessionApi(sessionapi){};
+    MessageApi(MessageService*msgservice):
+        messageService(msgservice){};
     QHttpServerResponse handleSentMessageRequest(const QHttpServerRequest &request);
     QHttpServerResponse retrieveHistoryMsgList(const QHttpServerRequest &request);
 private:
     bool broadcastMessageToGroup(Message message);
-
     MessageService*messageService;
-    SessionApi* sessionApi;
+signals:
+    void passMessageToBroadCast(Message msg,QVector<qint64>glist);
 };
 
 

@@ -2,6 +2,9 @@
 #include <QtHttpServer/QHttpServer>
 #include "apis//userapi.h"
 #include "apis//friendApi.h"
+#include "broadcast/chatserver.h"
+#include "apis/MessageApi.h"
+
 #define PORT 49425
 
 
@@ -25,9 +28,26 @@ int main(int argc, char *argv[]) {
     if (!parser.value("port").isEmpty())
         portArg = parser.value("port").toUShort();
 
+    // set up broadcast server
+    ChatBroadcastServer broadcastServer(1234);
+    QThread broadcastThread;
+
     // add global session management
     UserApi userApi(new UserService());
     FriendApi friendApi(new UserService(),new FriendService());
+    MessageApi messageApi(new MessageService());
+
+    // handle messageapi connect to broadcast server&thread
+    QObject::connect(
+            &messageApi,
+            &MessageApi::passMessageToBroadCast,
+            &broadcastServer,
+            &ChatBroadcastServer::onNeedToBroadCast
+    );
+
+    broadcastThread.start();
+    broadcastServer.moveToThread(&broadcastThread);
+
     // Setup QHttpServer for normal transaction
     QHttpServer httpServer;
     // route request
@@ -80,22 +100,29 @@ void userRouting(QHttpServer &HttpServer, UserApi &userApi){
     );
 
 
-    // Message transaction module
-//    httpServer.route(
-//            "/message/send",QHttpServerRequest::Method::Post,
-//
-//    );
-//
-//    httpServer.route(
-//            "/message/history",QHttpServerRequest::Method::Get,
-//
-//    );
 
-    // Friend transaction module
+}
+void msgRouting(QHttpServer &HttpServer, MessageApi &msgApi){
+
+    // Message transaction module
+    HttpServer.route(
+            "/message/send",QHttpServerRequest::Method::Post,
+            [&msgApi](const QHttpServerRequest&request){
+                return msgApi.handleSentMessageRequest(request);
+            }
+    );
+
+    HttpServer.route(
+            "/message/history",QHttpServerRequest::Method::Get,
+            [&msgApi](const QHttpServerRequest&request){
+                return msgApi.retrieveHistoryMsgList(request);
+            }
+    );
+
 }
 
 void friendRouting(QHttpServer &HttpServer, FriendApi &friendApi){
-
+    // Friend transaction module
     HttpServer.route(
             "/friend/request", QHttpServerRequest::Method::Post,
             [&friendApi](const QHttpServerRequest &request) {

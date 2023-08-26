@@ -16,7 +16,7 @@ QHttpServerResponse MessageApi::handleSentMessageRequest(const QHttpServerReques
 
     auto cookie =  getcookieFromRequest(request);
     auto uid = (cookie.has_value())?
-            sessionApi->getIdByCookie(QUuid::fromString(cookie.value())):
+            SessionApi::getInstance()->getIdByCookie(QUuid::fromString(cookie.value())):
             (std::nullopt);
     // get the cookie and auth it, fail then return
     if(!uid.has_value())
@@ -84,7 +84,7 @@ QHttpServerResponse MessageApi::retrieveHistoryMsgList(const QHttpServerRequest 
 
     auto cookie =  getcookieFromRequest(request);
     auto uid = (cookie.has_value())?
-               sessionApi->getIdByCookie(QUuid::fromString(cookie.value())):
+               SessionApi::getInstance()->getIdByCookie(QUuid::fromString(cookie.value())):
                (std::nullopt);
     // get the cookie and auth it, fail then return
     if(!uid.has_value())
