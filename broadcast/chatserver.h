@@ -13,6 +13,7 @@ QT_FORWARD_DECLARE_CLASS(QWebSocketServer)
 QT_FORWARD_DECLARE_CLASS(QWebSocket)
 QT_FORWARD_DECLARE_CLASS(QString)
 
+//TODO: need consistency maintainess and locks
 class SocketSession{
 public:
     using id_t = qint64;
@@ -59,7 +60,7 @@ private:
     // timeout setting for upgrade to socket
     QMap<QWebSocket*, QTimer*> m_socketTimers;
 
-    QList<QWebSocket *> m_clients;
+//    QList<QWebSocket *> m_clients;
     SocketSession socketSession;
 
 };
