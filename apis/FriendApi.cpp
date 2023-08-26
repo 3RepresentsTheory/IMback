@@ -78,7 +78,7 @@ FriendApi::~FriendApi() {
 
 QHttpServerResponse FriendApi::request(const QHttpServerRequest &request) {
     QUuid token = QUuid::fromString(getcookieFromRequest(request).value().toStdString());
-    int id = sessionApi->authcookie(token);
+    int id = sessionApi->getIdByCookie(token);
     if(id==-1)
         return QHttpServerResponse("身份验证失败",QHttpServerResponder::StatusCode::BadRequest);
     const auto json = byteArrayToJsonObject(request.body());
@@ -105,7 +105,7 @@ QHttpServerResponse FriendApi::request(const QHttpServerRequest &request) {
 
 QHttpServerResponse FriendApi::accept(const QHttpServerRequest &request) {
     QUuid token = QUuid::fromString(getcookieFromRequest(request).value().toStdString());
-    int id = sessionApi->authcookie(token);
+    int id = sessionApi->getIdByCookie(token);
     if(id==-1)
         return QHttpServerResponse("身份验证失败",QHttpServerResponder::StatusCode::BadRequest);
     const auto json = byteArrayToJsonObject(request.body());
@@ -125,7 +125,7 @@ QHttpServerResponse FriendApi::accept(const QHttpServerRequest &request) {
 
 QHttpServerResponse FriendApi::requests(const QHttpServerRequest &request) {
     QUuid token = QUuid::fromString(getcookieFromRequest(request).value().toStdString());
-    int id = sessionApi->authcookie(token);
+    int id = sessionApi->getIdByCookie(token);
     if(id==-1)
         return QHttpServerResponse("身份验证失败",QHttpServerResponder::StatusCode::BadRequest);
     string last = request.query().queryItemValue("last").toStdString();

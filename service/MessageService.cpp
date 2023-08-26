@@ -4,6 +4,10 @@
 
 #include "MessageService.h"
 
+MessageService::MessageService() {
+    baseDao = new BaseDao();
+}
+
 MessageService::~MessageService() {
     //TODO: might cause double free? had better use like this:
     /* auto service = MessageService(
@@ -37,13 +41,13 @@ void MessageService::FillMessageFromDB(Message &original_message) {
     original_message.mid     = std::stoi(ret[0]["mid"]);
 }
 
-QVector<Message> MessageService::GetMessagelistByTime(qint64 mid,qint64 gid) {
+QJsonArray MessageService::GetMessagelistByTime(qint64 mid, qint64 gid) {
     string sql = "SELECT * FROM message WHERE id > ? and gid = ?";
     vector<map<string,string>>
         ret = baseDao->executeQuery(sql,to_string(mid),to_string(gid));
-    auto MessageList = QVector<Message>();
+    auto MessageList = QJsonArray();
     for(auto row : ret){
-        MessageList.emplace_back(Message(row));
+        MessageList.append(Message(row).toQJsonObject());
     }
     return MessageList;
 }

@@ -15,17 +15,12 @@ QHttpServerResponse MessageApi::handleSentMessageRequest(const QHttpServerReques
         return QHttpServerResponse("接收消息失败或为空", QHttpServerResponder::StatusCode::BadRequest);
 
     auto cookie =  getcookieFromRequest(request);
+    auto uid = (cookie.has_value())?
+            sessionApi->getIdByCookie(QUuid::fromString(cookie.value())):
+            (std::nullopt);
     // get the cookie and auth it, fail then return
-    if(
-            !cookie.has_value()
-        // ||session.authcookie(cookie.value())
-        //TODO:add session auth cookie
-            ){
+    if(!uid.has_value())
         return QHttpServerResponse("Authentication failed", QHttpServerResponder::StatusCode::BadRequest);
-    }else{
-        // || message.uid = session.getIdByCookie(cookie.value())
-        //TODO:add get id by cookie in session
-    }
 
     // json field validating make sure gid, type ,content is not blank
     if(!message.fromQJsonObject(json.value())){
@@ -48,11 +43,19 @@ QHttpServerResponse MessageApi::handleSentMessageRequest(const QHttpServerReques
      */
     // we simply fill type content gid uid(use session api) ,store to database and read it
     int message_id = 0;
-    if(!service.StoreMessage(message,message_id)){
+    if(!messageService->StoreMessage(message, message_id)){
         return QHttpServerResponse("Internal server error", QHttpServerResponder::StatusCode::InternalServerError);
     }
 
+    message.id  = message_id;
+    message.uid = uid.value();
+    messageService->FillMessageFromDB(message);
+
     // check broadcast if success return jsonfy object, or fail simply return 400
+    if(broadcastMessageToGroup(message)){
+        // I dont know how to handle here ...
+    }
+
     return QHttpServerResponse(message.toQJsonObject());
 
 }
@@ -70,4 +73,35 @@ bool MessageApi::broadcastMessageToGroup(Message message) {
     // broadcastserver*broadcastByWS(message,service.GetGroupUserList(gid))
 
     // if success return true , or fail return false
+}
+
+QHttpServerResponse MessageApi::retrieveHistoryMsgList(const QHttpServerRequest &request) {
+    HistoryRqst historyrqst;
+    const auto json = byteArrayToJsonObject(request.body());
+
+    if (!json)
+        return QHttpServerResponse("接收消息失败或为空", QHttpServerResponder::StatusCode::BadRequest);
+
+    auto cookie =  getcookieFromRequest(request);
+    auto uid = (cookie.has_value())?
+               sessionApi->getIdByCookie(QUuid::fromString(cookie.value())):
+               (std::nullopt);
+    // get the cookie and auth it, fail then return
+    if(!uid.has_value())
+        return QHttpServerResponse("Authentication failed", QHttpServerResponder::StatusCode::BadRequest);
+
+    // json field validating make sure gid, type ,content is not blank
+    if(!historyrqst.fromQJsonObject(json.value())){
+        return QHttpServerResponse("接收消息失败或为空", QHttpServerResponder::StatusCode::BadRequest);
+    }
+
+    // special validate for json field: is content blank? is gid valid? is uid is in the group gid?
+    // TODO: add validate for content gid uid content
+
+    return QHttpServerResponse(
+            messageService->GetMessagelistByTime(
+                historyrqst.mid,
+                historyrqst.gid
+            )
+    );
 }

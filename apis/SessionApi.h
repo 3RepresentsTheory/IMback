@@ -26,7 +26,7 @@ public:
 
     SessionEntry createEntryAndStart(qint64 id);
 
-    int authcookie(QUuid token);
+    std::optional<int> getIdByCookie(QUuid token);
 
     int addtoSessionlist(SessionEntry* entry);
 

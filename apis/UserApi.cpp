@@ -14,12 +14,18 @@ User::~User() {
 
 }
 
-UserApi::UserApi(UserService *userService, SessionApi *sessionApi) : userService(userService), sessionApi(sessionApi) {}
+UserApi::UserApi(UserService *userService, SessionApi *sessionApi) :
+    userService(userService), sessionApi(sessionApi) {}
 
 User User::formJsonObject(const QJsonObject &json){
     map<string,string> reqParams = jsonToString(json);
-    User user = User(reqParams["username"],reqParams["password"],
-                     reqParams["nickname"],reqParams["color"],reqParams["avatar"]);
+    User user = User(
+            reqParams["username"],
+            reqParams["password"],
+            reqParams["nickname"],
+            reqParams["color"],
+            reqParams["avatar"]
+    );
     return user;
 }
 
@@ -87,7 +93,7 @@ QHttpServerResponse UserApi:: login(const QHttpServerRequest &request) {
 
 QHttpServerResponse UserApi::info(const QHttpServerRequest &request) {
     QUuid token = QUuid::fromString(getcookieFromRequest(request).value().toStdString());
-    int id = sessionApi->authcookie(token);
+    int id = sessionApi->getIdByCookie(token);
     if(id==-1)
         return QHttpServerResponse("身份验证失败",QHttpServerResponder::StatusCode::BadRequest);
     const auto json = byteArrayToJsonObject(request.body());

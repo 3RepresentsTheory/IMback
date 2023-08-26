@@ -30,3 +30,20 @@ QJsonObject Message::toQJsonObject() {
     };
 }
 
+
+bool HistoryRqst::fromQJsonObject(const QJsonObject &json) {
+    if(
+            !json.contains("gid")     || json.value("gid").isNull()||
+            !json.contains("last")  || json.value("last").isNull()
+    )
+        return false;
+    gid = json.value("gid").toInteger();
+    mid = json.value("last").toInteger();
+}
+
+QJsonObject HistoryRqst::toQJsonObject() {
+    return QJsonObject{
+            {"gid",gid},
+            {"last",mid},
+    };
+}
