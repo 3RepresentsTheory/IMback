@@ -52,6 +52,10 @@ QHttpServerResponse MessageApi::handleSentMessageRequest(const QHttpServerReques
     messageService->FillMessageFromDB(message);
 
     // check broadcast if success return jsonfy object, or fail simply return 400
+    if(broadcastMessageToGroup(message)){
+        // I dont know how to handle here ...
+    }
+
     return QHttpServerResponse(message.toQJsonObject());
 
 }
