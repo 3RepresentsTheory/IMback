@@ -21,12 +21,12 @@ int SessionApi::removeEntry(SessionEntry *target) {
     return 0;
 }
 
-int SessionApi::authcookie(QUuid token) {
+std::optional<int> SessionApi::getIdByCookie(QUuid token) {
     lock.lockForRead();
     SessionEntry sessionEntry = sessions.value(token);
     lock.unlock();
     if(sessionEntry.token != token){
-        return -1;
+        return std::nullopt;
     }
     return sessionEntry.id;
 }

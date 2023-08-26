@@ -45,7 +45,7 @@ private:
     SessionApi* sessionApi;
     UserService *userService;
 public:
-    FriendApi(UserService* userService,FriendService* friendService1,SessionApi* sessionApi);
+    FriendApi(UserService* userService,FriendService* friendService1);
     ~FriendApi();
     QHttpServerResponse request(const QHttpServerRequest &request);
     QHttpServerResponse accept(const QHttpServerRequest& request);

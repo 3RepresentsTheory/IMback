@@ -26,10 +26,9 @@ public:
 class UserApi {
 private:
     UserService* userService;
-    SessionApi* sessionApi;
 public:
 
-    UserApi(UserService *userService, SessionApi *sessionApi);
+    UserApi(UserService *userService);
 
     QHttpServerResponse registerSession(const QHttpServerRequest &request);
     QHttpServerResponse login(const QHttpServerRequest &request);

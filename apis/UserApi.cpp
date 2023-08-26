@@ -14,8 +14,8 @@ User::~User() {
 
 }
 
-UserApi::UserApi(UserService *userService, SessionApi *sessionApi) :
-    userService(userService), sessionApi(sessionApi) {}
+UserApi::UserApi(UserService *userService) :
+    userService(userService) {}
 
 User User::formJsonObject(const QJsonObject &json){
     map<string,string> reqParams = jsonToString(json);
@@ -86,15 +86,15 @@ QHttpServerResponse UserApi:: login(const QHttpServerRequest &request) {
     if(rc.empty())
         return QHttpServerResponse("用户名或密码错误",QHttpServerResponder::StatusCode::BadRequest);
 
-    SessionEntry sessionEntry = sessionApi->createEntryAndStart(stoi(rc["id"]));
+    SessionEntry sessionEntry = SessionApi::getInstance()->createEntryAndStart(stoi(rc["id"]));
 
     return QHttpServerResponse(User::toJsonObject(rc["nickname"],sessionEntry.token.value()));
 }
 
 QHttpServerResponse UserApi::info(const QHttpServerRequest &request) {
     QUuid token = QUuid::fromString(getcookieFromRequest(request).value().toStdString());
-    int id = sessionApi->getIdByCookie(token);
-    if(id==-1)
+    auto id = SessionApi::getInstance()->getIdByCookie(token);
+    if(!id.has_value())
         return QHttpServerResponse("身份验证失败",QHttpServerResponder::StatusCode::BadRequest);
     const auto json = byteArrayToJsonObject(request.body());
     if (!json)
@@ -104,7 +104,7 @@ QHttpServerResponse UserApi::info(const QHttpServerRequest &request) {
     string nickname = user.nickname;
     string color = user.color;
     string avatar = user.avatar;
-    bool rc = userService->updateInfo(id,nickname,color,avatar);
+    bool rc = userService->updateInfo(id.value(),nickname,color,avatar);
     if(!rc){
         return QHttpServerResponse("Error", QHttpServerResponder::StatusCode::BadRequest);
     }

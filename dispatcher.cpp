@@ -25,10 +25,9 @@ int main(int argc, char *argv[]) {
     if (!parser.value("port").isEmpty())
         portArg = parser.value("port").toUShort();
 
-    SessionApi* sessionApi = new SessionApi();
     // add global session management
-    UserApi userApi(new UserService(),sessionApi);
-    FriendApi friendApi(new UserService(),new FriendService,sessionApi);
+    UserApi userApi(new UserService());
+    FriendApi friendApi(new UserService(),new FriendService());
     // Setup QHttpServer for normal transaction
     QHttpServer httpServer;
     // route request

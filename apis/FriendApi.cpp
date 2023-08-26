@@ -68,7 +68,7 @@ QJsonArray Requests::toJsonObject(const vector<map<string, string>> &rc) {
     return jsonArray;
 }
 
-FriendApi::FriendApi(UserService* userService,FriendService *friendService, SessionApi *sessionApi) : userService(userService),friendService(friendService), sessionApi(sessionApi) {}
+FriendApi::FriendApi(UserService* userService,FriendService *friendService) : userService(userService),friendService(friendService) {}
 
 FriendApi::~FriendApi() {
     if(!friendService){
@@ -78,8 +78,8 @@ FriendApi::~FriendApi() {
 
 QHttpServerResponse FriendApi::request(const QHttpServerRequest &request) {
     QUuid token = QUuid::fromString(getcookieFromRequest(request).value().toStdString());
-    int id = sessionApi->getIdByCookie(token);
-    if(id==-1)
+    auto id = SessionApi::getInstance()->getIdByCookie(token);
+    if(!id.has_value())
         return QHttpServerResponse("身份验证失败",QHttpServerResponder::StatusCode::BadRequest);
     const auto json = byteArrayToJsonObject(request.body());
     if (!json)
@@ -97,7 +97,7 @@ QHttpServerResponse FriendApi::request(const QHttpServerRequest &request) {
     if(targetId==id){
         return QHttpServerResponse("不能添加自己为好友",QHttpServerResponder::StatusCode::BadRequest);
     }
-    bool rc = friendService->insertRequest(to_string(targetId),to_string(id),text);
+    bool rc = friendService->insertRequest(to_string(targetId),to_string(id.value()),text);
     if (!rc)
         return QHttpServerResponse("Error", QHttpServerResponder::StatusCode::BadRequest);
     return QHttpServerResponse("OK");
@@ -105,8 +105,8 @@ QHttpServerResponse FriendApi::request(const QHttpServerRequest &request) {
 
 QHttpServerResponse FriendApi::accept(const QHttpServerRequest &request) {
     QUuid token = QUuid::fromString(getcookieFromRequest(request).value().toStdString());
-    int id = sessionApi->getIdByCookie(token);
-    if(id==-1)
+    auto id = SessionApi::getInstance()->getIdByCookie(token);
+    if(!id.has_value())
         return QHttpServerResponse("身份验证失败",QHttpServerResponder::StatusCode::BadRequest);
     const auto json = byteArrayToJsonObject(request.body());
     if (!json)
@@ -117,7 +117,7 @@ QHttpServerResponse FriendApi::accept(const QHttpServerRequest &request) {
     if(rc.empty()||stoi(rc["userId"])!=id){
         return QHttpServerResponse("没有该好友请求或请求已经被接受",QHttpServerResponder::StatusCode::BadRequest);
     }
-    bool updaterc = friendService->acceptRequest(to_string(id),rc["requestUserId"],requestId);
+    bool updaterc = friendService->acceptRequest(to_string(id.value()),rc["requestUserId"],requestId);
     if(!updaterc)
         return QHttpServerResponse("Error",QHttpServerResponder::StatusCode::BadRequest);
     return QHttpServerResponse("OK");
@@ -125,11 +125,11 @@ QHttpServerResponse FriendApi::accept(const QHttpServerRequest &request) {
 
 QHttpServerResponse FriendApi::requests(const QHttpServerRequest &request) {
     QUuid token = QUuid::fromString(getcookieFromRequest(request).value().toStdString());
-    int id = sessionApi->getIdByCookie(token);
-    if(id==-1)
+    auto id = SessionApi::getInstance()->getIdByCookie(token);
+    if(!id.has_value())
         return QHttpServerResponse("身份验证失败",QHttpServerResponder::StatusCode::BadRequest);
     string last = request.query().queryItemValue("last").toStdString();
-    vector<map<string ,string >> rc = friendService->getRequests(to_string(id),last);
+    vector<map<string ,string >> rc = friendService->getRequests(to_string(id.value()),last);
     QJsonArray qJsonArray = Requests::toJsonObject(rc);
     return QHttpServerResponse(qJsonArray);
 }
