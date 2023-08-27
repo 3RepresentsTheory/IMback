@@ -19,14 +19,14 @@ MessageService::~MessageService() {
 }
 
 bool MessageService::StoreMessage(const Message &message,int &last_insert_id) {
-    string sql = "INSERT INTO message(type, content, gid, uid) VALUES (?, ?, ?, ?);";
+    string sql = "INSERT INTO message(type, content, uid, gid) VALUES (?, ?, ?, ?);";
     return baseDao->executeUpdate(
         last_insert_id,
         sql,
         message.type.toStdString(),
         message.content.toStdString(),
-        to_string(message.gid),
-        to_string(message.uid)
+        to_string(message.uid),
+        to_string(message.gid)
     );
 }
 
@@ -37,7 +37,7 @@ void MessageService::FillMessageFromDB(Message &original_message) {
         ret = baseDao->executeQuery(sql,to_string(original_message.id));
     // database must guarantee that only one message of this id
     original_message.type    = QString::fromStdString(ret[0]["type"]);
-    original_message.time    = getUnixTimeStampFromString(ret[0]["time"]);
+    original_message.time    = std::stoi(ret[0]["time"]);
     original_message.mid     = std::stoi(ret[0]["mid"]);
 }
 
@@ -53,6 +53,7 @@ QJsonArray MessageService::GetMessagelistByTime(qint64 mid, qint64 gid) {
 }
 
 QVector<qint64> MessageService::GetGroupUserList(qint64 gid) {
+    // if gid is not valid, return empty vector
     string sql = "SELECT * FROM groupUser WHERE gid = ?";
     vector<map<string,string>>
             ret = baseDao->executeQuery(sql,to_string(gid));

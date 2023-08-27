@@ -11,26 +11,20 @@
 class Jsonable{
 public:
     // return a new qjson object
-    virtual QJsonObject toQJsonObject() = 0;
+    virtual QJsonObject toQJsonObject() =0;
 
     // fill fields by a qjson object
     virtual bool fromQJsonObject(const QJsonObject& ) = 0;
 };
+
+using dao_entry = map<string,string> ;
 
 // message service - api
 class Message:Jsonable{
 public:
     Message(){};
 
-    Message(map<string,string> row){
-        id      = std::stoi(row["id"]);
-        type    = QString::fromStdString(row["type"]);
-        content = QString::fromStdString(row["content"]);
-        time    = getUnixTimeStampFromString(row["time"]);
-        uid     = std::stoi(row["uid"]);
-        mid     = std::stoi(row["mid"]);
-        gid     = std::stoi(row["gid"]);
-    };
+    Message(dao_entry row,bool isFromGroupCstr=0);
 
     qint64  id;          //ret string in api
     QString type;        //from request
@@ -66,6 +60,24 @@ public:
 
     qint64  mid;         //string in api
     qint64  gid;         //ret from request
+};
+
+
+class Group:Jsonable{
+public:
+    QString id;
+    QString name;
+    qint64 owner;
+    QString type;
+    Message last_message; // can be null
+
+    Group(){};
+    Group(dao_entry row,bool isContainLastMessage);
+
+    bool fromQJsonObject(const QJsonObject &) override;
+    QJsonObject toQJsonObject() override;
+    QJsonObject toQJsonObjectWithLastMsg();
+
 };
 
 #endif //DEMO02_DATACLASSES_H

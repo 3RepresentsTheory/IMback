@@ -8,7 +8,6 @@
 #include <QtHttpServer/QHttpServer>
 #include <QtConcurrent/qtconcurrentrun.h>
 #include <string>
-#include "../service/UserService.h"
 #include <optional>
 
 class SessionApi {

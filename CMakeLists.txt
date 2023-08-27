@@ -8,7 +8,7 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
 
-find_package(Qt6 COMPONENTS Core Gui Widgets Network HttpServer REQUIRED)
+find_package(Qt6 COMPONENTS Core Gui Widgets Network HttpServer Sql REQUIRED)
 
 set(SOURCES
         dispatcher.cpp
@@ -22,7 +22,7 @@ set(SOURCES
         apis/FriendApi.cpp
         apis/MessageApi.cpp
         broadcast/chatserver.cpp
-        dao/DataClasses.cpp)
+        dao/DataClasses.cpp apis/GroupApi.cpp service/GroupService.cpp)
 #        apis/MessageApi.cpp
 #        service/MessageService.cpp
 #        utils/Jsonable.cpp)
@@ -40,11 +40,18 @@ set(HEADERS
         utils/utils.h
         broadcast/BroadCastThread.h
         broadcast/chatserver.h
-        )
+        apis/GroupApi.h service/GroupService.h)
 
 add_executable(Demo02 ${SOURCES} ${HEADERS})
 
-target_link_libraries(Demo02 Qt6::Core Qt6::Gui Qt6::Widgets Qt6::Network Qt6::HttpServer)
+target_link_libraries(Demo02
+        Qt6::Core
+        Qt6::Gui
+        Qt6::Widgets
+        Qt6::Network
+        Qt6::HttpServer
+        Qt6::Sql
+        )
 #
 #add_subdirectory(samplefiles/simpletest)
 #add_subdirectory(test)

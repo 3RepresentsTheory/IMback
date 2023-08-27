@@ -20,7 +20,7 @@ QHttpServerResponse MessageApi::handleSentMessageRequest(const QHttpServerReques
             (std::nullopt);
     // get the cookie and auth it, fail then return
     if(!uid.has_value())
-        return QHttpServerResponse("Authentication failed", QHttpServerResponder::StatusCode::BadRequest);
+        return QHttpServerResponse("身份验证失败", QHttpServerResponder::StatusCode::BadRequest);
 
     // json field validating make sure gid, type ,content is not blank
     if(!message.fromQJsonObject(json.value())){
@@ -42,10 +42,11 @@ QHttpServerResponse MessageApi::handleSentMessageRequest(const QHttpServerReques
      * mid          (generate - database)
      */
     // we simply fill type content gid uid(use session api) ,store to database and read it
+    // no transaction mechanism proctect
     int message_id = 0;
     message.uid = uid.value();
     if(!messageService->StoreMessage(message, message_id)){
-        return QHttpServerResponse("Internal server error", QHttpServerResponder::StatusCode::InternalServerError);
+        return QHttpServerResponse("服务器内部错误，请稍后再试", QHttpServerResponder::StatusCode::InternalServerError);
     }
 
     message.id  = message_id;
@@ -88,7 +89,7 @@ QHttpServerResponse MessageApi::retrieveHistoryMsgList(const QHttpServerRequest 
                (std::nullopt);
     // get the cookie and auth it, fail then return
     if(!uid.has_value())
-        return QHttpServerResponse("Authentication failed", QHttpServerResponder::StatusCode::BadRequest);
+        return QHttpServerResponse("身份验证失败", QHttpServerResponder::StatusCode::BadRequest);
 
     // json field validating make sure gid, type ,content is not blank
     if(!historyrqst.fromQJsonObject(json.value())){

@@ -105,7 +105,7 @@ void ChatBroadcastServer::onNewConnection()
 
 
 void ChatBroadcastServer::onUpgradeToSocketAuth(const QString &message) {
-    qDebug() << message ;
+    qDebug() << "get the cookie: "<<message ;
     QWebSocket *pSender = qobject_cast<QWebSocket *>(sender());
     auto uid = SessionApi::getInstance()->getIdByCookie(QUuid::fromString(message));
     if(uid.has_value()){
@@ -152,11 +152,12 @@ void ChatBroadcastServer::socketDisconnected()
 void ChatBroadcastServer::onNeedToBroadCast(Message msg, QVector<qint64> glist) {
     QJsonDocument doc(msg.toQJsonObject());
     QByteArray bytes = doc.toJson();
-    qint64 sender_id = msg.uid;
+//    qint64 sender_id = msg.uid;
 
     for(auto uid:glist){
         auto uws = socketSession.getWsById(uid);
-        if(uws.has_value()&&uid!=sender_id)
+//        if(uws.has_value()&&uid!=sender_id)
+        if(uws.has_value())
             uws.value()->sendTextMessage(bytes);
     }
 }

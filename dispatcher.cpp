@@ -1,10 +1,12 @@
 #include <QtCore/QCoreApplication>
 #include <QtHttpServer/QHttpServer>
+#include <QSqlDatabase>
 #include "apis/userapi.h"
 #include "apis/friendApi.h"
 #include "apis/MessageApi.h"
 #include "broadcast/chatserver.h"
 #include "broadcast/BroadCastThread.h"
+#include "apis/GroupApi.h"
 
 #define TXPORT 1235
 #define BCPORT 1234
@@ -13,6 +15,7 @@
 void userRouting(QHttpServer &HttpServer, UserApi &userApi);
 void friendRouting(QHttpServer &HttpServer, FriendApi& friendApi);
 void msgRouting(QHttpServer &HttpServer, MessageApi &msgApi);
+void groupRouting(QHttpServer &HttpServer, GroupApi &groupApi);
 
 int main(int argc, char *argv[]) {
     QCoreApplication app(argc, argv);
@@ -40,7 +43,10 @@ int main(int argc, char *argv[]) {
     // add global session management
     UserApi userApi(new UserService());
     FriendApi friendApi(new UserService(),new FriendService());
-    MessageApi messageApi(new MessageService());
+
+    MessageService* msgService = new MessageService();
+    MessageApi messageApi(msgService);
+    GroupApi groupApi(msgService,new GroupService());
 
     // handle messageapi connect to broadcast server&thread
     QObject::connect(
@@ -56,10 +62,12 @@ int main(int argc, char *argv[]) {
 
     // Setup QHttpServer for normal transaction
     QHttpServer httpServer;
+
     // route request
     userRouting(httpServer, userApi);
     friendRouting(httpServer,friendApi);
     msgRouting(httpServer,messageApi);
+    groupRouting(httpServer,groupApi);
 
 
     // start server listen
@@ -119,7 +127,6 @@ void userRouting(QHttpServer &HttpServer, UserApi &userApi){
 
 }
 
-
 void msgRouting(QHttpServer &HttpServer, MessageApi &msgApi){
 
     // Message transaction module
@@ -161,4 +168,37 @@ void friendRouting(QHttpServer &HttpServer, FriendApi &friendApi){
                 return friendApi.requests(request);
             }
     );
+}
+
+void groupRouting(QHttpServer &HttpServer, GroupApi &groupApi){
+    // msgapi use get group list
+
+    HttpServer.route(
+            "/group/new",QHttpServerRequest::Method::Post,
+            [&groupApi](const QHttpServerRequest&request){
+                return groupApi.createGroup(request);
+            }
+    );
+
+    HttpServer.route(
+            "/group/request",QHttpServerRequest::Method::Post,
+            [&groupApi](const QHttpServerRequest&request){
+                return groupApi.joinGroup(request);
+            }
+    );
+
+    HttpServer.route(
+            "/group/list",QHttpServerRequest::Method::Get,
+            [&groupApi](const QHttpServerRequest&request){
+                return groupApi.getGroupHasjoin(request);
+            }
+    );
+
+    HttpServer.route(
+            "/group/users",QHttpServerRequest::Method::Get,
+            [&groupApi](const QHttpServerRequest&request){
+                return groupApi.getGroupUserList(request);
+            }
+    );
+
 }
