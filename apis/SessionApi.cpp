@@ -2,6 +2,7 @@
 // Created by no3core on 2023/8/24.
 //
 #include "SessionApi.h"
+//TODO: eliminate dup session tokens
 
 SessionEntry SessionApi::createEntryAndStart(qint64 id) {
     SessionEntry sessionEntry;

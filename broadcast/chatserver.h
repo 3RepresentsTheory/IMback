@@ -7,7 +7,7 @@
 #include <QMap>
 #include "../dao/DataClasses.h"
 
-#define AUTHTIMEOUT 6000
+#define AUTHTIMEOUT 10000
 
 QT_FORWARD_DECLARE_CLASS(QWebSocketServer)
 QT_FORWARD_DECLARE_CLASS(QWebSocket)
@@ -21,6 +21,7 @@ public:
     void insert(qint64 id,QWebSocket* ws);
     void remove(QWebSocket* ws);
     std::optional<QWebSocket*> getWsById(qint64 id);
+    QVector<qint64> allOnlineUsers();
 
 private:
     // one id can only map with one web socket
@@ -35,12 +36,14 @@ class ChatBroadcastServer : public QObject
 {
     Q_OBJECT
 public:
-    explicit ChatBroadcastServer(quint16 port, QObject *parent = nullptr);
+    explicit ChatBroadcastServer(QObject *parent = nullptr);
     ~ChatBroadcastServer() override;
 
 //    void testBroadCast();
 //    void testOnline();
     void listen(QHostAddress,quint64);
+    // (uid list) "all" default get all online user, "<uid1>,<uid2>,..." get specific user
+//    QVector<qint64> getOnlineUsersList(QString uidlist);
 
 public slots:
     void onNeedToBroadCast(Message msg,QVector<qint64> glist);

@@ -1,36 +1,41 @@
 #include <QtCore/QCoreApplication>
 #include <QtHttpServer/QHttpServer>
-#include "apis//userapi.h"
-#include "apis//friendApi.h"
-#include "broadcast/chatserver.h"
+#include "apis/userapi.h"
+#include "apis/friendApi.h"
 #include "apis/MessageApi.h"
+#include "broadcast/chatserver.h"
+#include "broadcast/BroadCastThread.h"
 
-#define PORT 49425
+#define TXPORT 1235
+#define BCPORT 1234
 
 
 void userRouting(QHttpServer &HttpServer, UserApi &userApi);
 void friendRouting(QHttpServer &HttpServer, FriendApi& friendApi);
+void msgRouting(QHttpServer &HttpServer, MessageApi &msgApi);
 
 int main(int argc, char *argv[]) {
     QCoreApplication app(argc, argv);
 
     // parse start up command line port argument
-    QCommandLineParser parser;
-    parser.addOptions(
-       {
-         {"port", QCoreApplication::translate("main", "The port the server listens on."),
-          "port"},
-       }
-    );
-    parser.addHelpOption();
-    parser.process(app);
-    quint16 portArg = PORT;
-    if (!parser.value("port").isEmpty())
-        portArg = parser.value("port").toUShort();
+//    QCommandLineParser parser;
+//    parser.addOptions(
+//       {
+//         {"port", QCoreApplication::translate("main", "The port the server listens on."),
+//          "port"},
+//       }
+//    );
+//    parser.addHelpOption();
+//    parser.process(app);
+
+    quint16 txportArg = TXPORT;
+    quint16 bcportArg = BCPORT;
+//    if (!parser.value("port").isEmpty())
+//        portArg = parser.value("port").toUShort();
 
     // set up broadcast server
-    ChatBroadcastServer broadcastServer(1234);
-    QThread broadcastThread;
+    ChatBroadcastServer broadcastServer;
+    BroadCastThread broadcastThread;
 
     // add global session management
     UserApi userApi(new UserService());
@@ -46,6 +51,7 @@ int main(int argc, char *argv[]) {
     );
 
     broadcastThread.start();
+    broadcastServer.listen(QHostAddress::Any,bcportArg);
     broadcastServer.moveToThread(&broadcastThread);
 
     // Setup QHttpServer for normal transaction
@@ -53,8 +59,11 @@ int main(int argc, char *argv[]) {
     // route request
     userRouting(httpServer, userApi);
     friendRouting(httpServer,friendApi);
+    msgRouting(httpServer,messageApi);
+
+
     // start server listen
-    const auto port = httpServer.listen(QHostAddress::Any, portArg);
+    const auto port = httpServer.listen(QHostAddress::Any, txportArg);
     if (!port) {
         qDebug() << QCoreApplication::translate("QHttpServerExample",
                                                 "Server failed to listen on a port.");
@@ -74,7 +83,15 @@ void userRouting(QHttpServer &HttpServer, UserApi &userApi){
     HttpServer.route(
             "/",
             []() {
-                return "Qt Colorpalette example server. Please see documentation for API description";
+//                return "Qt Colorpalette example server. Please see documentation for API description";
+                // send back a chatclient.html in broadcast/chatclient.h
+                QFile file("../broadcast/chatclient.html");
+                if (!file.open(QIODevice::ReadOnly)) {
+                    return QHttpServerResponse("Internal server error", QHttpServerResponder::StatusCode::InternalServerError);
+                }
+                QByteArray data = file.readAll();
+                file.close();
+                return QHttpServerResponse(data);
             }
     );
     // User module
@@ -100,8 +117,9 @@ void userRouting(QHttpServer &HttpServer, UserApi &userApi){
     );
 
 
-
 }
+
+
 void msgRouting(QHttpServer &HttpServer, MessageApi &msgApi){
 
     // Message transaction module

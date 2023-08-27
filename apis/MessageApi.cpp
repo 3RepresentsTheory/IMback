@@ -36,19 +36,19 @@ QHttpServerResponse MessageApi::handleSentMessageRequest(const QHttpServerReques
      * type         (fill in)
      * content      (fill in)
      * gid          (fill in)
+     * uid          (generate - map cookie to id, use sessionapi needed)
      * id           (generate - database)
      * time         (generate - database)
      * mid          (generate - database)
-     * uid          (generate - map cookie to id, use sessionapi needed)
      */
     // we simply fill type content gid uid(use session api) ,store to database and read it
     int message_id = 0;
+    message.uid = uid.value();
     if(!messageService->StoreMessage(message, message_id)){
         return QHttpServerResponse("Internal server error", QHttpServerResponder::StatusCode::InternalServerError);
     }
 
     message.id  = message_id;
-    message.uid = uid.value();
     messageService->FillMessageFromDB(message);
 
     // check broadcast if success return jsonfy object, or fail simply return 400
@@ -70,7 +70,7 @@ bool MessageApi::broadcastMessageToGroup(Message message) {
     // atomically -- its will all send/or not send at all)
     // firstly we use the "fire and forget" strategy ,supposing it's will success
 
-    // broadcastserver*broadcastByWS(message,service.GetGroupUserList(gid))
+    emit passMessageToBroadCast(message,messageService->GetGroupUserList(gid));
 
     // if success return true , or fail return false
 }

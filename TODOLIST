@@ -3,4 +3,5 @@ part of message api
 broadcast module
 
 friend api requests untest
+需要将所有的错误消息改为中文
 

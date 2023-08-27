@@ -31,8 +31,8 @@ User User::formJsonObject(const QJsonObject &json){
 
 QJsonObject User::toJsonObject(const string &nickname,const QUuid& token) {
     return QJsonObject{
-            {"nickname",QString::fromStdString(nickname)},
-            {"token",token.toString(QUuid::StringFormat::WithoutBraces)}
+            {"user",QString::fromStdString(nickname)},
+            {"cookie",token.toString(QUuid::StringFormat::WithoutBraces)}
     };
 }
 
@@ -42,7 +42,7 @@ QHttpServerResponse UserApi:: registerSession(const QHttpServerRequest &request)
     const auto json = byteArrayToJsonObject(request.body());
 
     if (!json)
-        return QHttpServerResponse("Error", QHttpServerResponder::StatusCode::BadRequest);
+        return QHttpServerResponse("服务器无法解析请求", QHttpServerResponder::StatusCode::BadRequest);
     User user = User::formJsonObject(json.value());
     string username = user.username;
     string password = user.password;
@@ -61,11 +61,13 @@ QHttpServerResponse UserApi:: registerSession(const QHttpServerRequest &request)
     }
     userService->insertUser(username,password,nickname);
 
-    return QHttpServerResponse("Success");
-
+    return QHttpServerResponse("注册成功");
 }
 
 QHttpServerResponse UserApi:: login(const QHttpServerRequest &request) {
+    qDebug() << QCoreApplication::translate("QHttpServerExample",
+                                            "using user login:");
+
     const auto json = byteArrayToJsonObject(request.body());
 
     if (!json)
@@ -88,7 +90,10 @@ QHttpServerResponse UserApi:: login(const QHttpServerRequest &request) {
 
     SessionEntry sessionEntry = SessionApi::getInstance()->createEntryAndStart(stoi(rc["id"]));
 
-    return QHttpServerResponse(User::toJsonObject(rc["nickname"],sessionEntry.token.value()));
+    auto response =  QHttpServerResponse(User::toJsonObject(rc["nickname"],sessionEntry.token.value()));
+    // simply set for debug in browser
+    response.setHeader("Set-Cookie",sessionEntry.token.value().toByteArray());
+    return response;
 }
 
 QHttpServerResponse UserApi::info(const QHttpServerRequest &request) {

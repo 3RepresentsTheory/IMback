@@ -33,7 +33,7 @@ void ChatBroadcastServer::closeWaitWsocket(QWebSocket *wsocket,QString errorMsg)
 
 }
 
-ChatBroadcastServer::ChatBroadcastServer(quint16 port, QObject *parent) :
+ChatBroadcastServer::ChatBroadcastServer(QObject *parent) :
     QObject(parent),
     m_pWebSocketServer(
             new QWebSocketServer(
@@ -107,7 +107,7 @@ void ChatBroadcastServer::onNewConnection()
 void ChatBroadcastServer::onUpgradeToSocketAuth(const QString &message) {
     qDebug() << message ;
     QWebSocket *pSender = qobject_cast<QWebSocket *>(sender());
-    auto uid = SessionApi::getInstance()->getIdByCookie(QUuid::fromString(message)):
+    auto uid = SessionApi::getInstance()->getIdByCookie(QUuid::fromString(message));
     if(uid.has_value()){
         // if auth passed: stop timer and add to broadcast list
         m_socketTimers[pSender]->stop();
@@ -115,7 +115,7 @@ void ChatBroadcastServer::onUpgradeToSocketAuth(const QString &message) {
         m_socketTimers.remove(pSender);
         // add to broadcast list
         socketSession.insert(uid.value(),pSender);
-        m_clients <<  pSender;
+//        m_clients <<  pSender;
     }else{
         QTextStream(stdout) << getIdentifier(pSender) << "not pass auth!\n";
         closeWaitWsocket(pSender,"Connection authentication failed. Access denied.");
@@ -131,7 +131,7 @@ void ChatBroadcastServer::socketDisconnected()
     if (pClient)
     {
         socketSession.remove(pClient);
-        m_clients.removeAll(pClient);
+//        m_clients.removeAll(pClient);
         pClient->deleteLater();
     }
 }
@@ -152,11 +152,12 @@ void ChatBroadcastServer::socketDisconnected()
 void ChatBroadcastServer::onNeedToBroadCast(Message msg, QVector<qint64> glist) {
     QJsonDocument doc(msg.toQJsonObject());
     QByteArray bytes = doc.toJson();
+    qint64 sender_id = msg.uid;
 
     for(auto uid:glist){
         auto uws = socketSession.getWsById(uid);
-        if(uws.has_value())
-            uws.value()->sendBinaryMessage(bytes);
+        if(uws.has_value()&&uid!=sender_id)
+            uws.value()->sendTextMessage(bytes);
     }
 }
 
@@ -176,4 +177,15 @@ std::optional<QWebSocket *> SocketSession::getWsById(qint64 id) {
         return id2ws.value(id);
     else
         return std::nullopt;
+}
+
+QVector<qint64> SocketSession::allOnlineUsers() {
+    qDebug() << "all online users:\n";
+    QVector<qint64> ret;
+    QMap<id_t,wspt >::const_iterator it;
+    for (it = id2ws.constBegin(); it != id2ws.constEnd(); ++it) {
+        ret.append(it.key());
+        qDebug() << it.key() << "with ws: " << it.value() << "\n";
+    }
+    return ret;
 }

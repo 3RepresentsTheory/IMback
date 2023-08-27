@@ -39,6 +39,7 @@ bool HistoryRqst::fromQJsonObject(const QJsonObject &json) {
         return false;
     gid = json.value("gid").toInteger();
     mid = json.value("last").toInteger();
+    return true;
 }
 
 QJsonObject HistoryRqst::toQJsonObject() {

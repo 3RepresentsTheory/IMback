@@ -13,13 +13,16 @@ find_package(Qt6 COMPONENTS Core Gui Widgets Network HttpServer REQUIRED)
 set(SOURCES
         dispatcher.cpp
         sqlite/sqlite3.c
-        service/UserService.cpp
         dao/BaseDao.cpp
-        apis/SessionApi.cpp
-        apis/FriendApi.cpp
+        service/UserService.cpp
         service/FriendService.cpp
+        service/MessageService.cpp
+        apis/SessionApi.cpp
         apis/UserApi.cpp
-        apis/MessageApi.cpp broadcast/chatserver.cpp)
+        apis/FriendApi.cpp
+        apis/MessageApi.cpp
+        broadcast/chatserver.cpp
+        dao/DataClasses.cpp)
 #        apis/MessageApi.cpp
 #        service/MessageService.cpp
 #        utils/Jsonable.cpp)
@@ -30,13 +33,14 @@ set(HEADERS
         sqlite/sqlite3.h
         dao/BaseDao.h
         service/UserService.h
+        service/MessageService.h
 #        utils/Jsonable.h
 #        apis/SessionApi.h
 #        apis/MessageApi.h
         utils/utils.h
         broadcast/BroadCastThread.h
         broadcast/chatserver.h
-        service/MessageService.h)
+        )
 
 add_executable(Demo02 ${SOURCES} ${HEADERS})
 
