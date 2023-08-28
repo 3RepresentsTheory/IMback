@@ -2,6 +2,9 @@
 #include <QtHttpServer/QHttpServer>
 #include "apis//userapi.h"
 #include "apis//friendApi.h"
+#include <QSqlDatabase>
+#include <QSqlQuery>
+#include <QSqlError>
 #define PORT 49425
 
 
@@ -79,6 +82,26 @@ void userRouting(QHttpServer &HttpServer, UserApi &userApi){
             }
     );
 
+    HttpServer.route(
+            "/user/infos", QHttpServerRequest::Method::Post,
+            [&userApi](const QHttpServerRequest &request) {
+                return userApi.infos(request);
+            }
+    );
+
+    HttpServer.route(
+            "/user/ip", QHttpServerRequest::Method::Get,
+            [&userApi](const QHttpServerRequest &request) {
+                return userApi.getUserip(request);
+            }
+    );
+
+    HttpServer.route(
+            "/user/onlines", QHttpServerRequest::Method::Post,
+            [&userApi](const QHttpServerRequest &request) {
+                return userApi.onlines(request);
+            }
+    );
 
     // Message transaction module
 //    httpServer.route(

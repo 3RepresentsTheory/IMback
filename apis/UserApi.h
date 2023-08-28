@@ -5,24 +5,28 @@
 #ifndef DEMO02_USERAPI_H
 #define DEMO02_USERAPI_H
 #include "../service/UserService.h"
-#include "../Utils/Jsonable.h"
 #include "SessionApi.h"
+#include <QHostAddress>
 
 class User{
 public:
+    int id;
     string username;
     string password;
     string nickname;
     string color;
     string avatar;
-
-    User(const string &username, const string &password, const string &nickname,
-         const string &color,const string &avatar);
+    User();
+    User(map<string,string>& userInfo);
     ~User();
     static User formJsonObject(const QJsonObject &json) ;
-    static QJsonObject toJsonObject(const string& nickname,const QUuid& token) ;
+    static QJsonObject toJsonObject(const User& user);
+    static QJsonObject toJsonObjectForLogin(const User& user,const QUuid& token);
+    static QJsonArray toJsonObjectForInfos(const vector<User>& rc);
+    static QJsonObject toJsonObjectForUserip(const string& ipPortString);
 };
 
+class UserService;
 class UserApi {
 private:
     UserService* userService;
@@ -35,6 +39,9 @@ public:
 //    QHttpServerResponse logout(const QHttpServerRequest &request);
 
     QHttpServerResponse info(const QHttpServerRequest &request);
+    QHttpServerResponse infos(const QHttpServerRequest &request);
+    QHttpServerResponse getUserip(const QHttpServerRequest &request);
+    QHttpServerResponse onlines(const QHttpServerRequest &request);
 };
 
 

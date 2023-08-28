@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.24)
 
 set(CMAKE_PREFIX_PATH "D:/qt/6.5.2/mingw_64")
+set(-DCMAKE_PREFIX_PATH "\\wsl.localhost/Ubuntu/usr/local/include")
 
 project(Demo02)
 
@@ -8,7 +9,10 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
 
-find_package(Qt6 COMPONENTS Core Gui Widgets Network HttpServer REQUIRED)
+
+set(CMAKE_SYSROOT "/")
+
+find_package(Qt6 COMPONENTS Core Gui Widgets Network HttpServer Sql REQUIRED)
 
 set(SOURCES
         dispatcher.cpp
@@ -37,7 +41,9 @@ set(HEADERS
 
 add_executable(Demo02 ${SOURCES} ${HEADERS})
 
-target_link_libraries(Demo02 Qt6::Core Qt6::Gui Qt6::Widgets Qt6::Network Qt6::HttpServer)
+target_link_libraries(Demo02 Qt6::Core Qt6::Gui Qt6::Widgets Qt6::Network Qt6::HttpServer Qt6::Sql)
+
+
 #
 #add_subdirectory(samplefiles/simpletest)
 #add_subdirectory(test)

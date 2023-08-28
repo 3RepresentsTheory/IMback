@@ -51,11 +51,7 @@ public:
         }else
             return -1;
     }
-
-
 };
-
-
 
 
 #endif // TYPES_H

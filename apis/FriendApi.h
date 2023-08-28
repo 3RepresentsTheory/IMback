@@ -35,7 +35,7 @@ public:
     Requests(const string& last);
     ~Requests();
     static Requests fromJsonObject(const QJsonObject &json);
-    static QJsonArray toJsonObject(const vector<map<string,string>>& rc);
+    static QJsonArray toJsonObject(vector<map<string,string>>& rc);
     string last;
 };
 

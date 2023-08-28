@@ -31,6 +31,34 @@ std::optional<int> SessionApi::getIdByCookie(QUuid token) {
     return sessionEntry.id;
 }
 
+void SessionApi::insertIP(const string &id, const string &ip) {
+    id2ip.insert(make_pair(id, ip));
+    idSets.insert(id);
+}
+
+std::optional<string> SessionApi::getIpById(string id) {
+    auto it = id2ip.find(id);
+    if (it != id2ip.end()) {
+        // 键存在，返回对应的值
+        return it->second;
+    } else {
+        // 键不存在，返回空字符串
+        return std::nullopt;
+    }
+}
+
+
+QJsonArray SessionApi:: checkIdsInSet(const string& uid) {
+    QJsonArray result;
+    QStringList idList = QString::fromStdString(uid).split(',');
+
+    for (const QString& id : idList) {
+        result.append(idSets.count(id.toStdString()) > 0);
+    }
+
+    return result;
+}
+
 SessionApi::SessionApi() {
 
 }
