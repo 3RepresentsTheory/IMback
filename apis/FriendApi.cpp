@@ -119,14 +119,21 @@ QHttpServerResponse FriendApi::request(const QHttpServerRequest &request) {
 
     // currently we simply accept it, no need to wait for the target user to accept
     // add metadata to twin group
-//    Group twingroup;
-//    int groupid;
-//    twingroup.name = "";  //????
-//    twingroup.owner = ;   //????
-//    twingroup.type = "twin";
-//    groupService->CreateGroup()
+    Group twingroup;
+    int groupid;
+    int minid = min(id.value(),targetId);int maxid = max(id.value(),targetId);
+    twingroup.name = QString::fromStdString(to_string(minid)+','+to_string(maxid));  //????
+    twingroup.owner= 0;   //????
+    twingroup.type = "twin";
 
-
+    //create group and join (TODO:need tx)
+    if(
+            !groupService->CreateGroup(twingroup,groupid)||
+            !groupService->JoinGroup(minid,groupid)||
+            !groupService->JoinGroup(maxid,groupid)
+    ){
+        return QHttpServerResponse(QJsonObject{{"msg","创建群组失败"}},QHttpServerResponder::StatusCode::InternalServerError);
+    }
 
 //    bool rc = friendService->insertRequest(to_string(targetId),to_string(id.value()),text);
 //    if (!rc)

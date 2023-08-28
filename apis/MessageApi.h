@@ -28,7 +28,7 @@ public:
 private:
     MessageService*messageService;
 signals:
-    void passMessageToBroadCast(MsgLoad msg,QVector<qint64>glist);
+    void passMessageToBroadCast(Message msg,QVector<qint64>glist);
 };
 
 

@@ -30,8 +30,8 @@ CREATE TABLE groupChat (
                            name TEXT,
                            owner INTEGER,
                            gctype TEXT,
-                           avatar TEXT,
-                           color TEXT,
+                           avatar TEXT default(''),
+                           color TEXT default(''),
                            msgNum INTEGER default(0),
                            last_msg_id INTEGER default(0),
                            last_msg_timestamp INTEGER default(0)

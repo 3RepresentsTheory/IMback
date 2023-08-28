@@ -58,10 +58,11 @@ bool UserService::isNicknameExists(const string &nickname) {
     return true;
 }
 
+// need handle null here
 User UserService::validateUserCredentials(const string &username, const string &password) {
     vector<map<string, string>> rc;
     map<string ,string> rcMap;
-    string sql = "SELECT id,username, password, nickname,avatar,color FROM user WHERE username = ? AND password = ?;";
+    string sql = "SELECT id,username, password, nickname FROM user WHERE username = ? AND password = ?;";
     rc = baseDao->executeQuery(sql,username,password);
     if(rc.empty())
         return User();

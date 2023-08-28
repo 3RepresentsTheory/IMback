@@ -55,13 +55,13 @@ QJsonObject User::toJsonObjectForLogin(const User& user,const QUuid& token){
 QJsonArray User::toJsonObjectForInfos(const vector<User>& rc) {
     QJsonArray jsonArray;
 
-    for (const auto& user : rc) {
+    for (const auto &user: rc) {
         QJsonObject userJson = User::toJsonObject(user); // 请将正确的 token 参数传递给函数
 
         jsonArray.append(userJson);
     }
     return jsonArray;
-
+}
 
 QJsonObject User::toJsonObjectForUserip(const string& ipPortString) {
     size_t colonPos = ipPortString.find(":");
