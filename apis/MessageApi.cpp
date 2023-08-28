@@ -56,7 +56,8 @@ QHttpServerResponse MessageApi::handleSentMessageRequest(const QHttpServerReques
     messageService->FillMessageFromDB(message);
 
     // check broadcast if success return jsonfy object, or fail simply return 400
-    emit passMessageToBroadCast(message,groupUserList);
+    // use copy to avoid the message object is free when passing signal
+    emit passMessageToBroadCast(MsgLoad(new Message(message)), groupUserList);
 
     return QHttpServerResponse(message.toQJsonObject());
 

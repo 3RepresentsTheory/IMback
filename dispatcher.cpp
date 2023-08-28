@@ -30,7 +30,6 @@ int main(int argc, char *argv[]) {
 //    );
 //    parser.addHelpOption();
 //    parser.process(app);
-
     quint16 txportArg = TXPORT;
     quint16 bcportArg = BCPORT;
 //    if (!parser.value("port").isEmpty())

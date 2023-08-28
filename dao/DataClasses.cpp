@@ -119,3 +119,4 @@ QJsonObject Group::toQJsonObjectWithLastMsg() {
             {"last", last_message.toQJsonObject()},
     };
 }
+

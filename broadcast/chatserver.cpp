@@ -149,8 +149,15 @@ void ChatBroadcastServer::socketDisconnected()
 //    }
 //}
 
-void ChatBroadcastServer::onNeedToBroadCast(Message msg, QVector<qint64> glist) {
-    QJsonDocument doc(msg.toQJsonObject());
+void ChatBroadcastServer::onNeedToBroadCast(MsgLoad data, QVector<qint64> glist) {
+    Jsonable*load = data.loadcontent;
+
+    QJsonDocument doc(QJsonObject{
+            {"type",load->getType()},
+            {"data",load->toQJsonObject()}
+    });
+    data.FreeContent();
+
     QByteArray bytes = doc.toJson();
 //    qint64 sender_id = msg.uid;
 

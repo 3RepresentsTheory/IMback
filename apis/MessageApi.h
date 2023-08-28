@@ -26,10 +26,9 @@ public:
     QHttpServerResponse handleSentMessageRequest(const QHttpServerRequest &request);
     QHttpServerResponse retrieveHistoryMsgList(const QHttpServerRequest &request);
 private:
-    bool broadcastMessageToGroup(Message message);
     MessageService*messageService;
 signals:
-    void passMessageToBroadCast(Message msg,QVector<qint64>glist);
+    void passMessageToBroadCast(MsgLoad msg,QVector<qint64>glist);
 };
 
 

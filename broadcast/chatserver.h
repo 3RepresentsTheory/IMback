@@ -46,7 +46,7 @@ public:
 //    QVector<qint64> getOnlineUsersList(QString uidlist);
 
 public slots:
-    void onNeedToBroadCast(Message msg,QVector<qint64> glist);
+    void onNeedToBroadCast(MsgLoad data,QVector<qint64> glist);
 
 private:
     void closeWaitWsocket(QWebSocket*,QString errorMsg);
