@@ -76,7 +76,7 @@ bool UserService::updateInfo(const int &id,const string &nickname, const string 
 
 vector<User> UserService::getUserInfos(const string& uidParams){
     vector<map<string, string>> rc;
-    string sql = "SELECT id,username, password, nickname,avatar,color FROM user WHERE FIND_IN_SET(id, ?);";
+    string sql = "SELECT id,username,nickname,avatar,color FROM user WHERE FIND_IN_SET(id, ?);";
     rc = baseDao->executeQuery(sql,uidParams);
     vector<User> userInfos;
 
