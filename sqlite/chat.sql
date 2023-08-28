@@ -24,21 +24,24 @@ CREATE TABLE friendRequest (
                                FOREIGN KEY (userId) REFERENCES user (id),
                                FOREIGN KEY (requestUserId) REFERENCES user (id)
 );
+drop table groupChat;
 CREATE TABLE groupChat (
-                           id INTEGER PRIMARY KEY AUTOINCREMENT,
+                           gcid INTEGER PRIMARY KEY AUTOINCREMENT,
                            name TEXT,
-                           msgNum INTEGER default(0),
                            owner INTEGER,
-                           type TEXT,
-                           last_msg_id INTEGER,
-                           last_msg_timestamp INTEGER
+                           gctype TEXT,
+                           avatar TEXT,
+                           color TEXT,
+                           msgNum INTEGER default(0),
+                           last_msg_id INTEGER default(0),
+                           last_msg_timestamp INTEGER default(0)
 );
-
+drop table groupUser;
 CREATE TABLE groupUser(
                           id INTEGER PRIMARY KEY AUTOINCREMENT,
                           gid INTEGER,
                           uid INTEGER,
-                          FOREIGN KEY (gid) REFERENCES groupChat (id),
+                          FOREIGN KEY (gid) REFERENCES groupChat (gcid),
                           FOREIGN KEY (uid) REFERENCES user (id)
 );
 
@@ -52,7 +55,7 @@ CREATE TABLE message (
                          mid INTEGER,
                          gid INTEGER,
                          FOREIGN KEY (uid) REFERENCES user (id),
-                         FOREIGN KEY (gid) REFERENCES groupChat (id)
+                         FOREIGN KEY (gid) REFERENCES groupChat (gcid)
 );
 
 
@@ -66,7 +69,7 @@ BEGIN
     SET msgNum = msgNum + 1,
         last_msg_id = NEW.id,
         last_msg_timestamp = NEW.time
-    WHERE groupChat.id = NEW.gid;
+    WHERE groupChat.gcid = NEW.gid;
 
     UPDATE message
     SET mid = (

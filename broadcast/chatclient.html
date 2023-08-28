@@ -11,6 +11,9 @@
             Password: <input id="password" type="text" value=""/>
         </p>
         <p>
+            GroupId: <input id="groupid" type="text" value=""/>
+        </p>
+        <p>
             <button onClick="sendLoginRequest();">Login</button>
         <p>
 <!--            <button id="disconnectButton" onClick="stopWebSocket();" disabled>Disconnect</button>-->
@@ -41,13 +44,13 @@
                 // get the cookie from the response(which is a json)
                 xhr.onreadystatechange = function () {
                     if (xhr.readyState == 4) {
-                        var response = JSON.parse(xhr.responseText);
                         if(xhr.status == 200){
+                            var response = JSON.parse(xhr.responseText);
                             cookie = response.cookie;
                             debug("LOGIN SUCCESS,TRY TO LISTEN");
                             initWebSocket();
                         }else {
-                            debug("LOGIN FAILED WITH MSG:"+response.msg);
+                            debug("LOGIN FAILED ");
                         }
                     }
                 }
@@ -79,7 +82,11 @@
                 document.cookie = cookie;
 
                 debug("MYSELF-SEND: "+document.getElementById("inputText").value);
-                var gid = 412;
+                var gid = parseInt(document.getElementById("groupid").value,10);
+                if(gid == ""){
+                    debug("PLEASE INPUT GROUPID");
+                    return;
+                }
                 var type = "text/plain";
                 var content = document.getElementById("inputText").value;
                 var json = {
@@ -96,11 +103,11 @@
                 xhr.send(JSON.stringify(json))
                 xhr.onreadystatechange = function () {
                     if (xhr.readyState == 4) {
-                        var response = JSON.parse(xhr.responseText);
                         if(xhr.status == 200){
+                            var response = JSON.parse(xhr.responseText);
                             debug("SEND SUCCESS");
                         }else {
-                            debug("SEND FAILED WITH MSG:"+response.msg);
+                            debug("SEND FAILED");
                         }
                     }
                 }

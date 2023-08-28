@@ -29,6 +29,9 @@ QHttpServerResponse MessageApi::handleSentMessageRequest(const QHttpServerReques
 
     // special validate for json field: is content blank? is gid valid? is uid is in the group gid?
     // TODO: add validate for content gid uid content
+    auto groupUserList = messageService->GetGroupUserList(message.gid);
+    if(groupUserList.isEmpty()||!groupUserList.contains(uid.value()))
+        return QHttpServerResponse("您不在该群组内或该群不存在", QHttpServerResponder::StatusCode::BadRequest);
 
     // generate complete database object(store to database ,and have a copy in memory)
     // including:
@@ -53,28 +56,25 @@ QHttpServerResponse MessageApi::handleSentMessageRequest(const QHttpServerReques
     messageService->FillMessageFromDB(message);
 
     // check broadcast if success return jsonfy object, or fail simply return 400
-    if(broadcastMessageToGroup(message)){
-        // I dont know how to handle here ...
-    }
+    emit passMessageToBroadCast(message,groupUserList);
 
     return QHttpServerResponse(message.toQJsonObject());
 
 }
 
-bool MessageApi::broadcastMessageToGroup(Message message) {
-    // access database to generate a broadcast list (gid -> [uid1,uid2...])
-    // here we ignore if someone add to this group and he miss it
-    // no cache for this, simply read from database
-    qint32 gid = message.gid;
-
-    // call the chatserver to broadcast using some method (we assume this method is
-    // atomically -- its will all send/or not send at all)
-    // firstly we use the "fire and forget" strategy ,supposing it's will success
-
-    emit passMessageToBroadCast(message,messageService->GetGroupUserList(gid));
-
-    // if success return true , or fail return false
-}
+//bool MessageApi::broadcastMessageToGroup(Message message) {
+//    // access database to generate a broadcast list (gid -> [uid1,uid2...])
+//    // here we ignore if someone add to this group and he miss it
+//    // no cache for this, simply read from database
+//    qint32 gid = message.gid;
+//
+//    // call the chatserver to broadcast using some method (we assume this method is
+//    // atomically -- its will all send/or not send at all)
+//    // firstly we use the "fire and forget" strategy ,supposing it's will success
+//
+//
+//    // if success return true , or fail return false
+//}
 
 QHttpServerResponse MessageApi::retrieveHistoryMsgList(const QHttpServerRequest &request) {
     HistoryRqst historyrqst;

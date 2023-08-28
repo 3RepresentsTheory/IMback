@@ -86,6 +86,7 @@ public:
         return true;
     }
 
+    //TODO: need fix when field is null
     template<typename... Args>
     vector<map<string, string>> executeQuery(const string &sql, const Args&...args){
         vector<map<string, string>> results;

@@ -7,11 +7,11 @@
 
 QHttpServerResponse GroupApi::createGroup(const QHttpServerRequest &request) {
     Group group;
-    auto query = request.query();
-    auto gname = query.queryItemValue("gname");
-    if(query.isEmpty()|| gname.isEmpty()){
-        return QHttpServerResponse("请检查请求参数",QHttpServerResponder::StatusCode::BadRequest);
-    }
+    // auth the request
+    const auto json = byteArrayToJsonObject(request.body());
+    if (!json)
+        return QHttpServerResponse("创建群组表单错误", QHttpServerResponder::StatusCode::BadRequest);
+
 
     // get the cookie and auth it, fail then return
     auto cookie =  getcookieFromRequest(request);
@@ -22,7 +22,10 @@ QHttpServerResponse GroupApi::createGroup(const QHttpServerRequest &request) {
     if(!uid.has_value())
         return QHttpServerResponse("身份验证失败", QHttpServerResponder::StatusCode::BadRequest);
 
-    group.name  = gname;
+    // json field validating make sure gid, type ,content is not blank
+    if(!group.fromQJsonObject(json.value())){
+        return QHttpServerResponse("创建群组表单错误或为空", QHttpServerResponder::StatusCode::BadRequest);
+    }
     group.owner = uid.value();
     // default group is public
     group.type  = "public";
@@ -31,7 +34,12 @@ QHttpServerResponse GroupApi::createGroup(const QHttpServerRequest &request) {
     if(!groupService->CreateGroup(group,gid)){
         return QHttpServerResponse("服务器内部错误，请稍后再试", QHttpServerResponder::StatusCode::InternalServerError);
     }
-    group.id = QString::fromStdString(to_string(gid));
+    group.id = gid;
+
+    // join myself to the group (need tx)
+    if(!groupService->JoinGroup(uid.value(),gid))
+        return QHttpServerResponse("服务器内部错误，无法加入群组，稍后再试", QHttpServerResponder::StatusCode::BadRequest);
+
     return QHttpServerResponse(group.toQJsonObject());
 }
 
@@ -54,6 +62,7 @@ QHttpServerResponse GroupApi::joinGroup(const QHttpServerRequest &request) {
     if(!uid.has_value())
         return QHttpServerResponse("身份验证失败", QHttpServerResponder::StatusCode::BadRequest);
 
+    //need check whether it join for twice
     if(!groupService->JoinGroup(gid,uid.value()))
         return QHttpServerResponse("服务器内部错误，无法加入群组，稍后再试", QHttpServerResponder::StatusCode::BadRequest);
 

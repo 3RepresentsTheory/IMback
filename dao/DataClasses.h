@@ -65,10 +65,12 @@ public:
 
 class Group:Jsonable{
 public:
-    QString id;
+    qint64 id;          //gcid in database
     QString name;
     qint64 owner;
-    QString type;
+    QString type;       //gctype in database
+    QString avatar;
+    QString color;
     Message last_message; // can be null
 
     Group(){};
