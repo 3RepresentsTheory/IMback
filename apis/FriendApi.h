@@ -10,6 +10,7 @@
 #include "../Utils/utils.h"
 #include <QtConcurrent/qtconcurrentrun.h>
 #include "SessionApi.h"
+#include "../service/GroupService.h"
 
 #include <QtHttpServer/QHttpServer>
 
@@ -44,8 +45,10 @@ private:
     FriendService* friendService;
     SessionApi* sessionApi;
     UserService *userService;
+    //we use groupservice to add two people to one group
+    GroupService *groupService;
 public:
-    FriendApi(UserService* userService,FriendService* friendService1);
+    FriendApi(UserService* userService,FriendService* friendService1,GroupService*groupServci);
     ~FriendApi();
     QHttpServerResponse request(const QHttpServerRequest &request);
     QHttpServerResponse accept(const QHttpServerRequest& request);

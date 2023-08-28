@@ -5,8 +5,9 @@
 #include "FriendApi.h"
 #include <iostream>
 
-FriendRequest::FriendRequest(const string &username, const string &text):username(username),text(text) {
-
+FriendRequest::FriendRequest(
+        const string &username,
+        const string &text):username(username),text(text) {
 }
 
 FriendRequest::~FriendRequest() {
@@ -68,7 +69,14 @@ QJsonArray Requests::toJsonObject(vector<map<string, string>> &rc) {
     return jsonArray;
 }
 
-FriendApi::FriendApi(UserService* userService,FriendService *friendService) : userService(userService),friendService(friendService) {}
+FriendApi::FriendApi(
+        UserService* userService,
+        FriendService *friendService,
+        GroupService *groupService
+) :
+        userService(userService),
+        friendService(friendService),
+        groupService(groupService){}
 
 FriendApi::~FriendApi() {
     if(!friendService){
@@ -77,19 +85,26 @@ FriendApi::~FriendApi() {
 }
 
 QHttpServerResponse FriendApi::request(const QHttpServerRequest &request) {
+    // auth
     QUuid token = QUuid::fromString(getcookieFromRequest(request).value().toStdString());
-    auto id = SessionApi::getInstance()->getIdByCookie(token);
+    auto  id    = SessionApi::getInstance()->getIdByCookie(token);
     if(!id.has_value())
         return QHttpServerResponse(QJsonObject{{"msg","身份验证失败。"}},QHttpServerResponder::StatusCode::Unauthorized);
+
+    // json parse and field check
     const auto json = byteArrayToJsonObject(request.body());
     if (!json)
         return QHttpServerResponse(QJsonObject{{"msg","参数错误。"}}, QHttpServerResponder::StatusCode::BadRequest);
+
     FriendRequest friendRequest = FriendRequest::formJsonObject(json.value());
-    string username = friendRequest.username;
-    string text = friendRequest.text;
+    string             username = friendRequest.username;
+    string                 text = friendRequest.text;
+
     if(username.empty()){
         return QHttpServerResponse(QJsonObject{{"msg","username不能为空。"}},QHttpServerResponder::StatusCode::BadRequest);
     }
+
+    // consistency check
     int targetId = userService->selectIdByName(username);
     if(targetId == -1){
         return QHttpServerResponse(QJsonObject{{"msg","请输入正确的用户名。"}},QHttpServerResponder::StatusCode::InternalServerError);
@@ -101,12 +116,26 @@ QHttpServerResponse FriendApi::request(const QHttpServerRequest &request) {
     if(exist){
         return QHttpServerResponse(QJsonObject{{"msg","已拥有该好友。"}},QHttpServerResponder::StatusCode::InternalServerError);
     }
-    bool rc = friendService->insertRequest(to_string(targetId),to_string(id.value()),text);
-    if (!rc)
-        return QHttpServerResponse(QJsonObject{{"msg","服务器内部错误。"}}, QHttpServerResponder::StatusCode::InternalServerError);
+
+    // currently we simply accept it, no need to wait for the target user to accept
+    // add metadata to twin group
+//    Group twingroup;
+//    int groupid;
+//    twingroup.name = "";  //????
+//    twingroup.owner = ;   //????
+//    twingroup.type = "twin";
+//    groupService->CreateGroup()
+
+
+
+//    bool rc = friendService->insertRequest(to_string(targetId),to_string(id.value()),text);
+//    if (!rc)
+//        return QHttpServerResponse(QJsonObject{{"msg","服务器内部错误。"}}, QHttpServerResponder::StatusCode::InternalServerError);
     return QHttpServerResponse("");
 }
 
+
+// currently abandoned
 QHttpServerResponse FriendApi::accept(const QHttpServerRequest &request) {
     QUuid token = QUuid::fromString(getcookieFromRequest(request).value().toStdString());
     auto id = SessionApi::getInstance()->getIdByCookie(token);
@@ -121,12 +150,15 @@ QHttpServerResponse FriendApi::accept(const QHttpServerRequest &request) {
     if(rc.empty()||stoi(rc["userId"])!=id){
         return QHttpServerResponse(QJsonObject{{"msg","没有该好友请求或请求已经被接受。"}},QHttpServerResponder::StatusCode::InternalServerError);
     }
+
+
     bool updaterc = friendService->acceptRequest(to_string(id.value()),rc["requestUserId"],requestId);
     if(!updaterc)
         return QHttpServerResponse(QJsonObject{{"msg","服务器内部错误。"}},QHttpServerResponder::StatusCode::InternalServerError);
     return QHttpServerResponse("");
 }
 
+// currently abandoned
 QHttpServerResponse FriendApi::requests(const QHttpServerRequest &request) {
     QUuid token = QUuid::fromString(getcookieFromRequest(request).value().toStdString());
     auto id = SessionApi::getInstance()->getIdByCookie(token);

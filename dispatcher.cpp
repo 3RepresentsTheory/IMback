@@ -42,11 +42,13 @@ int main(int argc, char *argv[]) {
 
     // add global session management
     UserApi userApi(new UserService());
-    FriendApi friendApi(new UserService(),new FriendService());
 
     MessageService* msgService = new MessageService();
+    GroupService * groupService= new GroupService();
+
+    FriendApi friendApi(new UserService(),new FriendService(),groupService);
     MessageApi messageApi(msgService);
-    GroupApi groupApi(msgService,new GroupService());
+    GroupApi groupApi(msgService,groupService);
 
     // handle messageapi connect to broadcast server&thread
     QObject::connect(
