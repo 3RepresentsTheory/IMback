@@ -120,6 +120,8 @@ static QString mappingMethod(QHttpServerRequest::Method method){
  return "Trace";
         case QHttpServerRequest::Method::AnyKnown:
  return "AnyKnown";
+        default:
+            return "";
     }
 };
 

@@ -17,9 +17,26 @@ public:
     // fill fields by a qjson object
     virtual bool fromQJsonObject(const QJsonObject& ) = 0;
 
+    // get the object type
+    virtual QString getType() = 0 ;
+
     virtual ~Jsonable() {}
 };
 
+// a containter to pass abstract class,
+// usage:
+// emit passMessageToBroadCast(MsgLoad(new Jsonable(target),target_list))
+class MsgLoad {
+public:
+    MsgLoad( Jsonable*loadcontent):
+        loadcontent(loadcontent){};
+    ~MsgLoad() {}
+    // sorry for this... I'm pretty much confused
+    // with c++ lifetime management and unique_ptr/move semantic,
+    // so I just use this to avoid memory leak
+    void FreeContent(){delete loadcontent;}
+    Jsonable*  loadcontent;
+};
 
 using dao_entry = map<string,string> ;
 
@@ -40,6 +57,7 @@ public:
 
     bool fromQJsonObject(const QJsonObject &) override;
     QJsonObject toQJsonObject() override;
+    QString getType() override {return "message";};
 
     friend std::ostream& operator<<(std::ostream& os, const  Message &rhs) {
         os << "Message: " << &rhs << std::endl;
@@ -61,6 +79,7 @@ public:
     HistoryRqst(){};
     bool fromQJsonObject(const QJsonObject &) override;
     QJsonObject toQJsonObject() override;
+    QString getType() override {return "history request";};
 
     qint64  mid;         //string in api
     qint64  gid;         //ret from request
@@ -80,6 +99,7 @@ public:
     Group(){};
     Group(dao_entry row,bool isContainLastMessage);
 
+    QString getType() override {return "group";};
     bool fromQJsonObject(const QJsonObject &) override;
     QJsonObject toQJsonObject() override;
     QJsonObject toQJsonObjectWithLastMsg();
