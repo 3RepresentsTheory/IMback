@@ -16,6 +16,7 @@ public:
     map<string ,string > seletInfoByRequestId(const string& requestId);
     bool acceptRequest (const string&userId,const string& friendId,const string& requestId);
     vector<map<string ,string >> getRequests(const string& userId,const string& lastId);
+    bool isFriendExists(const string&userId,const string& friendId);
 };
 
 

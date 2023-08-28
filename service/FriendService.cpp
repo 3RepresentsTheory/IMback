@@ -24,7 +24,7 @@ bool FriendService::insertRequest(const string &targetId, const string &id, cons
 map<string ,string > FriendService::seletInfoByRequestId(const string &requestId) {
     vector<map<string,string>> rc;
     string sql = "SELECT userId,requestUserId FROM friendRequest WHERE id = ? AND status = 0;";
-    rc = baseDao->executeQuery<string>(sql,requestId);
+    rc = baseDao->executeQuery(sql,requestId);
     if(rc.empty()){
         return {};
     }
@@ -35,11 +35,11 @@ bool FriendService::acceptRequest(const string &userId, const string &friendId,c
     string friendSql = "INSERT INTO friend(userId,friendId) VALUES (?,?);";
     bool friendSqlrc;
     if(userId<friendId)
-        friendSqlrc = baseDao->executeUpdate<string>(friendSql, userId, friendId);
+        friendSqlrc = baseDao->executeUpdate(friendSql, userId, friendId);
     else
-        friendSqlrc = baseDao->executeUpdate<string>(friendSql, friendId, userId);
+        friendSqlrc = baseDao->executeUpdate(friendSql, friendId, userId);
     string requestSql = "UPDATE friendRequest SET status = 1 WHERE id = ? OR (userId = ? AND requestUserId = ?);";
-    bool requestSqlrc = baseDao->executeUpdate<string>(requestSql,requestId,friendId,userId);
+    bool requestSqlrc = baseDao->executeUpdate(requestSql,requestId,friendId,userId);
     if(friendSqlrc&&requestSqlrc){
         return true;
     }
@@ -47,8 +47,21 @@ bool FriendService::acceptRequest(const string &userId, const string &friendId,c
 }
 
 vector<map<string ,string >> FriendService::getRequests(const string& userId,const string& lastId){
-    string sql = "SELECT id ,strftime('%s', timestamp) AS time, text,requestUserId as uid FROM friendRequest WHERE userId = ? AND id > ? AND status = 0 ;";
+    string sql = "SELECT id, UNIX_TIMESTAMP(timestamp) AS time, text, requestUserId AS uid FROM friendRequest WHERE userId = ? AND id > ? ;";
     vector<map<string,string>> rc;
-    rc = baseDao->executeQuery<string>(sql,userId,lastId);
+    rc = baseDao->executeQuery(sql,userId,lastId);
     return rc;
+}
+
+bool FriendService::isFriendExists(const string &userId, const string &friendId) {
+    vector<map<string,string>> rc;
+    string sql = "SELECT COUNT(*) FROM friend WHERE userId = ? AND friendId = ?;";
+    if(userId<friendId)
+        rc = baseDao->executeQuery(sql,userId,friendId);
+    else
+        rc = baseDao->executeQuery(sql,friendId,userId);
+    if(rc[0].at("COUNT(*)")=="0")
+        return false;
+    else
+        return true;
 }

@@ -9,6 +9,7 @@
 #include <QtConcurrent/qtconcurrentrun.h>
 #include <string>
 #include <optional>
+#include <set>
 
 class SessionApi {
 public:
@@ -27,14 +28,21 @@ public:
 
     std::optional<int> getIdByCookie(QUuid token);
 
+    void insertIP(const string& id,const string& ip);
+
+    std::optional<string> getIpById(string id);
+
     int addtoSessionlist(SessionEntry* entry);
 
     int removeEntry(SessionEntry * target);
 
+    QJsonArray checkIdsInSet(const string& uid);
 
 private:
     tokenMap sessions;
+    map<string,string> id2ip;
     QReadWriteLock lock;
+    set<string> idSets;
 };
 
 #endif // APIBEHAVIOR_H

@@ -15,16 +15,24 @@ UserService::~UserService() {
     }
 }
 
-bool UserService::insertUser(const string &username, const string &password, const string &nickname) {
-    string sql = "INSERT INTO user(username, password, nickname) VALUES (?, ?, ?);";
-    return baseDao->executeUpdate<string>(sql,username,password,nickname);
+bool UserService::insertUser(const User& user) {
+    string sql = "INSERT INTO user(username, password, nickname,avatar,color) VALUES (?, ?, ?,?,?);";
+    bool success = baseDao->executeUpdate(sql, user.username, user.password, user.nickname,user.avatar,user.color);
+    return success;
+}
+
+User UserService::selectUserInfoByName(const string &username) {
+    vector<map<string, string>> rc;
+    string sql = "SELECT id,username, password, nickname,avatar,color FROM user WHERE username = ?;";
+    rc = baseDao->executeQuery(sql,username);
+    return User(rc[0]);
 }
 
 int UserService::selectIdByName(const string &username) {
     vector<map<string, string>> rc;
     string sql = "SELECT id FROM user WHERE username = ?;";
-    rc = baseDao->executeQuery<string>(sql,username);
-    if(rc[0]["id"].empty()){
+    rc = baseDao->executeQuery(sql,username);
+    if(rc[0].empty()){
         return -1;
     }
     return stoi(rc[0]["id"]);
@@ -33,7 +41,7 @@ int UserService::selectIdByName(const string &username) {
 bool UserService::isUsernameExists(const string &username) {
     vector<map<string, string>> rc;
     string sql = "SELECT COUNT(*) FROM user WHERE username = ?;";
-    rc = baseDao->executeQuery<string>(sql,username);
+    rc = baseDao->executeQuery(sql, username);
     if(rc[0]["COUNT(*)"]=="0"){
         return false;
     }
@@ -43,25 +51,39 @@ bool UserService::isUsernameExists(const string &username) {
 bool UserService::isNicknameExists(const string &nickname) {
     vector<map<string, string>> rc;
     string sql = "SELECT COUNT(*) FROM user WHERE nickname = ?;";
-    rc = baseDao->executeQuery<string>(sql,nickname);
+    rc = baseDao->executeQuery(sql, nickname);
     if(rc[0]["COUNT(*)"]=="0"){
         return false;
     }
     return true;
 }
 
-map<string ,string > UserService::validateUserCredentials(const string &username, const string &password) {
+User UserService::validateUserCredentials(const string &username, const string &password) {
     vector<map<string, string>> rc;
     map<string ,string> rcMap;
-    string sql = "SELECT id,nickname FROM user WHERE username = ? AND password = ?;";
-    rc = baseDao->executeQuery<string>(sql,username,password);
+    string sql = "SELECT id,username, password, nickname,avatar,color FROM user WHERE username = ? AND password = ?;";
+    rc = baseDao->executeQuery(sql,username,password);
     if(rc.empty())
-        return rcMap;
-    return rc[0];
+        return User();
+    return User(rc[0]);
 }
 
 bool UserService::updateInfo(const int &id,const string &nickname, const string &color,const string& avatar){
     string sql = "UPDATE user SET nickname = CASE WHEN ? = '' THEN nickname ELSE ? END, color = CASE WHEN ? = '' THEN color ELSE ? END,avatar = CASE WHEN ? = '' THEN avatar ELSE ? END WHERE id = ?;";
-    bool rc = baseDao->executeUpdate<string>(sql,nickname,nickname,color,color,avatar,avatar,to_string(id));
+    bool rc = baseDao->executeUpdate(sql,nickname,nickname,color,color,avatar,avatar,to_string(id));
     return rc;
 }
+
+vector<User> UserService::getUserInfos(const string& uidParams){
+    vector<map<string, string>> rc;
+    string sql = "SELECT id,username, password, nickname,avatar,color FROM user WHERE FIND_IN_SET(id, ?);";
+    rc = baseDao->executeQuery(sql,uidParams);
+    vector<User> userInfos;
+
+    for (auto& row : rc) {
+        User user(row);
+        userInfos.push_back(user);
+    }
+    return userInfos;
+}
+

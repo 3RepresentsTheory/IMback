@@ -4,6 +4,7 @@
 #include "apis/userapi.h"
 #include "apis/friendApi.h"
 #include "apis/MessageApi.h"
+#include "apis/GroupApi.h"
 #include "broadcast/chatserver.h"
 #include "broadcast/BroadCastThread.h"
 #include "apis/GroupApi.h"
@@ -123,6 +124,26 @@ void userRouting(QHttpServer &HttpServer, UserApi &userApi){
             }
     );
 
+    HttpServer.route(
+            "/user/infos", QHttpServerRequest::Method::Post,
+            [&userApi](const QHttpServerRequest &request) {
+                return userApi.infos(request);
+            }
+    );
+
+    HttpServer.route(
+            "/user/ip", QHttpServerRequest::Method::Get,
+            [&userApi](const QHttpServerRequest &request) {
+                return userApi.getUserip(request);
+            }
+    );
+
+    HttpServer.route(
+            "/user/onlines", QHttpServerRequest::Method::Post,
+            [&userApi](const QHttpServerRequest &request) {
+                return userApi.onlines(request);
+            }
+    );
 
 }
 
