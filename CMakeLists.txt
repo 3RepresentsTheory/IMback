@@ -1,7 +1,6 @@
 cmake_minimum_required(VERSION 3.24)
 
 set(CMAKE_PREFIX_PATH "D:/qt/6.5.2/mingw_64")
-set(-DCMAKE_PREFIX_PATH "\\wsl.localhost/Ubuntu/usr/local/include")
 
 project(Demo02)
 
@@ -9,21 +8,21 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
 
-
-set(CMAKE_SYSROOT "/")
-
 find_package(Qt6 COMPONENTS Core Gui Widgets Network HttpServer Sql REQUIRED)
 
 set(SOURCES
         dispatcher.cpp
         sqlite/sqlite3.c
-        service/UserService.cpp
         dao/BaseDao.cpp
-        apis/SessionApi.cpp
-        apis/FriendApi.cpp
+        service/UserService.cpp
         service/FriendService.cpp
+        service/MessageService.cpp
+        apis/SessionApi.cpp
         apis/UserApi.cpp
-        )
+        apis/FriendApi.cpp
+        apis/MessageApi.cpp
+        broadcast/chatserver.cpp
+        dao/DataClasses.cpp apis/GroupApi.cpp service/GroupService.cpp)
 #        apis/MessageApi.cpp
 #        service/MessageService.cpp
 #        utils/Jsonable.cpp)
@@ -34,16 +33,25 @@ set(HEADERS
         sqlite/sqlite3.h
         dao/BaseDao.h
         service/UserService.h
+        service/MessageService.h
 #        utils/Jsonable.h
 #        apis/SessionApi.h
 #        apis/MessageApi.h
-        utils/utils.h)
+        utils/utils.h
+        broadcast/BroadCastThread.h
+        broadcast/chatserver.h
+        apis/GroupApi.h service/GroupService.h)
 
 add_executable(Demo02 ${SOURCES} ${HEADERS})
 
-target_link_libraries(Demo02 Qt6::Core Qt6::Gui Qt6::Widgets Qt6::Network Qt6::HttpServer Qt6::Sql)
-
-
+target_link_libraries(Demo02
+        Qt6::Core
+        Qt6::Gui
+        Qt6::Widgets
+        Qt6::Network
+        Qt6::HttpServer
+        Qt6::Sql
+        )
 #
 #add_subdirectory(samplefiles/simpletest)
 #add_subdirectory(test)

@@ -1,0 +1,187 @@
+<html>
+    <head>
+        <title>WebSocket Chat Client</title>
+    </head>
+    <body>
+        <h1>WebSocket Chat Client</h1>
+        <p>
+            Username: <input id="username" type="text" value=""/>
+        </p>
+        <p>
+            Password: <input id="password" type="text" value=""/>
+        </p>
+        <p>
+            GroupId: <input id="groupid" type="text" value=""/>
+        </p>
+        <p>
+            <button onClick="sendLoginRequest();">Login</button>
+        <p>
+<!--            <button id="disconnectButton" onClick="stopWebSocket();" disabled>Disconnect</button>-->
+            <button onClick="checkSocket();">State</button>
+        </p>
+        <p>
+            <textarea id="debugTextArea" style="width:400px;height:200px;" readonly></textarea>
+        </p>
+        <p>
+            <input type="text" id="inputText" onkeydown="if(event.keyCode==13)sendMessage();"/>
+            <button id="sendButton" onClick="sendMessage();" disabled>Send</button>
+        </p>
+
+        <script type="text/javascript">
+            var debugTextArea = document.getElementById("debugTextArea");
+            var cookie ;
+
+            function sendLoginRequest() {
+                //rewrite code below using fetch api
+                var username = document.getElementById("username").value;
+                var password = document.getElementById("password").value;
+                var json = {
+                    "username":username,
+                    "password":password,
+                };
+
+                var xhr = new XMLHttpRequest();
+                // get the cookie from the response(which is a json)
+                xhr.onreadystatechange = function () {
+                    if (xhr.readyState == 4) {
+                        if(xhr.status == 200){
+                            var response = JSON.parse(xhr.responseText);
+                            cookie = response.cookie;
+                            debug("LOGIN SUCCESS,TRY TO LISTEN");
+                            initWebSocket();
+                        }else {
+                            debug("LOGIN FAILED ");
+                        }
+                    }
+                }
+                xhr.open("POST", "http://127.0.0.1:1235/user/login" );
+                xhr.send(JSON.stringify(json));
+                xhr.onerror = function (evt) {
+                    debug('ERROR: ' + evt.data);
+                };
+            }
+
+
+            function debug(message) {
+                debugTextArea.value += message + "\n";
+                debugTextArea.scrollTop = debugTextArea.scrollHeight;
+            }
+
+            function sendcookie(msg) {
+                var strToSend = msg;
+                console.log(msg);
+                if ( websocket != null )
+                {
+                    debug("SEND COOKIE: " + strToSend);
+                    websocket.send(strToSend);
+                }
+            }
+
+            function sendMessage(){
+                // set the cookie to its self
+                document.cookie = cookie;
+
+                debug("MYSELF-SEND: "+document.getElementById("inputText").value);
+                var gid = parseInt(document.getElementById("groupid").value,10);
+                if(gid == ""){
+                    debug("PLEASE INPUT GROUPID");
+                    return;
+                }
+                var type = "text/plain";
+                var content = document.getElementById("inputText").value;
+                var json = {
+                    "gid":gid,
+                    "type":type,
+                    "content":content
+                };
+                var strToSend = JSON.stringify(json);
+                // send http request use XMLHttpRequest
+                var xhr = new XMLHttpRequest();
+                // send request to http://localhost:1235,
+                // and the header has to take the cookie in header, use http proxy
+                xhr.open("POST", "http://127.0.0.1:1235/message/send");
+                xhr.send(JSON.stringify(json))
+                xhr.onreadystatechange = function () {
+                    if (xhr.readyState == 4) {
+                        if(xhr.status == 200){
+                            var response = JSON.parse(xhr.responseText);
+                            debug("SEND SUCCESS");
+                        }else {
+                            debug("SEND FAILED");
+                        }
+                    }
+                }
+                xhr.onerror = function (evt) {
+                    debug('SEND ERROR: ' + evt.data);
+                };
+            }
+
+            var websocket = null;
+
+            function initWebSocket() {
+                try {
+                    if (typeof MozWebSocket == 'function')
+                        WebSocket = MozWebSocket;
+                    if ( websocket && websocket.readyState == 1 )
+                        websocket.close();
+                    var wsUri = "ws://localhost:1234" ;
+                    websocket = new WebSocket( wsUri );
+                    websocket.onopen = function (evt) {
+                        debug("CONNECTED");
+                        document.getElementById("sendButton").disabled = false;
+                        sendcookie(cookie.toString());
+                    };
+                    websocket.onclose = function (evt) {
+                        debug("DISCONNECTED");
+                        document.getElementById("sendButton").disabled = true;
+                    };
+                    websocket.onmessage = function (evt) {
+                        console.log( "Message received :", evt.data );
+                        debug( evt.data );
+                    };
+                    websocket.onerror = function (evt) {
+                        debug('ERROR: ' + evt.data);
+                    };
+                } catch (exception) {
+                    debug('ERROR: ' + exception);
+                }
+            }
+
+            function stopWebSocket() {
+                if (websocket)
+                    websocket.close();
+            }
+
+            function checkSocket() {
+                if (websocket != null) {
+                    var stateStr;
+                    switch (websocket.readyState) {
+                        case 0: {
+                            stateStr = "CONNECTING";
+                            break;
+                        }
+                        case 1: {
+                            stateStr = "OPEN";
+                            break;
+                        }
+                        case 2: {
+                            stateStr = "CLOSING";
+                            break;
+                        }
+                        case 3: {
+                            stateStr = "CLOSED";
+                            break;
+                        }
+                        default: {
+                            stateStr = "UNKNOW";
+                            break;
+                        }
+                    }
+                    debug("WebSocket state = " + websocket.readyState + " ( " + stateStr + " )");
+                } else {
+                    debug("WebSocket is null");
+                }
+            }
+        </script>
+    </body>
+</html>

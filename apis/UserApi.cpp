@@ -61,7 +61,7 @@ QJsonArray User::toJsonObjectForInfos(const vector<User>& rc) {
         jsonArray.append(userJson);
     }
     return jsonArray;
-}
+
 
 QJsonObject User::toJsonObjectForUserip(const string& ipPortString) {
     size_t colonPos = ipPortString.find(":");
@@ -123,11 +123,17 @@ QHttpServerResponse UserApi:: login(const QHttpServerRequest &request) {
     if(user.username.empty())
         return QHttpServerResponse(QJsonObject{{"msg","用户名或密码错误。"}},QHttpServerResponder::StatusCode::InternalServerError);
     SessionEntry sessionEntry = SessionApi::getInstance()->createEntryAndStart(user.id);
+
     string clientAddress = QHostAddress(request.remoteAddress().toIPv4Address()).toString().toStdString();
-    string clientPort = to_string(request.remotePort());
+    string clientPort    = to_string(request.remotePort());
     SessionApi::getInstance()->insertIP(to_string(user.id),clientAddress+":"+clientPort);
+
     QJsonObject qJsonObject = User::toJsonObjectForLogin(user,sessionEntry.token.value());
-    return QHttpServerResponse(qJsonObject);
+    auto response =  QHttpServerResponse(qJsonObject);
+    // simply set for debug in browser
+    response.setHeader("Set-Cookie",sessionEntry.token.value().toByteArray());
+    return response;
+
 }
 
 QHttpServerResponse UserApi::info(const QHttpServerRequest &request) {

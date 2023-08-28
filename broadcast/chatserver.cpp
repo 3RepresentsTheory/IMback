@@ -1,6 +1,7 @@
 // Copyright (C) 2016 Kurt Pattyn <pattyn.kurt@gmail.com>.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR BSD-3-Clause
 #include "chatserver.h"
+#include "../apis/SessionApi.h"
 
 #include <QtWebSockets>
 #include <QtCore>
@@ -32,7 +33,7 @@ void ChatBroadcastServer::closeWaitWsocket(QWebSocket *wsocket,QString errorMsg)
 
 }
 
-ChatBroadcastServer::ChatBroadcastServer(quint16 port, QObject *parent) :
+ChatBroadcastServer::ChatBroadcastServer(QObject *parent) :
     QObject(parent),
     m_pWebSocketServer(
             new QWebSocketServer(
@@ -41,8 +42,10 @@ ChatBroadcastServer::ChatBroadcastServer(quint16 port, QObject *parent) :
                     this
             )
     )
-{
-    if (m_pWebSocketServer->listen(QHostAddress::Any, port))
+{}
+
+void ChatBroadcastServer::listen(QHostAddress hostaddr, quint64 port) {
+    if (m_pWebSocketServer->listen(hostaddr, port))
     {
         QTextStream(stdout) << "Chat Server listening on port " << port << '\n';
 
@@ -102,15 +105,17 @@ void ChatBroadcastServer::onNewConnection()
 
 
 void ChatBroadcastServer::onUpgradeToSocketAuth(const QString &message) {
-    qDebug() << message ;
+    qDebug() << "get the cookie: "<<message ;
     QWebSocket *pSender = qobject_cast<QWebSocket *>(sender());
-    if(message=="just test"){
+    auto uid = SessionApi::getInstance()->getIdByCookie(QUuid::fromString(message));
+    if(uid.has_value()){
         // if auth passed: stop timer and add to broadcast list
         m_socketTimers[pSender]->stop();
         m_socketTimers[pSender]->deleteLater();
         m_socketTimers.remove(pSender);
         // add to broadcast list
-        m_clients <<  pSender;
+        socketSession.insert(uid.value(),pSender);
+//        m_clients <<  pSender;
     }else{
         QTextStream(stdout) << getIdentifier(pSender) << "not pass auth!\n";
         closeWaitWsocket(pSender,"Connection authentication failed. Access denied.");
@@ -125,20 +130,70 @@ void ChatBroadcastServer::socketDisconnected()
     QTextStream(stdout) << getIdentifier(pClient) << " disconnected!\n";
     if (pClient)
     {
-        m_clients.removeAll(pClient);
+        socketSession.remove(pClient);
+//        m_clients.removeAll(pClient);
         pClient->deleteLater();
     }
 }
 
-void ChatBroadcastServer::testBroadCast() {
-    for (QWebSocket *pClient : std::as_const(m_clients)) {
-            pClient->sendTextMessage("broadcast message");
+//void ChatBroadcastServer::testBroadCast() {
+//    for (QWebSocket *pClient : std::as_const(m_clients)) {
+//            pClient->sendTextMessage("broadcast message");
+//    }
+//}
+//
+//void ChatBroadcastServer::testOnline() {
+//    QTextStream(stdout) <<"current online member:\n";
+//    for (QWebSocket *pClient : std::as_const(m_clients)) {
+//        QTextStream(stdout) << getIdentifier(pClient) << "is online!\n";
+//    }
+//}
+
+void ChatBroadcastServer::onNeedToBroadCast(MsgLoad data, QVector<qint64> glist) {
+    Jsonable*load = data.loadcontent;
+
+    QJsonDocument doc(QJsonObject{
+            {"type",load->getType()},
+            {"data",load->toQJsonObject()}
+    });
+    data.FreeContent();
+
+    QByteArray bytes = doc.toJson();
+//    qint64 sender_id = msg.uid;
+
+    for(auto uid:glist){
+        auto uws = socketSession.getWsById(uid);
+//        if(uws.has_value()&&uid!=sender_id)
+        if(uws.has_value())
+            uws.value()->sendTextMessage(bytes);
     }
 }
 
-void ChatBroadcastServer::testOnline() {
-    QTextStream(stdout) <<"current online member:\n";
-    for (QWebSocket *pClient : std::as_const(m_clients)) {
-        QTextStream(stdout) << getIdentifier(pClient) << "is online!\n";
+void SocketSession::insert(qint64 id, QWebSocket *ws) {
+    id2ws.insert(id,ws);
+    ws2id.insert(ws,id);
+}
+
+void SocketSession::remove(QWebSocket *ws) {
+    qint64 id = ws2id.value(ws);
+    id2ws.remove(id);
+    ws2id.remove(ws);
+}
+
+std::optional<QWebSocket *> SocketSession::getWsById(qint64 id) {
+    if(id2ws.contains(id))
+        return id2ws.value(id);
+    else
+        return std::nullopt;
+}
+
+QVector<qint64> SocketSession::allOnlineUsers() {
+    qDebug() << "all online users:\n";
+    QVector<qint64> ret;
+    QMap<id_t,wspt >::const_iterator it;
+    for (it = id2ws.constBegin(); it != id2ws.constEnd(); ++it) {
+        ret.append(it.key());
+        qDebug() << it.key() << "with ws: " << it.value() << "\n";
     }
+    return ret;
 }

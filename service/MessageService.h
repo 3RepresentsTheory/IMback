@@ -21,7 +21,7 @@ public:
 
     bool StoreMessage(const Message& message ,int &last_insert_id);
     void FillMessageFromDB(Message&original_message);
-    QJsonArray GetMessagelistByTime(qint64 mid, qint64 gid);
+    QJsonArray GetMessagelistByPeriod(qint64 gid, qint64 start, qint64 end);
 
     QVector<qint64> GetGroupUserList(qint64 gid);
 

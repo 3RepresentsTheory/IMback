@@ -1,6 +1,8 @@
-CREATE TABLE userDetail (
+CREATE TABLE user (
                             id INTEGER PRIMARY KEY,
                             username TEXT,
+                            password TEXT,
+                            nickname TEXT,
                             color TEXT,
                             avatar TEXT
 );
@@ -18,20 +20,28 @@ CREATE TABLE friendRequest (
                                timestamp TIMESTAMP default(datetime('now','localtime')),
                                text TEXT,
                                requestUserId INTEGER,
-                               status INTEGER,
+                               status INTEGER default(0),
                                FOREIGN KEY (userId) REFERENCES user (id),
                                FOREIGN KEY (requestUserId) REFERENCES user (id)
 );
+drop table groupChat;
 CREATE TABLE groupChat (
-                           id INTEGER PRIMARY KEY AUTOINCREMENT,
-                           nickname TEXT
+                           gcid INTEGER PRIMARY KEY AUTOINCREMENT,
+                           name TEXT,
+                           owner INTEGER,
+                           gctype TEXT,
+                           avatar TEXT,
+                           color TEXT,
+                           msgNum INTEGER default(0),
+                           last_msg_id INTEGER default(0),
+                           last_msg_timestamp INTEGER default(0)
 );
-
+drop table groupUser;
 CREATE TABLE groupUser(
                           id INTEGER PRIMARY KEY AUTOINCREMENT,
                           gid INTEGER,
                           uid INTEGER,
-                          FOREIGN KEY (gid) REFERENCES groupChat (id),
+                          FOREIGN KEY (gid) REFERENCES groupChat (gcid),
                           FOREIGN KEY (uid) REFERENCES user (id)
 );
 
@@ -40,34 +50,31 @@ CREATE TABLE message (
                          id INTEGER PRIMARY KEY AUTOINCREMENT,
                          type TEXT,
                          content TEXT,
-                         time TIMESTAMP DEFAULT (datetime('now','localtime')),
+                         time INTEGER DEFAULT (strftime('%s', 'now', 'localtime')),
                          uid INTEGER,
                          mid INTEGER,
                          gid INTEGER,
                          FOREIGN KEY (uid) REFERENCES user (id),
-                         FOREIGN KEY (gid) REFERENCES groupChat (id)
+                         FOREIGN KEY (gid) REFERENCES groupChat (gcid)
 );
 
-CREATE TABLE messageCounter (
-                                gid INTEGER,
-                                counter INTEGER DEFAULT 0,
-                                PRIMARY KEY (gid),
-                                FOREIGN KEY (gid) REFERENCES groupChat (id)
-);
 
+drop trigger update_mid;
 CREATE TRIGGER update_mid
     AFTER INSERT ON message
     FOR EACH ROW
     WHEN NEW.mid IS NULL
 BEGIN
-    UPDATE messageCounter
-    SET counter = counter + 1
-    WHERE gid = NEW.gid;
+    UPDATE groupChat
+    SET msgNum = msgNum + 1,
+        last_msg_id = NEW.id,
+        last_msg_timestamp = NEW.time
+    WHERE groupChat.gcid = NEW.gid;
 
     UPDATE message
     SET mid = (
-        SELECT counter
-        FROM messageCounter
+        SELECT msgNum
+        FROM groupChat
         WHERE gid = NEW.gid
     )
     WHERE id = NEW.id;

@@ -8,29 +8,44 @@
 #include <QJsonObject>
 #include "../Utils/utils.h"
 
+
 class Jsonable{
 public:
     // return a new qjson object
-    virtual QJsonObject toQJsonObject() = 0;
+    virtual QJsonObject toQJsonObject() =0;
 
     // fill fields by a qjson object
     virtual bool fromQJsonObject(const QJsonObject& ) = 0;
+
+    // get the object type
+    virtual QString getType() = 0 ;
+
+    virtual ~Jsonable() {}
 };
 
+// a containter to pass abstract class,
+// usage:
+// emit passMessageToBroadCast(MsgLoad(new Jsonable(target),target_list))
+class MsgLoad {
+public:
+    MsgLoad( Jsonable*loadcontent):
+        loadcontent(loadcontent){};
+    ~MsgLoad() {}
+    // sorry for this... I'm pretty much confused
+    // with c++ lifetime management and unique_ptr/move semantic,
+    // so I just use this to avoid memory leak
+    void FreeContent(){delete loadcontent;}
+    Jsonable*  loadcontent;
+};
+
+using dao_entry = map<string,string> ;
+
 // message service - api
-class Message:Jsonable{
+class Message:public Jsonable{
 public:
     Message(){};
 
-    Message(map<string,string> row){
-        id      = std::stoi(row["id"]);
-        type    = QString::fromStdString(row["type"]);
-        content = QString::fromStdString(row["content"]);
-        time    = getUnixTimeStampFromString(row["time"]);
-        uid     = std::stoi(row["uid"]);
-        mid     = std::stoi(row["mid"]);
-        gid     = std::stoi(row["gid"]);
-    };
+    Message(dao_entry row,bool isFromGroupCstr=0);
 
     qint64  id;          //ret string in api
     QString type;        //from request
@@ -42,6 +57,7 @@ public:
 
     bool fromQJsonObject(const QJsonObject &) override;
     QJsonObject toQJsonObject() override;
+    QString getType() override {return "text";};
 
     friend std::ostream& operator<<(std::ostream& os, const  Message &rhs) {
         os << "Message: " << &rhs << std::endl;
@@ -58,14 +74,36 @@ public:
 
 };
 
-class HistoryRqst:Jsonable{
+class HistoryRqst:public Jsonable{
 public:
     HistoryRqst(){};
     bool fromQJsonObject(const QJsonObject &) override;
     QJsonObject toQJsonObject() override;
+    QString getType() override {return "Rqst";};
 
     qint64  mid;         //string in api
     qint64  gid;         //ret from request
+};
+
+
+class Group:public Jsonable{
+public:
+    qint64 id;          //gcid in database
+    QString name;
+    qint64 owner;
+    QString type;       //gctype in database
+    QString avatar;
+    QString color;
+    Message last_message; // can be null
+
+    Group(){};
+    Group(dao_entry row,bool isContainLastMessage);
+    QString getType() override {return "groupMetaData";};
+
+    bool fromQJsonObject(const QJsonObject &) override;
+    QJsonObject toQJsonObject() override;
+    QJsonObject toQJsonObjectWithLastMsg();
+
 };
 
 #endif //DEMO02_DATACLASSES_H
