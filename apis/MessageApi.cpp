@@ -77,32 +77,37 @@ QHttpServerResponse MessageApi::handleSentMessageRequest(const QHttpServerReques
 //}
 
 QHttpServerResponse MessageApi::retrieveHistoryMsgList(const QHttpServerRequest &request) {
-    HistoryRqst historyrqst;
-    const auto json = byteArrayToJsonObject(request.body());
 
-    if (!json)
-        return QHttpServerResponse("接收消息失败或为空", QHttpServerResponder::StatusCode::BadRequest);
+    auto query = request.query();
+    bool is_num0;bool is_num1;bool is_num2;
+    qint64 gid   = query.queryItemValue("gid").toInt(&is_num0);
+    qint64 start = query.queryItemValue("start").toInt(&is_num1);
+    qint64 end   = query.queryItemValue("end").toInt(&is_num2);
+    if(query.isEmpty()||
+        !(is_num0)||
+        !(is_num1||is_num2)|| // make sure there must be a start or end
+        (is_num1&&is_num2)&&start > end //only check when they are both number
+    ){
+        return QHttpServerResponse("请检查请求参数",QHttpServerResponder::StatusCode::BadRequest);
+    }
 
+    // get the cookie and auth it, fail then return
     auto cookie =  getcookieFromRequest(request);
     auto uid = (cookie.has_value())?
                SessionApi::getInstance()->getIdByCookie(QUuid::fromString(cookie.value())):
                (std::nullopt);
-    // get the cookie and auth it, fail then return
     if(!uid.has_value())
         return QHttpServerResponse("身份验证失败", QHttpServerResponder::StatusCode::BadRequest);
 
-    // json field validating make sure gid, type ,content is not blank
-    if(!historyrqst.fromQJsonObject(json.value())){
-        return QHttpServerResponse("接收消息失败或为空", QHttpServerResponder::StatusCode::BadRequest);
-    }
+    // check whether exist a group or user is in this group
+    auto groupUserList = messageService->GetGroupUserList(gid);
+    if(groupUserList.isEmpty()||!groupUserList.contains(uid.value()))
+        return QHttpServerResponse("您不在该群组内或该群不存在", QHttpServerResponder::StatusCode::BadRequest);
 
-    // special validate for json field: is content blank? is gid valid? is uid is in the group gid?
-    // TODO: add validate for content gid uid content
+    if(!is_num2) end = start + MAX_HISTORY_RETRIEVE;
+    if(!is_num1) start = ((end - MAX_HISTORY_RETRIEVE)<0)?0:(end - MAX_HISTORY_RETRIEVE);
 
     return QHttpServerResponse(
-            messageService->GetMessagelistByTime(
-                historyrqst.mid,
-                historyrqst.gid
-            )
+            messageService->GetMessagelistByPeriod(gid, start, end)
     );
 }

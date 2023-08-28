@@ -16,6 +16,8 @@
 #include "SessionApi.h"
 
 
+#define MAX_HISTORY_RETRIEVE 99
+
 class MessageApi :public QObject{
     Q_OBJECT
 public:

@@ -41,10 +41,10 @@ void MessageService::FillMessageFromDB(Message &original_message) {
     original_message.mid     = std::stoi(ret[0]["mid"]);
 }
 
-QJsonArray MessageService::GetMessagelistByTime(qint64 mid, qint64 gid) {
-    string sql = "SELECT * FROM message WHERE id > ? and gid = ?";
+QJsonArray MessageService::GetMessagelistByPeriod(qint64 gid, qint64 start, qint64 end) {
+    string sql = "SELECT * FROM message WHERE mid BETWEEN ? and ? and gid = ?";
     vector<map<string,string>>
-        ret = baseDao->executeQuery(sql,to_string(mid),to_string(gid));
+        ret = baseDao->executeQuery(sql,to_string(start),to_string(end),to_string(gid));
     auto MessageList = QJsonArray();
     for(auto row : ret){
         MessageList.append(Message(row).toQJsonObject());
