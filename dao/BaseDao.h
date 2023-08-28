@@ -17,6 +17,7 @@ public:
     ~BaseDao();
     static QSqlDatabase& getConnection();
     void closeConnection();
+    QSqlDatabase getNewConnection();
 
     template<typename... Args>
     vector<map<string, string>> executeQuery(const string& sql, const Args&... args) {
@@ -68,7 +69,34 @@ public:
         return success;
     }
 
+    template<typename... Args>
+    bool executeUpdate(int & last_id,const string& sql, const Args&... args) {
+        QSqlDatabase db = getNewConnection();
+
+        QSqlQuery query = QSqlQuery(db);
+        query.prepare(QString::fromStdString(sql));
+
+
+        QVariantList params;
+        (params << ... << QVariant(QString::fromStdString(args)));
+        for (int i = 0; i < params.size(); ++i) {
+            query.bindValue(i, params[i]);
+        }
+
+        bool success = query.exec();
+        if (!success) {
+            qDebug() << "Failed to execute query: " << query.lastError();
+            last_id = query.lastInsertId().toInt();
+        }
+
+        if (db.isValid() && db.isOpen()) {
+            db.close();
+        }
+        return success;
+    }
+
 };
+
 
 
 

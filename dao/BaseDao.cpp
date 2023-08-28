@@ -29,6 +29,22 @@ QSqlDatabase& BaseDao::getConnection() {
 }
 
 
+QSqlDatabase BaseDao::getNewConnection() {
+    static int connectionCount = 0;
+    QString connectionName = QString("MyConnection_%1").arg(connectionCount++);
+    QSqlDatabase db;
+    db = QSqlDatabase::addDatabase("QMYSQL",connectionName);
+    db.setHostName("172.25.125.23");
+    db.setPort(3306);
+    db.setDatabaseName("chatRoom");
+    db.setUserName("root");
+    db.setPassword("1213");
+    if (!db.open()) {
+        qDebug() << "Failed to connect to database: " << db.lastError();
+    }
+    return db;
+}
+
 void BaseDao::closeConnection() {
     QSqlDatabase db = getConnection();
     if (db.isValid() && db.isOpen()) {
