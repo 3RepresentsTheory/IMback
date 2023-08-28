@@ -36,12 +36,16 @@ public:
 
     int removeEntry(SessionEntry * target);
 
+    void removeUser(const string& id);
+
     QJsonArray checkIdsInSet(const string& uid);
 
 private:
     tokenMap sessions;
     map<string,string> id2ip;
     QReadWriteLock lock;
+    QReadWriteLock lock2;
+    QReadWriteLock lock3;
     set<string> idSets;
 };
 
