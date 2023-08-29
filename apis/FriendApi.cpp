@@ -86,10 +86,13 @@ FriendApi::~FriendApi() {
 
 QHttpServerResponse FriendApi::request(const QHttpServerRequest &request) {
     // auth
-    QUuid token = QUuid::fromString(getcookieFromRequest(request).value().toStdString());
-    auto  id    = SessionApi::getInstance()->getIdByCookie(token);
+    // get the cookie and auth it, fail then return
+    auto cookie =  getcookieFromRequest(request);
+    auto id = (cookie.has_value())?
+               SessionApi::getInstance()->getIdByCookie(QUuid::fromString(cookie.value())):
+               (std::nullopt);
     if(!id.has_value())
-        return QHttpServerResponse(QJsonObject{{"msg","身份验证失败。"}},QHttpServerResponder::StatusCode::Unauthorized);
+        return QHttpServerResponse(QJsonObject{{"msg","身份验证失败"}}, QHttpServerResponder::StatusCode::BadRequest);
 
     // json parse and field check
     const auto json = byteArrayToJsonObject(request.body());
@@ -144,10 +147,15 @@ QHttpServerResponse FriendApi::request(const QHttpServerRequest &request) {
 
 // currently abandoned
 QHttpServerResponse FriendApi::accept(const QHttpServerRequest &request) {
-    QUuid token = QUuid::fromString(getcookieFromRequest(request).value().toStdString());
-    auto id = SessionApi::getInstance()->getIdByCookie(token);
+    // get the cookie and auth it, fail then return
+    auto cookie =  getcookieFromRequest(request);
+    auto id = (cookie.has_value())?
+              SessionApi::getInstance()->getIdByCookie(QUuid::fromString(cookie.value())):
+              (std::nullopt);
     if(!id.has_value())
-        return QHttpServerResponse(QJsonObject{{"msg","身份验证失败。"}},QHttpServerResponder::StatusCode::Unauthorized);
+        return QHttpServerResponse(QJsonObject{{"msg","身份验证失败"}}, QHttpServerResponder::StatusCode::BadRequest);
+
+
     const auto json = byteArrayToJsonObject(request.body());
     if (!json)
         return QHttpServerResponse(QJsonObject{{"msg","参数错误。"}}, QHttpServerResponder::StatusCode::BadRequest);
@@ -167,10 +175,13 @@ QHttpServerResponse FriendApi::accept(const QHttpServerRequest &request) {
 
 // currently abandoned
 QHttpServerResponse FriendApi::requests(const QHttpServerRequest &request) {
-    QUuid token = QUuid::fromString(getcookieFromRequest(request).value().toStdString());
-    auto id = SessionApi::getInstance()->getIdByCookie(token);
+    auto cookie =  getcookieFromRequest(request);
+    auto id = (cookie.has_value())?
+               SessionApi::getInstance()->getIdByCookie(QUuid::fromString(cookie.value())):
+               (std::nullopt);
     if(!id.has_value())
-        return QHttpServerResponse(QJsonObject{{"msg","身份验证失败。"}},QHttpServerResponder::StatusCode::Unauthorized);
+        return QHttpServerResponse(QJsonObject{{"msg","身份验证失败"}}, QHttpServerResponder::StatusCode::BadRequest);
+
     string last = request.query().queryItemValue("last").toStdString();
     vector<map<string ,string >> rc = friendService->getRequests(to_string(id.value()),last);
     QJsonArray qJsonArray = Requests::toJsonObject(rc);

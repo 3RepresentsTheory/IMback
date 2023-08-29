@@ -130,6 +130,8 @@ void ChatBroadcastServer::socketDisconnected()
     QTextStream(stdout) << getIdentifier(pClient) << " disconnected!\n";
     if (pClient)
     {
+        //must have this value
+        userLogout(socketSession.getIdByWs(pClient).value());
         socketSession.remove(pClient);
 //        m_clients.removeAll(pClient);
         pClient->deleteLater();
@@ -178,6 +180,13 @@ void SocketSession::remove(QWebSocket *ws) {
 std::optional<QWebSocket *> SocketSession::getWsById(qint64 id) {
     if(id2ws.contains(id))
         return id2ws.value(id);
+    else
+        return std::nullopt;
+}
+
+std::optional<qint64> SocketSession::getIdByWs(QWebSocket *ws) {
+    if(ws2id.contains(ws))
+        return ws2id.value(ws);
     else
         return std::nullopt;
 }

@@ -11,7 +11,8 @@
 #include <optional>
 #include <set>
 
-class SessionApi {
+class SessionApi :public QObject{
+    Q_OBJECT
 public:
     SessionApi();
     ~SessionApi();
@@ -36,12 +37,19 @@ public:
 
     int removeEntry(SessionEntry * target);
 
+    void removeUser(const string& id);
+
     QJsonArray checkIdsInSet(const string& uid);
+
+public slots:
+    void onUserLogout(qint64 uid);
 
 private:
     tokenMap sessions;
     map<string,string> id2ip;
     QReadWriteLock lock;
+    QReadWriteLock lock2;
+    QReadWriteLock lock3;
     set<string> idSets;
 };
 

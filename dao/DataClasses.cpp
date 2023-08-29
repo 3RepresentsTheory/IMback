@@ -5,10 +5,10 @@
 
 bool Message::fromQJsonObject(const QJsonObject & json) {
     if(
-            !json.contains("type")     || json.value("type").isNull()||
-            !json.contains("content")  || json.value("content").isNull()||
+            !json.contains("type")     || json.value("type").isNull()   ||json.value("type").toString().isEmpty()||
+            !json.contains("content")  || json.value("content").isNull()||json.value("content").toString().isEmpty()||
             !json.contains("gid")      || json.value("gid").isNull()
-            )
+    )
         return false;
 
     type    = json.value("type").toString();
@@ -45,8 +45,8 @@ Message::Message(dao_entry row,bool isFromGroupCstr) {
 
 bool HistoryRqst::fromQJsonObject(const QJsonObject &json) {
     if(
-            !json.contains("gid")     || json.value("gid").isNull()||
-            !json.contains("last")  || json.value("last").isNull()
+            !json.contains("gid")     || json.value("gid").isNull() ||
+            !json.contains("last")    || json.value("last").isNull()
     )
         return false;
     gid = json.value("gid").toInteger();
@@ -74,9 +74,9 @@ Group::Group(dao_entry row,bool isContainLastMessage) {
 
 bool Group::fromQJsonObject(const QJsonObject &json) {
     if(
-            !json.contains("name")     || json.value("name").isNull()||
-            !json.contains("avatar")   || json.value("avatar").isNull()||
-            !json.contains("color")    || json.value("color").isNull())
+            !json.contains("name")     || json.value("name").isNull()  || json.value("name").toString().isEmpty()||
+            !json.contains("avatar")   || json.value("avatar").isNull()|| json.value("avatar").toString().isEmpty()||
+            !json.contains("color")    || json.value("color").isNull() || json.value("color").toString().isEmpty())
         return false;
 
     name    = json.value("name").toString();

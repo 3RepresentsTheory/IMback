@@ -7,3 +7,7 @@ friend api requests untest
 将dispatcher改为多线程的
 
 需要把错误信息改成json格式的
+
+/user/info不能返回密码
+ddl 可选项是咋整的，默认值应该是啥
+1,2,3这种还没做正则校验

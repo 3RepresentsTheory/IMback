@@ -17,6 +17,7 @@ void userRouting(QHttpServer &HttpServer, UserApi &userApi);
 void friendRouting(QHttpServer &HttpServer, FriendApi& friendApi);
 void msgRouting(QHttpServer &HttpServer, MessageApi &msgApi);
 void groupRouting(QHttpServer &HttpServer, GroupApi &groupApi);
+void testingRoutng(QHttpServer &HttpServer);
 
 int main(int argc, char *argv[]) {
     QCoreApplication app(argc, argv);
@@ -57,6 +58,12 @@ int main(int argc, char *argv[]) {
             &broadcastServer,
             &ChatBroadcastServer::onNeedToBroadCast
     );
+    QObject::connect(
+            &broadcastServer,
+            &ChatBroadcastServer::userLogout,
+            SessionApi().getInstance(),
+            &SessionApi::onUserLogout
+    );
 
     broadcastThread.start();
     broadcastServer.listen(QHostAddress::Any,bcportArg);
@@ -70,6 +77,8 @@ int main(int argc, char *argv[]) {
     friendRouting(httpServer,friendApi);
     msgRouting(httpServer,messageApi);
     groupRouting(httpServer,groupApi);
+
+    testingRoutng(httpServer);
 
 
     // start server listen
@@ -88,8 +97,8 @@ int main(int argc, char *argv[]) {
     return app.exec();
 }
 
-
-void userRouting(QHttpServer &HttpServer, UserApi &userApi){
+void testingRoutng(QHttpServer &HttpServer){
+    // I don't know why its has to be in the root ,otherwise the Set-Cookie doesn't work
     HttpServer.route(
             "/",
             []() {
@@ -97,13 +106,32 @@ void userRouting(QHttpServer &HttpServer, UserApi &userApi){
                 // send back a chatclient.html in broadcast/chatclient.h
                 QFile file("../broadcast/chatclient.html");
                 if (!file.open(QIODevice::ReadOnly)) {
-                    return QHttpServerResponse("Internal server error", QHttpServerResponder::StatusCode::InternalServerError);
+                    return QHttpServerResponse(QJsonObject{{"msg","Internal server error"}}, QHttpServerResponder::StatusCode::InternalServerError);
                 }
                 QByteArray data = file.readAll();
                 file.close();
                 return QHttpServerResponse(data);
             }
     );
+
+    HttpServer.route(
+            "/chatclient.js",
+            []() {
+//                return "Qt Colorpalette example server. Please see documentation for API description";
+                // send back a chatclient.html in broadcast/chatclient.h
+                QFile file("../broadcast/chatclient.js");
+                if (!file.open(QIODevice::ReadOnly)) {
+                    return QHttpServerResponse(QJsonObject{{"msg","Internal server error"}}, QHttpServerResponder::StatusCode::InternalServerError);
+                }
+                QByteArray data = file.readAll();
+                file.close();
+                return QHttpServerResponse(data);
+            }
+    );
+}
+
+
+void userRouting(QHttpServer &HttpServer, UserApi &userApi){
     // User module
     HttpServer.route(
             "/user/login", QHttpServerRequest::Method::Post,

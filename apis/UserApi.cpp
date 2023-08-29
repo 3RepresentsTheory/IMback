@@ -137,10 +137,14 @@ QHttpServerResponse UserApi:: login(const QHttpServerRequest &request) {
 }
 
 QHttpServerResponse UserApi::info(const QHttpServerRequest &request) {
-    QUuid token = QUuid::fromString(getcookieFromRequest(request).value().toStdString());
-    auto id = SessionApi::getInstance()->getIdByCookie(token);
+    // get the cookie and auth it, fail then return
+    auto cookie =  getcookieFromRequest(request);
+    auto id = (cookie.has_value())?
+               SessionApi::getInstance()->getIdByCookie(QUuid::fromString(cookie.value())):
+               (std::nullopt);
     if(!id.has_value())
-        return QHttpServerResponse(QJsonObject{{"msg","身份验证失败。"}},QHttpServerResponder::StatusCode::Unauthorized);
+        return QHttpServerResponse(QJsonObject{{"msg","身份验证失败"}}, QHttpServerResponder::StatusCode::BadRequest);
+
     const auto json = byteArrayToJsonObject(request.body());
     if (!json)
         return QHttpServerResponse(QJsonObject{{"msg","参数错误。"}}, QHttpServerResponder::StatusCode::BadRequest);
@@ -164,16 +168,23 @@ QHttpServerResponse UserApi::infos(const QHttpServerRequest &request){
     if(uidParams.empty()){
         return QHttpServerResponse(QJsonObject{{"msg","参数错误。"}}, QHttpServerResponder::StatusCode::BadRequest);
     }
+    // TODO:here need to use regex to match the msg, we trust the client will give right form data
+
     vector<User> rc = userService->getUserInfos(uidParams);
     QJsonArray qJsonArray = User::toJsonObjectForInfos(rc);
     return QHttpServerResponse(qJsonArray);
 }
 
 QHttpServerResponse UserApi::getUserip(const QHttpServerRequest &request){
-    QUuid token = QUuid::fromString(getcookieFromRequest(request).value().toStdString());
-    auto id = SessionApi::getInstance()->getIdByCookie(token);
+    // get the cookie and auth it, fail then return
+    auto cookie =  getcookieFromRequest(request);
+    auto id = (cookie.has_value())?
+               SessionApi::getInstance()->getIdByCookie(QUuid::fromString(cookie.value())):
+               (std::nullopt);
     if(!id.has_value())
-        return QHttpServerResponse(QJsonObject{{"msg","身份验证失败。"}},QHttpServerResponder::StatusCode::Unauthorized);
+        return QHttpServerResponse(QJsonObject{{"msg","身份验证失败"}}, QHttpServerResponder::StatusCode::BadRequest);
+
+    // auth query
     string uid = request.query().queryItemValue("uid").toStdString();
     if(uid.empty()){
         return QHttpServerResponse(QJsonObject{{"msg","参数错误。"}},QHttpServerResponder::StatusCode::BadRequest);

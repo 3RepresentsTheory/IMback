@@ -1,0 +1,30 @@
+<html lang="zh">
+    <head>
+        <title>测试客户端</title>
+        <script type="text/javascript" src="./chatclient.js"></script>
+    </head>
+    <body>
+        <h1>测试客户端</h1>
+        <p>
+            Username: <input id="username" type="text" value=""/>
+        </p>
+        <p>
+            Password: <input id="password" type="text" value=""/>
+        </p>
+        <p>
+            GroupId: <input id="groupid" type="text" value=""/>
+        </p>
+        <p>
+            <button onClick="sendLoginRequest();">Login</button>
+        <p>
+            <button onClick="checkSocket();">State</button>
+        </p>
+        <p>
+            <textarea id="debugTextArea" style="width:400px;height:200px;" readonly></textarea>
+        </p>
+        <p>
+            <input type="text" id="inputText" onkeydown="if(event.keyCode==13)sendMessage();"/>
+            <button id="sendButton" onClick="sendMessage();" disabled>Send</button>
+        </p>
+    </body>
+</html>

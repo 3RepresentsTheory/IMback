@@ -21,6 +21,7 @@ public:
     void insert(qint64 id,QWebSocket* ws);
     void remove(QWebSocket* ws);
     std::optional<QWebSocket*> getWsById(qint64 id);
+    std::optional<qint64>      getIdByWs(QWebSocket *ws);
     QVector<qint64> allOnlineUsers();
 
 private:
@@ -47,6 +48,9 @@ public:
 
 public slots:
     void onNeedToBroadCast(Message data,QVector<qint64> glist);
+
+signals:
+    void userLogout(qint64 uid);
 
 private:
     void closeWaitWsocket(QWebSocket*,QString errorMsg);

@@ -12,26 +12,26 @@ QHttpServerResponse MessageApi::handleSentMessageRequest(const QHttpServerReques
     const auto json = byteArrayToJsonObject(request.body());
 
     if (!json)
-        return QHttpServerResponse("接收消息失败或为空", QHttpServerResponder::StatusCode::BadRequest);
+        return QHttpServerResponse(QJsonObject{{"msg","接收消息失败或为空"}}, QHttpServerResponder::StatusCode::BadRequest);
 
+    // get the cookie and auth it, fail then return
     auto cookie =  getcookieFromRequest(request);
     auto uid = (cookie.has_value())?
             SessionApi::getInstance()->getIdByCookie(QUuid::fromString(cookie.value())):
             (std::nullopt);
-    // get the cookie and auth it, fail then return
     if(!uid.has_value())
-        return QHttpServerResponse("身份验证失败", QHttpServerResponder::StatusCode::BadRequest);
+        return QHttpServerResponse(QJsonObject{{"msg","身份验证失败"}}, QHttpServerResponder::StatusCode::BadRequest);
 
     // json field validating make sure gid, type ,content is not blank
     if(!message.fromQJsonObject(json.value())){
-        return QHttpServerResponse("接收消息失败或为空", QHttpServerResponder::StatusCode::BadRequest);
+        return QHttpServerResponse(QJsonObject{{"msg","接收消息失败或为空"}}, QHttpServerResponder::StatusCode::BadRequest);
     }
 
     // special validate for json field: is content blank? is gid valid? is uid is in the group gid?
     // TODO: add validate for content gid uid content
     auto groupUserList = messageService->GetGroupUserList(message.gid);
     if(groupUserList.isEmpty()||!groupUserList.contains(uid.value()))
-        return QHttpServerResponse("您不在该群组内或该群不存在", QHttpServerResponder::StatusCode::BadRequest);
+        return QHttpServerResponse(QJsonObject{{"msg","您不在该群组内或该群不存在"}}, QHttpServerResponder::StatusCode::BadRequest);
 
     // generate complete database object(store to database ,and have a copy in memory)
     // including:
@@ -49,7 +49,7 @@ QHttpServerResponse MessageApi::handleSentMessageRequest(const QHttpServerReques
     int message_id = 0;
     message.uid = uid.value();
     if(!messageService->StoreMessage(message, message_id)){
-        return QHttpServerResponse("服务器内部错误，请稍后再试", QHttpServerResponder::StatusCode::InternalServerError);
+        return QHttpServerResponse(QJsonObject{{"msg","服务器内部错误，请稍后再试"}}, QHttpServerResponder::StatusCode::InternalServerError);
     }
 
     message.id  = message_id;
@@ -89,7 +89,7 @@ QHttpServerResponse MessageApi::retrieveHistoryMsgList(const QHttpServerRequest 
         !(is_num1||is_num2)|| // make sure there must be a start or end
         (is_num1&&is_num2)&&start > end //only check when they are both number
     ){
-        return QHttpServerResponse("请检查请求参数",QHttpServerResponder::StatusCode::BadRequest);
+        return QHttpServerResponse(QJsonObject{{"msg","请检查请求参数"}},QHttpServerResponder::StatusCode::BadRequest);
     }
 
     // get the cookie and auth it, fail then return
@@ -98,12 +98,12 @@ QHttpServerResponse MessageApi::retrieveHistoryMsgList(const QHttpServerRequest 
                SessionApi::getInstance()->getIdByCookie(QUuid::fromString(cookie.value())):
                (std::nullopt);
     if(!uid.has_value())
-        return QHttpServerResponse("身份验证失败", QHttpServerResponder::StatusCode::BadRequest);
+        return QHttpServerResponse(QJsonObject{{"msg","身份验证失败"}}, QHttpServerResponder::StatusCode::BadRequest);
 
     // check whether exist a group or user is in this group
     auto groupUserList = messageService->GetGroupUserList(gid);
     if(groupUserList.isEmpty()||!groupUserList.contains(uid.value()))
-        return QHttpServerResponse("您不在该群组内或该群不存在", QHttpServerResponder::StatusCode::BadRequest);
+        return QHttpServerResponse(QJsonObject{{"msg","您不在该群组内或该群不存在"}}, QHttpServerResponder::StatusCode::BadRequest);
 
     if(!is_num2) end = start + MAX_HISTORY_RETRIEVE;
     if(!is_num1) start = ((end - MAX_HISTORY_RETRIEVE)<0)?0:(end - MAX_HISTORY_RETRIEVE);

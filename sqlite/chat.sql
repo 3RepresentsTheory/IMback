@@ -34,7 +34,8 @@ CREATE TABLE groupChat (
                            color TEXT default(''),
                            msgNum INTEGER default(0),
                            last_msg_id INTEGER default(0),
-                           last_msg_timestamp INTEGER default(0)
+                           last_msg_timestamp INTEGER default(1)
+--                        timestamp is not zero for searching
 );
 drop table groupUser;
 CREATE TABLE groupUser(
