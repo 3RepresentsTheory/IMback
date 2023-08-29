@@ -14,7 +14,10 @@
 class GroupApi : public QObject{
     Q_OBJECT
 public:
-    GroupApi(MessageService*msgservice,GroupService*groupservice):
+    GroupApi(
+            MessageService*msgservice,
+            GroupService*groupservice
+            ):
         msgService(msgservice),groupService(groupservice){};
     QHttpServerResponse createGroup(const QHttpServerRequest &request);
     QHttpServerResponse joinGroup(const QHttpServerRequest &request);
@@ -23,6 +26,9 @@ public:
 private:
     MessageService* msgService;
     GroupService* groupService;
+
+signals:
+    void passMessageToBroadCast(MsgLoad msg,QVector<qint64>glist);
 };
 
 

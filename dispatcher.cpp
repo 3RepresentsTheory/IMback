@@ -51,14 +51,33 @@ int main(int argc, char *argv[]) {
     MessageService* msgService = new MessageService();
     GroupService * groupService= new GroupService();
 
-    FriendApi friendApi(new UserService(),new FriendService(),groupService);
+    FriendApi friendApi(
+            new UserService(),
+            new FriendService(),
+            groupService,
+            msgService);
     MessageApi messageApi(msgService);
     GroupApi groupApi(msgService,groupService);
 
     // handle messageapi connect to broadcast server&thread
+    // lots need
     QObject::connect(
             &messageApi,
             &MessageApi::passMessageToBroadCast,
+            &broadcastServer,
+            &ChatBroadcastServer::onNeedToBroadCast
+    );
+
+    QObject::connect(
+            &groupApi,
+            &GroupApi::passMessageToBroadCast,
+            &broadcastServer,
+            &ChatBroadcastServer::onNeedToBroadCast
+    );
+
+    QObject::connect(
+            &friendApi,
+            &FriendApi::passMessageToBroadCast,
             &broadcastServer,
             &ChatBroadcastServer::onNeedToBroadCast
     );
@@ -68,6 +87,13 @@ int main(int argc, char *argv[]) {
             SessionApi().getInstance(),
             &SessionApi::onUserLogout
     );
+    QObject::connect(
+            &broadcastServer,
+            &ChatBroadcastServer::userLogin,
+            SessionApi().getInstance(),
+            &SessionApi::onUserLogin
+    );
+
 
     broadcastThread.start();
     broadcastServer.listen(QHostAddress::Any,bcportArg);

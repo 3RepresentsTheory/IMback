@@ -72,11 +72,13 @@ QJsonArray Requests::toJsonObject(vector<map<string, string>> &rc) {
 FriendApi::FriendApi(
         UserService* userService,
         FriendService *friendService,
-        GroupService *groupService
+        GroupService *groupService,
+        MessageService*messageService
 ) :
         userService(userService),
         friendService(friendService),
-        groupService(groupService){}
+        groupService(groupService),
+        messageService(messageService){}
 
 FriendApi::~FriendApi() {
     if(!friendService){
@@ -138,6 +140,23 @@ QHttpServerResponse FriendApi::request(const QHttpServerRequest &request) {
         return QHttpServerResponse(QJsonObject{{"msg","创建群组失败"}},QHttpServerResponder::StatusCode::InternalServerError);
     }
 
+    // send a welcome message to each other
+    // basic fields of message
+    Message message;
+    message.type    = "text";
+    message.content ="我已添加好友，开始聊天吧";
+    message.gid     = groupid;
+
+    int message_id = 0;
+    message.uid = id.value();
+    if(!messageService->StoreMessage(message, message_id)){
+        return QHttpServerResponse(QJsonObject{{"msg","服务器内部错误，请稍后再试"}}, QHttpServerResponder::StatusCode::InternalServerError);
+    }
+
+    message.id  = message_id;
+    messageService->FillMessageFromDB(message);
+
+    emit passMessageToBroadCast(MsgLoad(new Message(message)), {id.value(),targetId});
 //    bool rc = friendService->insertRequest(to_string(targetId),to_string(id.value()),text);
 //    if (!rc)
 //        return QHttpServerResponse(QJsonObject{{"msg","服务器内部错误。"}}, QHttpServerResponder::StatusCode::InternalServerError);
@@ -154,8 +173,6 @@ QHttpServerResponse FriendApi::accept(const QHttpServerRequest &request) {
               (std::nullopt);
     if(!id.has_value())
         return QHttpServerResponse(QJsonObject{{"msg","身份验证失败"}}, QHttpServerResponder::StatusCode::BadRequest);
-
-
     const auto json = byteArrayToJsonObject(request.body());
     if (!json)
         return QHttpServerResponse(QJsonObject{{"msg","参数错误。"}}, QHttpServerResponder::StatusCode::BadRequest);
@@ -165,8 +182,6 @@ QHttpServerResponse FriendApi::accept(const QHttpServerRequest &request) {
     if(rc.empty()||stoi(rc["userId"])!=id){
         return QHttpServerResponse(QJsonObject{{"msg","没有该好友请求或请求已经被接受。"}},QHttpServerResponder::StatusCode::InternalServerError);
     }
-
-
     bool updaterc = friendService->acceptRequest(to_string(id.value()),rc["requestUserId"],requestId);
     if(!updaterc)
         return QHttpServerResponse(QJsonObject{{"msg","服务器内部错误。"}},QHttpServerResponder::StatusCode::InternalServerError);

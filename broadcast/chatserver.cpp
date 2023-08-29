@@ -107,7 +107,16 @@ void ChatBroadcastServer::onNewConnection()
 void ChatBroadcastServer::onUpgradeToSocketAuth(const QString &message) {
     qDebug() << "get the cookie: "<<message ;
     QWebSocket *pSender = qobject_cast<QWebSocket *>(sender());
-    auto uid = SessionApi::getInstance()->getIdByCookie(QUuid::fromString(message));
+
+    WsAuth wsauth;
+    auto authMsgJson = byteArrayToJsonObject(QByteArray(message.toUtf8()));
+    if(!authMsgJson || wsauth.fromQJsonObject(authMsgJson.value())){
+        QTextStream(stdout) << getIdentifier(pSender) << "auth form error\n";
+        closeWaitWsocket(pSender,"The form of auth error");
+    }
+
+    auto uid = SessionApi::getInstance()->getIdByCookie(QUuid::fromString(wsauth.cookie));
+
     if(uid.has_value()){
         // if auth passed: stop timer and add to broadcast list
         m_socketTimers[pSender]->stop();
@@ -115,6 +124,7 @@ void ChatBroadcastServer::onUpgradeToSocketAuth(const QString &message) {
         m_socketTimers.remove(pSender);
         // add to broadcast list
         socketSession.insert(uid.value(),pSender);
+        emit userLogin(QString::fromStdString(to_string(uid.value())),wsauth.ip+':'+wsauth.port);
 //        m_clients <<  pSender;
     }else{
         QTextStream(stdout) << getIdentifier(pSender) << "not pass auth!\n";

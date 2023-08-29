@@ -43,6 +43,7 @@ public:
 
 public slots:
     void onUserLogout(qint64 uid);
+    void onUserLogin(QString uid,QString ip);
 
 private:
     tokenMap sessions;

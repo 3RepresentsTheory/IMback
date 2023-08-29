@@ -97,9 +97,11 @@ QHttpServerResponse UserApi:: registerSession(const QHttpServerRequest &request)
     userService->insertUser(user);
     user = userService->selectUserInfoByName(user.username);
     SessionEntry sessionEntry = SessionApi::getInstance()->createEntryAndStart(user.id);
-    string clientAddress = QHostAddress(request.remoteAddress().toIPv4Address()).toString().toStdString();
-    string clientPort = to_string(request.remotePort());
-    SessionApi::getInstance()->insertIP(to_string(user.id),clientAddress+":"+clientPort);
+
+//    string clientAddress = QHostAddress(request.remoteAddress().toIPv4Address()).toString().toStdString();
+//    string clientPort = to_string(request.remotePort());
+//    SessionApi::getInstance()->insertIP(to_string(user.id),clientAddress+":"+clientPort);
+
     QJsonObject qJsonObject = User::toJsonObjectForLogin(user,sessionEntry.token.value());
     return QHttpServerResponse(qJsonObject);
 }
@@ -123,9 +125,9 @@ QHttpServerResponse UserApi:: login(const QHttpServerRequest &request) {
         return QHttpServerResponse(QJsonObject{{"msg","用户名或密码错误。"}},QHttpServerResponder::StatusCode::InternalServerError);
     SessionEntry sessionEntry = SessionApi::getInstance()->createEntryAndStart(user.id);
 
-    string clientAddress = QHostAddress(request.remoteAddress().toIPv4Address()).toString().toStdString();
-    string clientPort    = to_string(request.remotePort());
-    SessionApi::getInstance()->insertIP(to_string(user.id),clientAddress+":"+clientPort);
+//    string clientAddress = QHostAddress(request.remoteAddress().toIPv4Address()).toString().toStdString();
+//    string clientPort    = to_string(request.remotePort());
+//    SessionApi::getInstance()->insertIP(to_string(user.id),clientAddress+":"+clientPort);
 
     QJsonObject qJsonObject = User::toJsonObjectForLogin(user,sessionEntry.token.value());
     auto response =  QHttpServerResponse(qJsonObject);

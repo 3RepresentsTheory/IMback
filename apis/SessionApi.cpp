@@ -98,3 +98,6 @@ void SessionApi::onUserLogout(qint64 uid) {
     removeUser(to_string(uid));
 }
 
+void SessionApi::onUserLogin(QString uid, QString ipport) {
+    insertIP(uid.toStdString(),ipport.toStdString());
+}

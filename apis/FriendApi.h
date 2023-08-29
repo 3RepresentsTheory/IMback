@@ -11,6 +11,7 @@
 #include <QtConcurrent/qtconcurrentrun.h>
 #include "SessionApi.h"
 #include "../service/GroupService.h"
+#include "../service/MessageService.h"
 
 #include <QtHttpServer/QHttpServer>
 
@@ -40,19 +41,27 @@ public:
     string last;
 };
 
-class FriendApi {
+class FriendApi :public QObject{
+    Q_OBJECT
 private:
     FriendService* friendService;
-    SessionApi* sessionApi;
     UserService *userService;
     //we use groupservice to add two people to one group
     GroupService *groupService;
+    MessageService *messageService;
 public:
-    FriendApi(UserService* userService,FriendService* friendService1,GroupService*groupServci);
+    FriendApi(
+            UserService* userService,
+            FriendService* friendService1,
+            GroupService*groupService,
+            MessageService*messageService1);
     ~FriendApi();
     QHttpServerResponse request(const QHttpServerRequest &request);
     QHttpServerResponse accept(const QHttpServerRequest& request);
     QHttpServerResponse requests(const QHttpServerRequest &request);
+
+signals:
+    void passMessageToBroadCast(MsgLoad msg,QVector<qint64>glist);
 };
 
 

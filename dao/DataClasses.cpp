@@ -120,3 +120,23 @@ QJsonObject Group::toQJsonObjectWithLastMsg() {
     };
 }
 
+bool WsAuth::fromQJsonObject(const QJsonObject &json) {
+    if(
+            !json.contains("cookie")  || json.value("cookie").isNull()  || json.value("cookie").toString().isEmpty()||
+            !json.contains("ip")      || json.value("ip").isNull()      || json.value("ip").toString().isEmpty()||
+            !json.contains("port")    || json.value("port").isNull()    || json.value("port").toString().isEmpty())
+        return false;
+
+    cookie    = json.value("cookie").toString();
+    ip        = json.value("avatar").toString();
+    port      = json.value("color").toString();
+    return true;
+}
+
+QJsonObject WsAuth::toQJsonObject() {
+    return QJsonObject{
+            {"cookie",cookie},
+            {"ip"    ,ip},
+            {"port"  ,port}
+    };
+}

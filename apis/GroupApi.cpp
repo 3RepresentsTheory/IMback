@@ -40,6 +40,25 @@ QHttpServerResponse GroupApi::createGroup(const QHttpServerRequest &request) {
     if(!groupService->JoinGroup(uid.value(),gid))
         return QHttpServerResponse(QJsonObject{{"msg","服务器内部错误，无法加入群组，稍后再试"}}, QHttpServerResponder::StatusCode::BadRequest);
 
+    // send a welcome msg to myself:
+
+    // basic fields of message
+    Message message;
+    message.type    = "text";
+    message.content ="群"+group.name+"创建完毕";
+    message.gid     = gid;
+
+    int message_id = 0;
+    message.uid = uid.value();
+    if(!msgService->StoreMessage(message, message_id)){
+        return QHttpServerResponse(QJsonObject{{"msg","服务器内部错误，请稍后再试"}}, QHttpServerResponder::StatusCode::InternalServerError);
+    }
+
+    message.id  = message_id;
+    msgService->FillMessageFromDB(message);
+
+    emit passMessageToBroadCast(MsgLoad(new Message(message)), {uid.value()});
+
     return QHttpServerResponse(group.toQJsonObject());
 }
 

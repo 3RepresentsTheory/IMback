@@ -50,6 +50,7 @@ public slots:
 
 signals:
     void userLogout(qint64 uid);
+    void userLogin(QString uid, QString ipport);
 
 private:
     void closeWaitWsocket(QWebSocket*,QString errorMsg);

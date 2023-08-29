@@ -106,4 +106,18 @@ public:
 
 };
 
+
+class WsAuth:public Jsonable{
+public:
+    QString cookie;
+    QString ip;
+    QString port;
+    WsAuth(){};
+
+    QString getType() override {return "WsAuth";};
+    bool fromQJsonObject(const QJsonObject &) override;
+    QJsonObject toQJsonObject() override;
+
+};
+
 #endif //DEMO02_DATACLASSES_H
