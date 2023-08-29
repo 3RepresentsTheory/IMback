@@ -35,7 +35,6 @@ QJsonObject User::toJsonObject(const User& user) {
     QJsonObject userObject{
             {"id", user.id},
             {"username", QString::fromStdString(user.username)},
-            {"password",QString::fromStdString(user.password)},
             {"nickname", QString::fromStdString(user.nickname)},
             {"color", QString::fromStdString(user.color)},
             {"avatar", QString::fromStdString(user.avatar)}
