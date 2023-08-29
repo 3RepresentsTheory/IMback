@@ -130,8 +130,11 @@ void ChatBroadcastServer::socketDisconnected()
     QTextStream(stdout) << getIdentifier(pClient) << " disconnected!\n";
     if (pClient)
     {
+        qint64 uid = socketSession.getIdByWs(pClient).value();
         //must have this value
-        userLogout(socketSession.getIdByWs(pClient).value());
+        if(socketSession.getWsById(uid)->size()==1){
+            userLogout(uid);
+        }
         socketSession.remove(pClient);
 //        m_clients.removeAll(pClient);
         pClient->deleteLater();
@@ -162,7 +165,9 @@ void ChatBroadcastServer::onNeedToBroadCast(Message data, QVector<qint64> glist)
         auto uws = socketSession.getWsById(uid);
 //        if(uws.has_value()&&uid!=sender_id)
         if(uws.has_value())
-            uws.value()->sendTextMessage(bytes);
+            for (auto ws:uws.value()) {
+                ws->sendTextMessage(bytes);
+            }
     }
 }
 
@@ -173,13 +178,18 @@ void SocketSession::insert(qint64 id, QWebSocket *ws) {
 
 void SocketSession::remove(QWebSocket *ws) {
     qint64 id = ws2id.value(ws);
-    id2ws.remove(id);
-    ws2id.remove(ws);
+    // more than one client login
+    if(id2ws.values(id).size()>1){
+        id2ws.remove(id,ws);
+    } else{
+        id2ws.remove(id);
+        ws2id.remove(ws);
+    }
 }
 
-std::optional<QWebSocket *> SocketSession::getWsById(qint64 id) {
+std::optional<QList<QWebSocket *>> SocketSession::getWsById(qint64 id) {
     if(id2ws.contains(id))
-        return id2ws.value(id);
+        return id2ws.values(id);
     else
         return std::nullopt;
 }
@@ -191,13 +201,13 @@ std::optional<qint64> SocketSession::getIdByWs(QWebSocket *ws) {
         return std::nullopt;
 }
 
-QVector<qint64> SocketSession::allOnlineUsers() {
-    qDebug() << "all online users:\n";
-    QVector<qint64> ret;
-    QMap<id_t,wspt >::const_iterator it;
-    for (it = id2ws.constBegin(); it != id2ws.constEnd(); ++it) {
-        ret.append(it.key());
-        qDebug() << it.key() << "with ws: " << it.value() << "\n";
-    }
-    return ret;
-}
+//QVector<qint64> SocketSession::allOnlineUsers() {
+//    qDebug() << "all online users:\n";
+//    QVector<qint64> ret;
+//    QMap<id_t,wspt >::const_iterator it;
+//    for (it = id2ws.constBegin(); it != id2ws.constEnd(); ++it) {
+//        ret.append(it.key());
+//        qDebug() << it.key() << "with ws: " << it.value() << "\n";
+//    }
+//    return ret;
+//}

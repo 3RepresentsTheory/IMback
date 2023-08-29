@@ -155,8 +155,8 @@ function getOnlineUser(){
 }
 
 function requestAddFriend(){
+    document.cookie = cookie;
     var friendname = document.getElementById("friendname").value;
-
     var json = {
         "username"  : friendname,
         "text"      : "服务端已经不处理申请text了"
@@ -177,6 +177,7 @@ function requestAddFriend(){
 }
 
 function getHistoryMessage(){
+    document.cookie = cookie
     var gid    = parseInt(document.getElementById("group_hist_id").value, 10);
     var startid= parseInt(document.getElementById("startid").value,10)    ;
     var endid  = parseInt(document.getElementById("endid").value,10);
@@ -204,7 +205,9 @@ function getHistoryMessage(){
         .catch(error => debug('Error:', error))
 }
 
+
 function createGroup(){
+    document.cookie = cookie
     var groupname   = document.getElementById("groupname").value;
     var groupcolor  = document.getElementById("groupcolor").value;
     var groupavatar = document.getElementById("groupavatar").value;
@@ -227,7 +230,6 @@ function createGroup(){
         })
         .catch(error => debug('Error:', error))
 }
-
 
 
 function sendcookie(msg) {

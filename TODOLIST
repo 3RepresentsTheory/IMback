@@ -11,3 +11,6 @@ friend api requests untest
 /user/info不能返回密码
 ddl 可选项是咋整的，默认值应该是啥
 1,2,3这种还没做正则校验
+
+ip传输还需要处理一下
+广播消息的格式需要改回去

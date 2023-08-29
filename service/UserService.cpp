@@ -32,7 +32,7 @@ int UserService::selectIdByName(const string &username) {
     vector<map<string, string>> rc;
     string sql = "SELECT id FROM user WHERE username = ?;";
     rc = baseDao->executeQuery(sql,username);
-    if(rc[0].empty()){
+    if(rc.empty()){
         return -1;
     }
     return stoi(rc[0]["id"]);

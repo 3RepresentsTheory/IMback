@@ -20,13 +20,12 @@ public:
     using wspt = QWebSocket*;
     void insert(qint64 id,QWebSocket* ws);
     void remove(QWebSocket* ws);
-    std::optional<QWebSocket*> getWsById(qint64 id);
+    std::optional<QList<QWebSocket *>> getWsById(qint64 id);
     std::optional<qint64>      getIdByWs(QWebSocket *ws);
-    QVector<qint64> allOnlineUsers();
 
 private:
     // one id can only map with one web socket
-    QMap<id_t,wspt> id2ws;
+    QMultiMap<id_t,wspt> id2ws;
     QMap<wspt,id_t> ws2id;
 };
 

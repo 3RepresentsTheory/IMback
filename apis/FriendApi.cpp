@@ -110,7 +110,7 @@ QHttpServerResponse FriendApi::request(const QHttpServerRequest &request) {
     // consistency check
     int targetId = userService->selectIdByName(username);
     if(targetId == -1){
-        return QHttpServerResponse(QJsonObject{{"msg","请输入正确的用户名。"}},QHttpServerResponder::StatusCode::InternalServerError);
+        return QHttpServerResponse(QJsonObject{{"msg","该用户不存在"}},QHttpServerResponder::StatusCode::InternalServerError);
     }
     if(targetId==id.value()){
         return QHttpServerResponse(QJsonObject{{"msg","不能添加自己为好友。"}},QHttpServerResponder::StatusCode::InternalServerError);
