@@ -12,6 +12,8 @@
 
 #define TXPORT 1235
 #define BCPORT 1234
+// need to modify to server ip
+#define HOSTNAME "127.0.0.1"
 
 
 void userRouting(QHttpServer &HttpServer, UserApi &userApi);
@@ -19,6 +21,7 @@ void friendRouting(QHttpServer &HttpServer, FriendApi& friendApi);
 void msgRouting(QHttpServer &HttpServer, MessageApi &msgApi);
 void groupRouting(QHttpServer &HttpServer, GroupApi &groupApi);
 void testingRoutng(QHttpServer &HttpServer);
+void fileRouting(QHttpServer &HttpServer);
 
 int main(int argc, char *argv[]) {
     QCoreApplication app(argc, argv);
@@ -78,6 +81,7 @@ int main(int argc, char *argv[]) {
     friendRouting(httpServer,friendApi);
     msgRouting(httpServer,messageApi);
     groupRouting(httpServer,groupApi);
+    fileRouting(httpServer);
 
     testingRoutng(httpServer);
 
@@ -138,7 +142,6 @@ void testingRoutng(QHttpServer &HttpServer){
         return std::move(resp);
     });
 }
-
 
 void userRouting(QHttpServer &HttpServer, UserApi &userApi){
     // User module
@@ -260,4 +263,76 @@ void groupRouting(QHttpServer &HttpServer, GroupApi &groupApi){
             }
     );
 
+}
+
+void fileRouting(QHttpServer &HttpServer){
+    HttpServer.route("/upload",QHttpServerRequest::Method::Post,
+        [](const QHttpServerRequest&request){
+            for (auto pair : request.headers()) {
+                if(pair.first=="Content-Type"
+                && pair.second.mid(0,pair.second.indexOf(';'))!="multipart/form-data"
+                ){
+                    return QHttpServerResponse(QJsonObject{{"msg","请求类型错误"}},
+                                               QHttpServerResponse::StatusCode::BadRequest);
+                }
+            }
+
+            // resolve the body ( why qt not suppport multipart form resolve...
+            QByteArray multipartbody = request.body();
+            QString    boundary;
+            int boundary_length = multipartbody.indexOf("\r\n")+2;
+            boundary = QString::fromUtf8(multipartbody.mid(0,boundary_length));
+            multipartbody.remove(0,boundary_length);
+
+            boundary_length += 2;
+            qint64 firstStart   = 0;
+            qint64 firstFileEnd =  multipartbody.indexOf("\r\n"+boundary.toStdString());
+            qint64 secondStart  =  firstFileEnd + boundary_length;
+            boundary.chop(2);// delete two \r\n
+            qint64 secondFileEnd=  multipartbody.indexOf("\r\n"+boundary.toStdString(),secondStart);
+
+            firstStart = multipartbody.indexOf("\r\n", firstStart)+2;
+            firstStart = multipartbody.indexOf("\r\n", firstStart)+2;
+            firstStart = multipartbody.indexOf("\r\n", firstStart)+2;
+
+            QByteArray filebody   = multipartbody.mid(firstStart, firstFileEnd - firstStart);
+
+            secondStart           = multipartbody.indexOf("\r\n",secondStart)+2;
+            secondStart           = multipartbody.indexOf("\r\n",secondStart)+2;
+
+            QByteArray suffixname = multipartbody.mid(secondStart,secondFileEnd-secondStart);
+
+            std::cout<< filebody.size() <<" and "<<suffixname.size()<<std::endl;
+
+
+            // 生成文件名
+            QByteArray fileNameHash = QCryptographicHash::hash(filebody, QCryptographicHash::Md5);
+            QString fileName = fileNameHash.toHex() + suffixname;
+
+            // 存储文件
+            QString storagePath = QDir::currentPath() + "/uploads/" + fileName;
+            QFile file(storagePath);
+            if (file.open(QIODevice::WriteOnly)) {
+                file.write(filebody);
+                file.close();
+                // 构造文件映射的URL
+                QString fileUrl = "http://" HOSTNAME ":1235/files/" + fileName;
+                return QHttpServerResponse(QJsonObject{{"url",fileUrl}});
+            } else {
+                return QHttpServerResponse(QJsonObject{{"msg","上传失败"}},QHttpServerResponse::StatusCode::InternalServerError);
+            }
+    });
+
+    HttpServer.route("/files/",QHttpServerRequest::Method::Get,
+        [](QString filename,const QHttpServerRequest&request) {
+            QFile file("./uploads/"+filename);
+            if (!file.open(QIODevice::ReadOnly)) {
+                return QHttpServerResponse(QJsonObject{{"msg", "服务器内部错误"}},
+                                           QHttpServerResponder::StatusCode::InternalServerError);
+            }
+            QByteArray data = file.readAll();
+            file.close();
+            return QHttpServerResponse(data);
+        }
+    );
 }
