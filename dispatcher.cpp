@@ -8,6 +8,7 @@
 #include "broadcast/chatserver.h"
 #include "broadcast/BroadCastThread.h"
 #include "apis/GroupApi.h"
+#include "utils/utils.h"
 
 #define TXPORT 1235
 #define BCPORT 1234
@@ -94,6 +95,8 @@ int main(int argc, char *argv[]) {
             "Running on http://127.0.0.1:%1/ (Press CTRL+C to quit)")
             .arg(port);
 
+
+
     return app.exec();
 }
 
@@ -128,6 +131,12 @@ void testingRoutng(QHttpServer &HttpServer){
                 return QHttpServerResponse(data);
             }
     );
+
+    HttpServer.afterRequest([](QHttpServerResponse &&resp,const QHttpServerRequest &req){
+        qDebug()<<LogHeader(req).toStdString();
+        qDebug()<<resp.statusCode();
+        return std::move(resp);
+    });
 }
 
 

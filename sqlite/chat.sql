@@ -58,6 +58,9 @@ CREATE TABLE message (
                          FOREIGN KEY (uid) REFERENCES user (id),
                          FOREIGN KEY (gid) REFERENCES groupChat (gcid)
 );
+-- here need to have one pseduo message for join operation when the group has no message after create
+insert into message (id,type,content,uid,mid,gid)values(0,'pseudo','testuse',0,0,0)
+
 
 
 drop trigger update_mid;

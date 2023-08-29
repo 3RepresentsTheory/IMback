@@ -91,6 +91,56 @@ static std::time_t getUnixTimeStampFromString(const string&timestring){
     }
     return mktime(&t);
 }
+static QString prettyIPV4(const QHostAddress&qhostaddr){
+    return QHostAddress(qhostaddr.toIPv4Address()).toString();
+}
+
+static QString mappingMethod(QHttpServerRequest::Method method){
+
+    switch (method) {
+        case QHttpServerRequest::Method::Unknown:
+            return "Unknown";
+        case QHttpServerRequest::Method::Get:
+ return "Get ";
+        case QHttpServerRequest::Method::Put:
+ return "Put";
+        case QHttpServerRequest::Method::Delete:
+ return "Delete";
+        case QHttpServerRequest::Method::Post:
+ return "Post";
+        case QHttpServerRequest::Method::Head:
+ return "Head";
+        case QHttpServerRequest::Method::Options:
+ return "Options";
+        case QHttpServerRequest::Method::Patch:
+ return "Patch";
+        case QHttpServerRequest::Method::Connect:
+ return "Connect";
+        case QHttpServerRequest::Method::Trace:
+ return "Trace";
+        case QHttpServerRequest::Method::AnyKnown:
+ return "AnyKnown";
+    }
+};
+
+#define RGB_STRING_PROLOGUE(a,b,c) "\x1b[38;2;" a ";" b ";" c ";m"
+#define COLOR_EPILOGUE "\x1b[0m"
+
+static QString LogHeader(const QHttpServerRequest &request){
+    QString log;
+    log.append(prettyIPV4(request.remoteAddress()));
+    log.append(":");
+    log.append(QString::number(request.remotePort()));
+    log.append(" ");
+    log.append(mappingMethod(request.method()));
+    log.append(" ");
+    log.append(request.url().toString());
+    log.append(" ");
+    return log;
+}
+
+
+
 
 
 

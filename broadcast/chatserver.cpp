@@ -13,7 +13,7 @@ QT_USE_NAMESPACE
 
 static QString getIdentifier(QWebSocket *peer)
 {
-    return QStringLiteral("%1:%2").arg(peer->peerAddress().toString(),
+    return QStringLiteral("%1:%2").arg(QHostAddress(peer->peerAddress().toIPv4Address()).toString(),
                                        QString::number(peer->peerPort()));
 }
 
