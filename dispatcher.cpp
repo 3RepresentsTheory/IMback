@@ -9,6 +9,8 @@
 #include <QSqlDatabase>
 #include <QSqlQuery>
 #include <QSqlError>
+#include <thread>
+
 #define TXPORT 1235
 #define BCPORT 1234
 
@@ -106,45 +108,69 @@ void userRouting(QHttpServer &HttpServer, UserApi &userApi){
     HttpServer.route(
             "/user/login", QHttpServerRequest::Method::Post,
             [&userApi](const QHttpServerRequest &request) {
-                return userApi.login(request);
+                return QtConcurrent::run([&userApi, &request]() {
+                    return userApi.login(request);
+                });
             }
     );
 
     HttpServer.route(
             "/user/register", QHttpServerRequest::Method::Post,
             [&userApi](const QHttpServerRequest &request) {
-                return userApi.registerSession(request);
+                return QtConcurrent::run([&userApi, &request]() {
+                    return userApi.registerSession(request);
+                });
             }
     );
 
     HttpServer.route(
             "/user/info", QHttpServerRequest::Method::Put,
             [&userApi](const QHttpServerRequest &request) {
-                return userApi.info(request);
+                return QtConcurrent::run([&userApi, &request]() {
+                    return userApi.info(request);
+                });
             }
     );
 
     HttpServer.route(
             "/user/infos", QHttpServerRequest::Method::Post,
             [&userApi](const QHttpServerRequest &request) {
-                return userApi.infos(request);
+                return QtConcurrent::run([&userApi, &request]() {
+                    return userApi.infos(request);
+                });
             }
     );
 
     HttpServer.route(
             "/user/ip", QHttpServerRequest::Method::Get,
             [&userApi](const QHttpServerRequest &request) {
-                return userApi.getUserip(request);
+                return QtConcurrent::run([&userApi, &request]() {
+                    return userApi.getUserip(request);
+                });
             }
     );
 
     HttpServer.route(
             "/user/onlines", QHttpServerRequest::Method::Post,
             [&userApi](const QHttpServerRequest &request) {
-                return userApi.onlines(request);
+                return QtConcurrent::run([&userApi,&request]() {
+                    return userApi.onlines(request);
+                });
             }
     );
 
+    //test multi thread
+    HttpServer.route("/feature/", QHttpServerRequest::Method::Get,
+                     [](const QHttpServerRequest &request) {
+                         Qt::HANDLE threadId = QThread::currentThreadId();
+                         qDebug() << "Current main of feature Thread ID: " << threadId;
+                         return QtConcurrent::run([]() {
+                             Qt::HANDLE threadId = QThread::currentThreadId();
+                             qDebug() << "Current feature Thread ID: " << threadId;
+                             std::this_thread::sleep_for(std::chrono::seconds(5));
+                             return QHttpServerResponse("the future is coming");
+                         });
+                     });
 }
 
 void msgRouting(QHttpServer &HttpServer, MessageApi &msgApi){
@@ -152,15 +178,19 @@ void msgRouting(QHttpServer &HttpServer, MessageApi &msgApi){
     // Message transaction module
     HttpServer.route(
             "/message/send",QHttpServerRequest::Method::Post,
-            [&msgApi](const QHttpServerRequest&request){
-                return msgApi.handleSentMessageRequest(request);
+            [&msgApi](const QHttpServerRequest&request) {
+                return QtConcurrent::run([&msgApi, &request]() {
+                    return msgApi.handleSentMessageRequest(request);
+                });
             }
     );
 
     HttpServer.route(
             "/message/history",QHttpServerRequest::Method::Get,
-            [&msgApi](const QHttpServerRequest&request){
-                return msgApi.retrieveHistoryMsgList(request);
+            [&msgApi](const QHttpServerRequest&request) {
+                return QtConcurrent::run([&msgApi, &request]() {
+                    return msgApi.retrieveHistoryMsgList(request);
+                });
             }
     );
 
@@ -171,21 +201,27 @@ void friendRouting(QHttpServer &HttpServer, FriendApi &friendApi){
     HttpServer.route(
             "/friend/request", QHttpServerRequest::Method::Post,
             [&friendApi](const QHttpServerRequest &request) {
-                return friendApi.request(request);
+                return QtConcurrent::run([&friendApi, &request]() {
+                    return friendApi.request(request);
+                });
             }
     );
 
     HttpServer.route(
             "/friend/accept", QHttpServerRequest::Method::Post,
             [&friendApi](const QHttpServerRequest &request) {
-                return friendApi.accept(request);
+                return QtConcurrent::run([&friendApi, &request]() {
+                    return friendApi.accept(request);
+                });
             }
     );
 
     HttpServer.route(
             "/friend/requests", QHttpServerRequest::Method::Get,
             [&friendApi](const QHttpServerRequest &request) {
-                return friendApi.requests(request);
+                return QtConcurrent::run([&friendApi, &request]() {
+                    return friendApi.requests(request);
+                });
             }
     );
 }
@@ -195,29 +231,37 @@ void groupRouting(QHttpServer &HttpServer, GroupApi &groupApi){
 
     HttpServer.route(
             "/group/new",QHttpServerRequest::Method::Post,
-            [&groupApi](const QHttpServerRequest&request){
-                return groupApi.createGroup(request);
+            [&groupApi](const QHttpServerRequest&request) {
+                return QtConcurrent::run([&groupApi, &request]() {
+                    return groupApi.createGroup(request);
+                });
             }
     );
 
     HttpServer.route(
             "/group/request",QHttpServerRequest::Method::Post,
-            [&groupApi](const QHttpServerRequest&request){
-                return groupApi.joinGroup(request);
+            [&groupApi](const QHttpServerRequest&request) {
+                return QtConcurrent::run([&groupApi, &request]() {
+                    return groupApi.joinGroup(request);
+                });
             }
     );
 
     HttpServer.route(
             "/group/list",QHttpServerRequest::Method::Get,
-            [&groupApi](const QHttpServerRequest&request){
-                return groupApi.getGroupHasjoin(request);
+            [&groupApi](const QHttpServerRequest&request) {
+                return QtConcurrent::run([&groupApi, &request]() {
+                    return groupApi.getGroupHasjoin(request);
+                });
             }
     );
 
     HttpServer.route(
             "/group/users",QHttpServerRequest::Method::Get,
-            [&groupApi](const QHttpServerRequest&request){
-                return groupApi.getGroupUserList(request);
+            [&groupApi](const QHttpServerRequest&request) {
+                return QtConcurrent::run([&groupApi, &request]() {
+                    return groupApi.getGroupUserList(request);
+                });
             }
     );
 
