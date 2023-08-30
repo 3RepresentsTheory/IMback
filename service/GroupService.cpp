@@ -26,6 +26,12 @@ bool GroupService::CreateGroup(const Group &group, int &last_insert_id) {
     );
 }
 
+bool GroupService::IsJoined(qint64 uid, qint64 gid){
+    string sql = "SELECT COUNT(*) FROM groupUser WHERE uid = ? AND gid = ?;";
+    vector<map<string,string>> ret = baseDao->executeQuery(sql,to_string(uid),to_string(gid));
+    return ret[0]["COUNT(*)"] != "0";
+}
+
 bool GroupService::JoinGroup(qint64 uid, qint64 gid) {
     string sql = "INSERT INTO groupUser(uid, gid) VALUES (?, ?);";
     return baseDao->executeUpdate(

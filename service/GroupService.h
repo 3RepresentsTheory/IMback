@@ -19,6 +19,7 @@ public:
 
     bool CreateGroup(const Group& group,int &last_insert_id);
     bool JoinGroup(qint64 uid, qint64 gid);
+    bool IsJoined(qint64 uid, qint64 gid);
     QJsonArray GetGroupHasjoin(qint64 uid,qint64 ddl);
     QJsonObject GetGroupHasjoin(qint64 gid);
 };

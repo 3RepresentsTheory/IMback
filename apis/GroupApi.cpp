@@ -37,6 +37,9 @@ QHttpServerResponse GroupApi::createGroup(const QHttpServerRequest &request) {
     group.id = gid;
 
     // join myself to the group (need tx)
+    //need check whether it join for twice
+    if(groupService->IsJoined(uid.value(),gid))
+        return QHttpServerResponse(QJsonObject{{"msg","您已加入该群组"}}, QHttpServerResponder::StatusCode::BadRequest);
     if(!groupService->JoinGroup(uid.value(),gid))
         return QHttpServerResponse(QJsonObject{{"msg","服务器内部错误，无法加入群组，稍后再试"}}, QHttpServerResponder::StatusCode::BadRequest);
 
@@ -57,9 +60,10 @@ QHttpServerResponse GroupApi::createGroup(const QHttpServerRequest &request) {
     message.id  = message_id;
     msgService->FillMessageFromDB(message);
 
+    group.last_message = message;
     emit passMessageToBroadCast(MsgLoad(new Message(message)), {uid.value()});
 
-    return QHttpServerResponse(group.toQJsonObject());
+    return QHttpServerResponse(group.toQJsonObjectWithLastMsg());
 }
 
 QHttpServerResponse GroupApi::joinGroup(const QHttpServerRequest &request) {
@@ -82,7 +86,10 @@ QHttpServerResponse GroupApi::joinGroup(const QHttpServerRequest &request) {
         return QHttpServerResponse(QJsonObject{{"msg","身份验证失败"}}, QHttpServerResponder::StatusCode::BadRequest);
 
     //need check whether it join for twice
-    if(!groupService->JoinGroup(gid,uid.value()))
+    if(groupService->IsJoined(uid.value(),gid))
+        return QHttpServerResponse(QJsonObject{{"msg","您已加入该群组"}}, QHttpServerResponder::StatusCode::BadRequest);
+
+    if(!groupService->JoinGroup(uid.value(),gid))
         return QHttpServerResponse(QJsonObject{{"msg","服务器内部错误，无法加入群组，稍后再试"}}, QHttpServerResponder::StatusCode::BadRequest);
 
     return QHttpServerResponse(groupService->GetGroupHasjoin(gid));
