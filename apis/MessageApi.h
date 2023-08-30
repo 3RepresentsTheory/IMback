@@ -10,9 +10,9 @@
 #include <QHttpServerRequest>
 #include <QHttpServerResponse>
 #include "../service/MessageService.h"
-#include "../Utils/utils.h"
-#include "../Dao/BaseDao.h"
-#include "../Dao/DataClasses.h"
+#include "../utils/utils.h"
+#include "../dao/BaseDao.h"
+#include "../dao/DataClasses.h"
 #include "SessionApi.h"
 
 

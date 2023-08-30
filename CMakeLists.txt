@@ -1,14 +1,15 @@
 cmake_minimum_required(VERSION 3.24)
 
-set(CMAKE_PREFIX_PATH "D:/qt/6.5.2/mingw_64")
 
 project(Demo02)
 
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
+set(CMAKE_PREFIX_PATH "/home/flwfdd/program/Qt/6.5.2/gcc_64")
 
-find_package(Qt6 COMPONENTS Core Gui Widgets Network HttpServer Sql REQUIRED)
+
+find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets Network HttpServer Sql)
 
 set(SOURCES
         dispatcher.cpp
@@ -34,24 +35,32 @@ set(HEADERS
         dao/BaseDao.h
         service/UserService.h
         service/MessageService.h
+        service/GroupService.h
 #        utils/Jsonable.h
-#        apis/SessionApi.h
-#        apis/MessageApi.h
+
         utils/utils.h
         broadcast/BroadCastThread.h
         broadcast/chatserver.h
-        apis/GroupApi.h service/GroupService.h)
+        apis/GroupApi.h
+        apis/FriendApi.h
+        apis/MessageApi.h
+        apis/SessionApi.h
+        apis/UserApi.h
+
+    )
 
 add_executable(Demo02 ${SOURCES} ${HEADERS})
 
 target_link_libraries(Demo02
-        Qt6::Core
-        Qt6::Gui
-        Qt6::Widgets
-        Qt6::Network
-        Qt6::HttpServer
-        Qt6::Sql
-        )
+        Qt::Core
+        Qt::Gui
+        Qt::Widgets
+        Qt::Network
+        Qt::HttpServer
+        Qt::Sql
+    )
+
+
 #
 #add_subdirectory(samplefiles/simpletest)
 #add_subdirectory(test)
