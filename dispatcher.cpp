@@ -32,6 +32,7 @@ void broadcastSignalConnecting(
 );
 
 int main(int argc, char *argv[]) {
+    initDatabase();
     QCoreApplication app(argc, argv);
 
     // parse start up command line port argument

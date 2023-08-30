@@ -99,14 +99,14 @@ QHttpServerResponse FriendApi::request(const QHttpServerRequest &request) {
     // json parse and field check
     const auto json = byteArrayToJsonObject(request.body());
     if (!json)
-        return QHttpServerResponse(QJsonObject{{"msg","参数错误。"}}, QHttpServerResponder::StatusCode::BadRequest);
+        return QHttpServerResponse(QJsonObject{{"msg","参数错误"}}, QHttpServerResponder::StatusCode::BadRequest);
 
     FriendRequest friendRequest = FriendRequest::formJsonObject(json.value());
     string             username = friendRequest.username;
     string                 text = friendRequest.text;
 
     if(username.empty()){
-        return QHttpServerResponse(QJsonObject{{"msg","username不能为空。"}},QHttpServerResponder::StatusCode::BadRequest);
+        return QHttpServerResponse(QJsonObject{{"msg","username不能为空"}},QHttpServerResponder::StatusCode::BadRequest);
     }
 
     // consistency check
@@ -115,11 +115,11 @@ QHttpServerResponse FriendApi::request(const QHttpServerRequest &request) {
         return QHttpServerResponse(QJsonObject{{"msg","该用户不存在"}},QHttpServerResponder::StatusCode::BadRequest);
     }
     if(targetId==id.value()){
-        return QHttpServerResponse(QJsonObject{{"msg","不能添加自己为好友。"}},QHttpServerResponder::StatusCode::BadRequest);
+        return QHttpServerResponse(QJsonObject{{"msg","不能添加自己为好友"}},QHttpServerResponder::StatusCode::BadRequest);
     }
     bool exist = friendService->isFriendExists(to_string(id.value()),to_string(targetId));
     if(exist){
-        return QHttpServerResponse(QJsonObject{{"msg","已拥有该好友。"}},QHttpServerResponder::StatusCode::BadRequest);
+        return QHttpServerResponse(QJsonObject{{"msg","已拥有该好友"}},QHttpServerResponder::StatusCode::BadRequest);
     }
 
     // currently we simply accept it, no need to wait for the target user to accept
@@ -159,7 +159,7 @@ QHttpServerResponse FriendApi::request(const QHttpServerRequest &request) {
     emit passMessageToBroadCast(MsgLoad(new Message(message)), {id.value(),targetId});
 //    bool rc = friendService->insertRequest(to_string(targetId),to_string(id.value()),text);
 //    if (!rc)
-//        return QHttpServerResponse(QJsonObject{{"msg","服务器内部错误。"}}, QHttpServerResponder::StatusCode::InternalServerError);
+//        return QHttpServerResponse(QJsonObject{{"msg","服务器内部错误"}}, QHttpServerResponder::StatusCode::InternalServerError);
     return QHttpServerResponse("");
 }
 
@@ -175,16 +175,16 @@ QHttpServerResponse FriendApi::accept(const QHttpServerRequest &request) {
         return QHttpServerResponse(QJsonObject{{"msg","身份验证失败"}}, QHttpServerResponder::StatusCode::BadRequest);
     const auto json = byteArrayToJsonObject(request.body());
     if (!json)
-        return QHttpServerResponse(QJsonObject{{"msg","参数错误。"}}, QHttpServerResponder::StatusCode::BadRequest);
+        return QHttpServerResponse(QJsonObject{{"msg","参数错误"}}, QHttpServerResponder::StatusCode::BadRequest);
     AcceptRequest acceptRequest = AcceptRequest::fromJsonObject(json.value());
     string requestId = acceptRequest.id;
     map<string ,string > rc = friendService->seletInfoByRequestId(requestId);
     if(rc.empty()||stoi(rc["userId"])!=id){
-        return QHttpServerResponse(QJsonObject{{"msg","没有该好友请求或请求已经被接受。"}},QHttpServerResponder::StatusCode::BadRequest);
+        return QHttpServerResponse(QJsonObject{{"msg","没有该好友请求或请求已经被接受"}},QHttpServerResponder::StatusCode::BadRequest);
     }
     bool updaterc = friendService->acceptRequest(to_string(id.value()),rc["requestUserId"],requestId);
     if(!updaterc)
-        return QHttpServerResponse(QJsonObject{{"msg","服务器内部错误。"}},QHttpServerResponder::StatusCode::InternalServerError);
+        return QHttpServerResponse(QJsonObject{{"msg","服务器内部错误"}},QHttpServerResponder::StatusCode::InternalServerError);
     return QHttpServerResponse("");
 }
 
