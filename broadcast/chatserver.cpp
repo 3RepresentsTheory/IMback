@@ -127,7 +127,7 @@ void ChatBroadcastServer::onUpgradeToSocketAuth(const QString &message) {
         emit userLogin(QString::fromStdString(to_string(uid.value())),wsauth.ip+':'+wsauth.port);
 //        m_clients <<  pSender;
     }else{
-        QTextStream(stdout) << getIdentifier(pSender) << "not pass auth!\n";
+        QTextStream(stdout) << getIdentifier(pSender) << " not pass auth!\n";
         closeWaitWsocket(pSender,"Connection authentication failed. Access denied.");
     }
 

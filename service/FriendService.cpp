@@ -69,12 +69,12 @@ bool FriendService::isFriendExists(const string &userId, const string &friendId)
 //        return true;
 
     vector<map<string,string>> rc;
-    string sql ="SELECT CASE WHEN 'twin' in ( select gc.gctype from ( select gid from groupUser where uid = 1 intersect select gid from groupUser where uid = 2 ) common_gc , groupChat gc where gc.gcid = common_gc.gid ) THEN 1 ELSE 0 END AS result;";
+    string sql ="SELECT CASE WHEN 'twin' in ( select gc.gctype from ( select gid from groupUser where uid = ? intersect select gid from groupUser where uid = ? ) common_gc , groupChat gc where gc.gcid = common_gc.gid ) THEN 1 ELSE 0 END AS result;";
 //    "SELECT CASE WHEN 'twin' in ("
 //    "       select gc.gctype from ("
-//    "       select gid from groupUser where uid = 1"
+//    "       select gid from groupUser where uid = ?"
 //    "intersect"
-//    "select gid from groupUser where uid = 2"
+//    "select gid from groupUser where uid = ?"
 //    ") common_gc , groupChat gc"
 //    "where gc.gcid = common_gc.gid"
 //    ") THEN 1 ELSE 0 END AS result;"
