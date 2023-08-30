@@ -234,10 +234,15 @@ function createGroup(){
 
 function sendcookie(msg) {
     var strToSend = msg;
+    var json = {
+        "cookie":msg,
+        "ip":"112.21.12.24",
+        "port":"8170",
+    }
     console.log(msg);
     if (websocket != null) {
-        debug("SEND COOKIE: " + strToSend);
-        websocket.send(strToSend);
+        debug("SEND COOKIE: " + JSON.stringify(json,null,2));
+        websocket.send(JSON.stringify(json));
     }
 }
 

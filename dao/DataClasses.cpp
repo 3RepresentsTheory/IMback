@@ -128,8 +128,8 @@ bool WsAuth::fromQJsonObject(const QJsonObject &json) {
         return false;
 
     cookie    = json.value("cookie").toString();
-    ip        = json.value("avatar").toString();
-    port      = json.value("color").toString();
+    ip        = json.value("ip").toString();
+    port      = json.value("port").toString();
     return true;
 }
 

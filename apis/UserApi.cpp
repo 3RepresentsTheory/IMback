@@ -88,11 +88,11 @@ QHttpServerResponse UserApi:: registerSession(const QHttpServerRequest &request)
         return QHttpServerResponse(QJsonObject{{"msg","请输入完整的username,password,nickname,avatar,color,且不能为空。"}},QHttpServerResponder::StatusCode::BadRequest);
 
     if (userService->isUsernameExists(user.username)) {
-        return QHttpServerResponse(QJsonObject{{"msg","用户名已存在，请重试。"}},QHttpServerResponder::StatusCode::InternalServerError);
+        return QHttpServerResponse(QJsonObject{{"msg","用户名已存在，请重试。"}},QHttpServerResponder::StatusCode::BadRequest);
     }
 
     if (userService->isNicknameExists(user.nickname)) {
-        return QHttpServerResponse(QJsonObject{{"msg","昵称已存在，请重试。"}}, QHttpServerResponder::StatusCode::InternalServerError);
+        return QHttpServerResponse(QJsonObject{{"msg","昵称已存在，请重试。"}}, QHttpServerResponder::StatusCode::BadRequest);
     }
     userService->insertUser(user);
     user = userService->selectUserInfoByName(user.username);
@@ -122,7 +122,7 @@ QHttpServerResponse UserApi:: login(const QHttpServerRequest &request) {
     }
     user = userService->validateUserCredentials(username,password);
     if(user.username.empty())
-        return QHttpServerResponse(QJsonObject{{"msg","用户名或密码错误。"}},QHttpServerResponder::StatusCode::InternalServerError);
+        return QHttpServerResponse(QJsonObject{{"msg","用户名或密码错误。"}},QHttpServerResponder::StatusCode::BadRequest);
     SessionEntry sessionEntry = SessionApi::getInstance()->createEntryAndStart(user.id);
 
 //    string clientAddress = QHostAddress(request.remoteAddress().toIPv4Address()).toString().toStdString();
@@ -192,7 +192,7 @@ QHttpServerResponse UserApi::getUserip(const QHttpServerRequest &request){
     }
     auto ip = SessionApi::getInstance()->getIpById(uid);
     if(!ip.has_value()){
-        return QHttpServerResponse(QJsonObject{{"msg","无法获取用户对应ip。"}},QHttpServerResponder::StatusCode::InternalServerError);
+        return QHttpServerResponse(QJsonObject{{"msg","无法获取用户对应ip。"}},QHttpServerResponder::StatusCode::BadRequest);
     }
     QJsonObject qJsonObject = User::toJsonObjectForUserip(ip.value());
     return QHttpServerResponse(qJsonObject);

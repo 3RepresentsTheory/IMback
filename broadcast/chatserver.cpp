@@ -105,15 +105,15 @@ void ChatBroadcastServer::onNewConnection()
 
 
 void ChatBroadcastServer::onUpgradeToSocketAuth(const QString &message) {
-    qDebug() << "get the cookie: "<<message ;
     QWebSocket *pSender = qobject_cast<QWebSocket *>(sender());
 
     WsAuth wsauth;
     auto authMsgJson = byteArrayToJsonObject(QByteArray(message.toUtf8()));
-    if(!authMsgJson || wsauth.fromQJsonObject(authMsgJson.value())){
-        QTextStream(stdout) << getIdentifier(pSender) << "auth form error\n";
+    if(!authMsgJson || !wsauth.fromQJsonObject(authMsgJson.value())){
+        QTextStream(stdout) << getIdentifier(pSender) << " auth form error\n";
         closeWaitWsocket(pSender,"The form of auth error");
     }
+    qDebug() << "get the cookie: "<<wsauth.cookie ;
 
     auto uid = SessionApi::getInstance()->getIdByCookie(QUuid::fromString(wsauth.cookie));
 
@@ -140,12 +140,14 @@ void ChatBroadcastServer::socketDisconnected()
     QTextStream(stdout) << getIdentifier(pClient) << " disconnected!\n";
     if (pClient)
     {
-        qint64 uid = socketSession.getIdByWs(pClient).value();
-        //must have this value
-        if(socketSession.getWsById(uid)->size()==1){
-            userLogout(uid);
+        auto uid = socketSession.getIdByWs(pClient);
+        // perhaps they haven't add to the client list
+        if(uid.has_value()){
+            if(socketSession.getWsById(uid.value())->size()==1){
+                userLogout(uid.value());
+            }
+            socketSession.remove(pClient);
         }
-        socketSession.remove(pClient);
 //        m_clients.removeAll(pClient);
         pClient->deleteLater();
     }
