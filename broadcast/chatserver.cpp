@@ -67,7 +67,7 @@ ChatBroadcastServer::~ChatBroadcastServer()
 void ChatBroadcastServer::onNewConnection()
 {
     auto pSocket = m_pWebSocketServer->nextPendingConnection();
-    QTextStream(stdout) << getIdentifier(pSocket) << " connected!\n";
+    QTextStream(stdout) << getIdentifier(pSocket) <<" ws ptr:"<<pSocket<< " connected!\n";
     pSocket->setParent(this);
 
 
@@ -106,15 +106,14 @@ void ChatBroadcastServer::onNewConnection()
 
 void ChatBroadcastServer::onUpgradeToSocketAuth(const QString &message) {
     QWebSocket *pSender = qobject_cast<QWebSocket *>(sender());
-    qDebug() << "get the raw data: from message"<< message;
-
+    QTextStream(stdout) << pSender <<" get the content: "<<message;
     WsAuth wsauth;
     auto authMsgJson = byteArrayToJsonObject(QByteArray(message.toUtf8()));
     if(!authMsgJson || !wsauth.fromQJsonObject(authMsgJson.value())){
         QTextStream(stdout) << getIdentifier(pSender) << " auth form error\n";
         closeWaitWsocket(pSender,"The form of auth error");
     }
-    qDebug() << "get the cookie: "<<wsauth.cookie ;
+    QTextStream(stdout) << "get the cookie: "<<wsauth.cookie <<"\n";
 
     auto uid = SessionApi::getInstance()->getIdByCookie(QUuid::fromString(wsauth.cookie));
 
@@ -184,6 +183,7 @@ void ChatBroadcastServer::onNeedToBroadCast(MsgLoad data, QVector<qint64> glist)
 //        if(uws.has_value()&&uid!=sender_id)
         if(uws.has_value())
             for (auto ws:uws.value()) {
+                QTextStream(stdout) << ws << " send msg " <<bytes <<"to uid:"<<uid <<" and ip "<< getIdentifier(ws) << "\n" ;
                 ws->sendTextMessage(bytes);
             }
     }

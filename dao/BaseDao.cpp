@@ -11,7 +11,7 @@ sqlite3 *BaseDao::getConnection() {
     sqlite3 * db = nullptr;
     int rc = sqlite3_open(dbPath.c_str(), &db);
     if (rc != SQLITE_OK) {
-        cerr << "Failed to open database: " << sqlite3_errmsg(db) << std::endl;
+        cerr << "Failed to open database: \n" << sqlite3_errmsg(db) << std::endl;
         db = nullptr;
     }
     return db;
@@ -37,6 +37,8 @@ void initDatabase(){
     "        color TEXT,\n"
     "        avatar TEXT\n"
     ");\n";
+    string create_admin =
+    "insert or IGNORE into user (id,username,password,nickname,color,avatar)values(0,'admin','testuse','系统消息',0,'群');";
 
     string create_group_metadata =
     "CREATE TABLE IF NOT EXISTS groupChat (\n"
@@ -97,6 +99,8 @@ void initDatabase(){
 
     if(!initialDao.executeUpdate(create_user))
         cerr<<"create user table failed"<<endl;
+    if(!initialDao.executeUpdate(create_admin))
+        cerr<<"create admin  failed"<<endl;
     if(!initialDao.executeUpdate(create_group_metadata))
         cerr<<"create groupChat table failed"<<endl;
     if(!initialDao.executeUpdate(create_group_user))
