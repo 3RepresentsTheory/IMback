@@ -2,6 +2,7 @@
 // Created by no3core on 2023/8/24.
 //
 
+#include <regex>
 #include "UserApi.h"
 
 User::User() {
@@ -170,6 +171,12 @@ QHttpServerResponse UserApi::infos(const QHttpServerRequest &request){
         return QHttpServerResponse(QJsonObject{{"msg","参数错误。"}}, QHttpServerResponder::StatusCode::BadRequest);
     }
     // TODO:here need to use regex to match the msg, we trust the client will give right form data
+    // regex matc the uidparams be 1,2,3,4 like this, digitals split by comma
+    std::regex pattern("\\d+(,\\d+)*\\");
+    if(std::regex_match(uidParams,pattern)){
+        return QHttpServerResponse(QJsonObject{{"msg","参数错误。"}}, QHttpServerResponder::StatusCode::BadRequest);
+    }
+
 
     vector<User> rc = userService->getUserInfos(uidParams);
     QJsonArray qJsonArray = User::toJsonObjectForInfos(rc);

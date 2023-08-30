@@ -23,6 +23,14 @@ void groupRouting(QHttpServer &HttpServer, GroupApi &groupApi);
 void testingRoutng(QHttpServer &HttpServer);
 void fileRouting(QHttpServer &HttpServer);
 
+
+void broadcastSignalConnecting(
+        const ChatBroadcastServer& broadcastServer,
+        const MessageApi& messageApi,
+        const GroupApi  & groupApi,
+        const FriendApi & friendApi
+);
+
 int main(int argc, char *argv[]) {
     QCoreApplication app(argc, argv);
 
@@ -60,40 +68,7 @@ int main(int argc, char *argv[]) {
     GroupApi groupApi(msgService,groupService);
 
     // handle messageapi connect to broadcast server&thread
-    // lots need
-    QObject::connect(
-            &messageApi,
-            &MessageApi::passMessageToBroadCast,
-            &broadcastServer,
-            &ChatBroadcastServer::onNeedToBroadCast
-    );
-
-    QObject::connect(
-            &groupApi,
-            &GroupApi::passMessageToBroadCast,
-            &broadcastServer,
-            &ChatBroadcastServer::onNeedToBroadCast
-    );
-
-    QObject::connect(
-            &friendApi,
-            &FriendApi::passMessageToBroadCast,
-            &broadcastServer,
-            &ChatBroadcastServer::onNeedToBroadCast
-    );
-    QObject::connect(
-            &broadcastServer,
-            &ChatBroadcastServer::userLogout,
-            SessionApi().getInstance(),
-            &SessionApi::onUserLogout
-    );
-    QObject::connect(
-            &broadcastServer,
-            &ChatBroadcastServer::userLogin,
-            SessionApi().getInstance(),
-            &SessionApi::onUserLogin
-    );
-
+    broadcastSignalConnecting(broadcastServer,messageApi,groupApi,friendApi);
 
     broadcastThread.start();
     broadcastServer.listen(QHostAddress::Any,bcportArg);
@@ -128,6 +103,47 @@ int main(int argc, char *argv[]) {
 
 
     return app.exec();
+}
+void broadcastSignalConnecting(
+        const ChatBroadcastServer& broadcastServer,
+        const MessageApi& messageApi,
+        const GroupApi  & groupApi,
+        const FriendApi & friendApi
+){
+    // need to handle send msg event to broadcast
+    QObject::connect(
+            &messageApi,
+            &MessageApi::passMessageToBroadCast,
+            &broadcastServer,
+            &ChatBroadcastServer::onNeedToBroadCast
+    );
+    QObject::connect(
+            &groupApi,
+            &GroupApi::passMessageToBroadCast,
+            &broadcastServer,
+            &ChatBroadcastServer::onNeedToBroadCast
+    );
+    QObject::connect(
+            &friendApi,
+            &FriendApi::passMessageToBroadCast,
+            &broadcastServer,
+            &ChatBroadcastServer::onNeedToBroadCast
+    );
+
+    // broadcast server need to report the status of user online
+    QObject::connect(
+            &broadcastServer,
+            &ChatBroadcastServer::userLogout,
+            SessionApi().getInstance(),
+            &SessionApi::onUserLogout
+    );
+    QObject::connect(
+            &broadcastServer,
+            &ChatBroadcastServer::userLogin,
+            SessionApi().getInstance(),
+            &SessionApi::onUserLogin
+    );
+
 }
 
 void testingRoutng(QHttpServer &HttpServer){
@@ -362,3 +378,4 @@ void fileRouting(QHttpServer &HttpServer){
         }
     );
 }
+
