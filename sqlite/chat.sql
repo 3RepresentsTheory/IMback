@@ -26,6 +26,8 @@ CREATE TABLE IF NOT EXISTS user(
                       color TEXT,
                       avatar TEXT
 );
+insert or IGNORE into user (id,username,password,nickname,color,avatar)values(0,'admin','testuse','系统消息',0,'群');
+
 CREATE TABLE IF NOT EXISTS groupChat (
                            gcid INTEGER PRIMARY KEY AUTOINCREMENT,
                            name TEXT,

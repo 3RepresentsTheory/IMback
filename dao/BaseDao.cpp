@@ -37,6 +37,8 @@ void initDatabase(){
     "        color TEXT,\n"
     "        avatar TEXT\n"
     ");\n";
+    string create_admin =
+    "insert or IGNORE into user (id,username,password,nickname,color,avatar)values(0,'admin','testuse','系统消息',0,'群');";
 
     string create_group_metadata =
     "CREATE TABLE IF NOT EXISTS groupChat (\n"
@@ -64,7 +66,7 @@ void initDatabase(){
     "        id INTEGER PRIMARY KEY AUTOINCREMENT,\n"
     "        type TEXT,\n"
     "        content TEXT,\n"
-    "time INTEGER DEFAULT (strftime('%s', 'now', 'localtime')),\n"
+    "time INTEGER DEFAULT (strftime('%s', 'now')),\n"
     "        uid INTEGER,\n"
     "        mid INTEGER,\n"
     "        gid INTEGER\n"
@@ -97,6 +99,8 @@ void initDatabase(){
 
     if(!initialDao.executeUpdate(create_user))
         cerr<<"create user table failed"<<endl;
+    if(!initialDao.executeUpdate(create_admin))
+        cerr<<"create admin  failed"<<endl;
     if(!initialDao.executeUpdate(create_group_metadata))
         cerr<<"create groupChat table failed"<<endl;
     if(!initialDao.executeUpdate(create_group_user))

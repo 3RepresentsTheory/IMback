@@ -76,3 +76,17 @@ QJsonObject GroupService::GetGroupHasjoin(qint64 gid) {
             ret = baseDao->executeQuery(sql,to_string(gid));
     return Group(ret[0],true).toQJsonObjectWithLastMsg();
 }
+
+bool GroupService::IsTwinGroup(qint64 gid) {
+    string sql = "SELECT * FROM groupChat WHERE gcid = ? AND gctype = 'twin';";
+    vector<map<string,string>>
+            ret = baseDao->executeQuery(sql,to_string(gid));
+    return !ret.empty();
+}
+
+bool GroupService::IsGroupExist(qint64 gid) {
+    string sql = "SELECT * FROM groupChat WHERE gcid = ? ;";
+    vector<map<string,string>>
+            ret = baseDao->executeQuery(sql,to_string(gid));
+    return ret.empty();
+}
