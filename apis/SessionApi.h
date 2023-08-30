@@ -3,8 +3,8 @@
 #ifndef APIBEHAVIOR_H
 #define APIBEHAVIOR_H
 
-#include "../Utils/types.h"
-#include "../Utils/utils.h"
+#include "../utils/types.h"
+#include "../utils/utils.h"
 #include <QtHttpServer/QHttpServer>
 #include <QtConcurrent/qtconcurrentrun.h>
 #include <string>

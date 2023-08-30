@@ -6,8 +6,8 @@
 #define DEMO02_FRIENDAPI_H
 #include "../service/FriendService.h"
 #include "../service/UserService.h"
-#include "../Utils/types.h"
-#include "../Utils/utils.h"
+#include "../utils/types.h"
+#include "../utils/utils.h"
 #include <QtConcurrent/qtconcurrentrun.h>
 #include "SessionApi.h"
 #include "../service/GroupService.h"

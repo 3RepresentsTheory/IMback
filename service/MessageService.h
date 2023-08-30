@@ -8,8 +8,8 @@
 
 #include <QtTypes>
 #include <QVector>
-#include "../Dao/BaseDao.h"
-#include "../Dao/DataClasses.h"
+#include "../dao/BaseDao.h"
+#include "../dao/DataClasses.h"
 
 class MessageService {
 private:

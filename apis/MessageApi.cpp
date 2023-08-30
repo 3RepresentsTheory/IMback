@@ -3,7 +3,7 @@
 //
 
 #include "MessageApi.h"
-#include "../Utils/utils.h"
+#include "../utils/utils.h"
 
 
 QHttpServerResponse MessageApi::handleSentMessageRequest(const QHttpServerRequest &request) {

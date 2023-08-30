@@ -1,8 +1,8 @@
 #include <QtCore/QCoreApplication>
 #include <QtHttpServer/QHttpServer>
 #include <QSqlDatabase>
-#include "apis/userapi.h"
-#include "apis/friendApi.h"
+#include "apis/UserApi.h"
+#include "apis/FriendApi.h"
 #include "apis/MessageApi.h"
 #include "apis/GroupApi.h"
 #include "broadcast/chatserver.h"
