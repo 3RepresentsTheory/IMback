@@ -79,21 +79,21 @@ QHttpServerResponse UserApi:: registerSession(const QHttpServerRequest &request)
     const auto json = byteArrayToJsonObject(request.body());
 
     if (!json)
-        return QHttpServerResponse(QJsonObject{{"msg","参数错误。"}}, QHttpServerResponder::StatusCode::BadRequest);
+        return QHttpServerResponse(QJsonObject{{"msg","参数错误"}}, QHttpServerResponder::StatusCode::BadRequest);
     User user = User::formJsonObject(json.value());
     if (user.username.empty()||
         user.password.empty()||
         user.nickname.empty()||
         user.color.empty()||
         user.avatar.empty())
-        return QHttpServerResponse(QJsonObject{{"msg","请输入完整的username,password,nickname,avatar,color,且不能为空。"}},QHttpServerResponder::StatusCode::BadRequest);
+        return QHttpServerResponse(QJsonObject{{"msg","请输入完整的username,password,nickname,avatar,color,且不能为空"}},QHttpServerResponder::StatusCode::BadRequest);
 
     if (userService->isUsernameExists(user.username)) {
-        return QHttpServerResponse(QJsonObject{{"msg","用户名已存在，请重试。"}},QHttpServerResponder::StatusCode::BadRequest);
+        return QHttpServerResponse(QJsonObject{{"msg","用户名已存在，请重试"}},QHttpServerResponder::StatusCode::BadRequest);
     }
 
     if (userService->isNicknameExists(user.nickname)) {
-        return QHttpServerResponse(QJsonObject{{"msg","昵称已存在，请重试。"}}, QHttpServerResponder::StatusCode::BadRequest);
+        return QHttpServerResponse(QJsonObject{{"msg","昵称已存在，请重试"}}, QHttpServerResponder::StatusCode::BadRequest);
     }
     userService->insertUser(user);
     user = userService->selectUserInfoByName(user.username);
@@ -110,20 +110,20 @@ QHttpServerResponse UserApi:: registerSession(const QHttpServerRequest &request)
 QHttpServerResponse UserApi:: login(const QHttpServerRequest &request) {
     const auto json = byteArrayToJsonObject(request.body());
     if (!json)
-        return QHttpServerResponse(QJsonObject{{"msg","参数错误。"}}, QHttpServerResponder::StatusCode::BadRequest);
+        return QHttpServerResponse(QJsonObject{{"msg","参数错误"}}, QHttpServerResponder::StatusCode::BadRequest);
     User user = User::formJsonObject(json.value());
     string username = user.username;
     string password = user.password;
     if (username.empty()||
         password.empty()){
         return QHttpServerResponse(QJsonObject{{"msg",
-                "请输入完整的username,password,且不能为空。"}},
+                "请输入完整的username,password,且不能为空"}},
                 QHttpServerResponder::StatusCode::BadRequest
         );
     }
     user = userService->validateUserCredentials(username,password);
     if(user.username.empty())
-        return QHttpServerResponse(QJsonObject{{"msg","用户名或密码错误。"}},QHttpServerResponder::StatusCode::BadRequest);
+        return QHttpServerResponse(QJsonObject{{"msg","用户名或密码错误"}},QHttpServerResponder::StatusCode::BadRequest);
     SessionEntry sessionEntry = SessionApi::getInstance()->createEntryAndStart(user.id);
 
 //    string clientAddress = QHostAddress(request.remoteAddress().toIPv4Address()).toString().toStdString();
@@ -149,7 +149,7 @@ QHttpServerResponse UserApi::info(const QHttpServerRequest &request) {
 
     const auto json = byteArrayToJsonObject(request.body());
     if (!json)
-        return QHttpServerResponse(QJsonObject{{"msg","参数错误。"}}, QHttpServerResponder::StatusCode::BadRequest);
+        return QHttpServerResponse(QJsonObject{{"msg","参数错误"}}, QHttpServerResponder::StatusCode::BadRequest);
 
     User user = User::formJsonObject(json.value());
     string nickname = user.nickname;
@@ -157,7 +157,7 @@ QHttpServerResponse UserApi::info(const QHttpServerRequest &request) {
     string avatar = user.avatar;
     bool rc = userService->updateInfo(id.value(),nickname,color,avatar);
     if(!rc){
-        return QHttpServerResponse(QJsonObject{{"msg","服务器内部错误。"}}, QHttpServerResponder::StatusCode::InternalServerError);
+        return QHttpServerResponse(QJsonObject{{"msg","服务器内部错误"}}, QHttpServerResponder::StatusCode::InternalServerError);
     }
     return QHttpServerResponse("");
 }
@@ -165,16 +165,16 @@ QHttpServerResponse UserApi::info(const QHttpServerRequest &request) {
 QHttpServerResponse UserApi::infos(const QHttpServerRequest &request){
     const auto json = byteArrayToJsonObject(request.body());
     if (!json)
-        return QHttpServerResponse(QJsonObject{{"msg","参数错误。"}}, QHttpServerResponder::StatusCode::BadRequest);
+        return QHttpServerResponse(QJsonObject{{"msg","参数错误"}}, QHttpServerResponder::StatusCode::BadRequest);
     string uidParams = jsonToString(json.value())["uids"];
     if(uidParams.empty()){
-        return QHttpServerResponse(QJsonObject{{"msg","参数错误。"}}, QHttpServerResponder::StatusCode::BadRequest);
+        return QHttpServerResponse(QJsonObject{{"msg","参数错误"}}, QHttpServerResponder::StatusCode::BadRequest);
     }
     // TODO:here need to use regex to match the msg, we trust the client will give right form data
     // regex matc the uidparams be 1,2,3,4 like this, digitals split by comma
-    std::regex pattern("\\d+(,\\d+)*\\");
-    if(std::regex_match(uidParams,pattern)){
-        return QHttpServerResponse(QJsonObject{{"msg","参数错误。"}}, QHttpServerResponder::StatusCode::BadRequest);
+    std::regex pattern("\\d+(,\\d+)*");
+    if(!std::regex_match(uidParams,pattern)){
+        return QHttpServerResponse(QJsonObject{{"msg","参数错误"}}, QHttpServerResponder::StatusCode::BadRequest);
     }
 
 
@@ -195,11 +195,11 @@ QHttpServerResponse UserApi::getUserip(const QHttpServerRequest &request){
     // auth query
     string uid = request.query().queryItemValue("uid").toStdString();
     if(uid.empty()){
-        return QHttpServerResponse(QJsonObject{{"msg","参数错误。"}},QHttpServerResponder::StatusCode::BadRequest);
+        return QHttpServerResponse(QJsonObject{{"msg","参数错误"}},QHttpServerResponder::StatusCode::BadRequest);
     }
     auto ip = SessionApi::getInstance()->getIpById(uid);
     if(!ip.has_value()){
-        return QHttpServerResponse(QJsonObject{{"msg","无法获取用户对应ip。"}},QHttpServerResponder::StatusCode::BadRequest);
+        return QHttpServerResponse(QJsonObject{{"msg","无法获取用户对应ip"}},QHttpServerResponder::StatusCode::BadRequest);
     }
     QJsonObject qJsonObject = User::toJsonObjectForUserip(ip.value());
     return QHttpServerResponse(qJsonObject);
@@ -208,10 +208,10 @@ QHttpServerResponse UserApi::getUserip(const QHttpServerRequest &request){
 QHttpServerResponse UserApi::onlines(const QHttpServerRequest &request){
     const auto json = byteArrayToJsonObject(request.body());
     if (!json)
-        return QHttpServerResponse(QJsonObject{{"msg","参数错误。"}}, QHttpServerResponder::StatusCode::BadRequest);
+        return QHttpServerResponse(QJsonObject{{"msg","参数错误"}}, QHttpServerResponder::StatusCode::BadRequest);
     string uidParams = jsonToString(json.value())["uids"];
     if(uidParams.empty()){
-        return QHttpServerResponse(QJsonObject{{"msg","参数错误。"}}, QHttpServerResponder::StatusCode::BadRequest);
+        return QHttpServerResponse(QJsonObject{{"msg","参数错误"}}, QHttpServerResponder::StatusCode::BadRequest);
     }
     QJsonArray qJsonArray = SessionApi::getInstance()->checkIdsInSet(uidParams);
     return QHttpServerResponse(qJsonArray);

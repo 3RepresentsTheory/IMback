@@ -127,5 +127,7 @@ public:
     }
 };
 
+void initDatabase();
+
 
 #endif //DEMO02_BASEDAO_H
