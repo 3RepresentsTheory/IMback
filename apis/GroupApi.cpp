@@ -37,6 +37,9 @@ QHttpServerResponse GroupApi::createGroup(const QHttpServerRequest &request) {
     group.id = gid;
 
     // join myself to the group (need tx)
+    //need check whether it join for twice
+    if(groupService->IsJoined(uid.value(),gid))
+        return QHttpServerResponse(QJsonObject{{"msg","您已加入该群组"}}, QHttpServerResponder::StatusCode::BadRequest);
     if(!groupService->JoinGroup(uid.value(),gid))
         return QHttpServerResponse(QJsonObject{{"msg","服务器内部错误，无法加入群组，稍后再试"}}, QHttpServerResponder::StatusCode::BadRequest);
 
@@ -82,6 +85,9 @@ QHttpServerResponse GroupApi::joinGroup(const QHttpServerRequest &request) {
         return QHttpServerResponse(QJsonObject{{"msg","身份验证失败"}}, QHttpServerResponder::StatusCode::BadRequest);
 
     //need check whether it join for twice
+    if(groupService->IsJoined(uid.value(),gid))
+        return QHttpServerResponse(QJsonObject{{"msg","您已加入该群组"}}, QHttpServerResponder::StatusCode::BadRequest);
+
     if(!groupService->JoinGroup(gid,uid.value()))
         return QHttpServerResponse(QJsonObject{{"msg","服务器内部错误，无法加入群组，稍后再试"}}, QHttpServerResponder::StatusCode::BadRequest);
 
