@@ -358,7 +358,7 @@ void fileRouting(QHttpServer &HttpServer){
                 file.write(filebody);
                 file.close();
                 // 构造文件映射的URL
-                QString fileUrl = "http://" HOSTNAME ":1235/files/" + fileName;
+                QString fileUrl = "/files/" + fileName;
                 return QHttpServerResponse(QJsonObject{{"url",fileUrl}});
             } else {
                 return QHttpServerResponse(QJsonObject{{"msg","上传失败"}},QHttpServerResponse::StatusCode::InternalServerError);

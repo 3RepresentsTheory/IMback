@@ -106,6 +106,7 @@ void ChatBroadcastServer::onNewConnection()
 
 void ChatBroadcastServer::onUpgradeToSocketAuth(const QString &message) {
     QWebSocket *pSender = qobject_cast<QWebSocket *>(sender());
+    qDebug() << "get the raw data: from message"<< message;
 
     WsAuth wsauth;
     auto authMsgJson = byteArrayToJsonObject(QByteArray(message.toUtf8()));
