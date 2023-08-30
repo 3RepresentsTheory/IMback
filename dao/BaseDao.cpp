@@ -64,7 +64,7 @@ void initDatabase(){
     "        id INTEGER PRIMARY KEY AUTOINCREMENT,\n"
     "        type TEXT,\n"
     "        content TEXT,\n"
-    "time INTEGER DEFAULT (strftime('%s', 'now', 'localtime')),\n"
+    "time INTEGER DEFAULT (strftime('%s', 'now')),\n"
     "        uid INTEGER,\n"
     "        mid INTEGER,\n"
     "        gid INTEGER\n"
