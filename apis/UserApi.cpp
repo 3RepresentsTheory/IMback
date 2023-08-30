@@ -172,8 +172,8 @@ QHttpServerResponse UserApi::infos(const QHttpServerRequest &request){
     }
     // TODO:here need to use regex to match the msg, we trust the client will give right form data
     // regex matc the uidparams be 1,2,3,4 like this, digitals split by comma
-    std::regex pattern("\\d+(,\\d+)*\\");
-    if(std::regex_match(uidParams,pattern)){
+    std::regex pattern("\\d+(,\\d+)*");
+    if(!std::regex_match(uidParams,pattern)){
         return QHttpServerResponse(QJsonObject{{"msg","参数错误。"}}, QHttpServerResponder::StatusCode::BadRequest);
     }
 
