@@ -12,8 +12,6 @@
 
 #define TXPORT 1235
 #define BCPORT 1234
-// need to modify to server ip
-#define HOSTNAME "127.0.0.1"
 
 
 void userRouting(QHttpServer &HttpServer, UserApi &userApi);
@@ -36,19 +34,8 @@ int main(int argc, char *argv[]) {
     QCoreApplication app(argc, argv);
 
     // parse start up command line port argument
-//    QCommandLineParser parser;
-//    parser.addOptions(
-//       {
-//         {"port", QCoreApplication::translate("main", "The port the server listens on."),
-//          "port"},
-//       }
-//    );
-//    parser.addHelpOption();
-//    parser.process(app);
     quint16 txportArg = TXPORT;
     quint16 bcportArg = BCPORT;
-//    if (!parser.value("port").isEmpty())
-//        portArg = parser.value("port").toUShort();
 
     // set up broadcast server
     ChatBroadcastServer broadcastServer;
@@ -154,7 +141,7 @@ void testingRoutng(QHttpServer &HttpServer){
             []() {
 //                return "Qt Colorpalette example server. Please see documentation for API description";
                 // send back a chatclient.html in broadcast/chatclient.h
-                QFile file("../broadcast/chatclient.html");
+                QFile file(PROJECT_PATH "/broadcast/chatclient.html");
                 if (!file.open(QIODevice::ReadOnly)) {
                     return QHttpServerResponse(QJsonObject{{"msg","Internal server error"}}, QHttpServerResponder::StatusCode::InternalServerError);
                 }
@@ -169,7 +156,7 @@ void testingRoutng(QHttpServer &HttpServer){
             []() {
 //                return "Qt Colorpalette example server. Please see documentation for API description";
                 // send back a chatclient.html in broadcast/chatclient.h
-                QFile file("../broadcast/chatclient.js");
+                QFile file(PROJECT_PATH "/broadcast/chatclient.js");
                 if (!file.open(QIODevice::ReadOnly)) {
                     return QHttpServerResponse(QJsonObject{{"msg","Internal server error"}}, QHttpServerResponder::StatusCode::InternalServerError);
                 }
@@ -359,7 +346,7 @@ void fileRouting(QHttpServer &HttpServer){
                 file.write(filebody);
                 file.close();
                 // 构造文件映射的URL
-                QString fileUrl = "http://" HOSTNAME ":1235/files/" + fileName;
+                QString fileUrl = "/files/" + fileName;
                 return QHttpServerResponse(QJsonObject{{"url",fileUrl}});
             } else {
                 return QHttpServerResponse(QJsonObject{{"msg","上传失败"}},QHttpServerResponse::StatusCode::InternalServerError);
@@ -368,7 +355,7 @@ void fileRouting(QHttpServer &HttpServer){
 
     HttpServer.route("/files/",QHttpServerRequest::Method::Get,
         [](QString filename,const QHttpServerRequest&request) {
-            QFile file("./uploads/"+filename);
+            QFile file(PROJECT_PATH "/uploads/"+filename);
             if (!file.open(QIODevice::ReadOnly)) {
                 return QHttpServerResponse(QJsonObject{{"msg", "服务器内部错误"}},
                                            QHttpServerResponder::StatusCode::InternalServerError);

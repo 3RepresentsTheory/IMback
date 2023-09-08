@@ -1,12 +1,11 @@
 cmake_minimum_required(VERSION 3.24)
 
 
-project(Demo02)
+project(IMback)
 
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
-set(CMAKE_PREFIX_PATH "/home/flwfdd/program/Qt/6.5.2/gcc_64")
 
 
 find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets Network HttpServer Sql)
@@ -14,19 +13,23 @@ find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets Network HttpServer Sql)
 set(SOURCES
         dispatcher.cpp
         sqlite/sqlite3.c
+
         dao/BaseDao.cpp
+        dao/DataClasses.cpp
+
         service/UserService.cpp
         service/FriendService.cpp
         service/MessageService.cpp
+        service/GroupService.cpp
+
         apis/SessionApi.cpp
         apis/UserApi.cpp
         apis/FriendApi.cpp
         apis/MessageApi.cpp
+        apis/GroupApi.cpp
+
         broadcast/chatserver.cpp
-        dao/DataClasses.cpp apis/GroupApi.cpp service/GroupService.cpp)
-#        apis/MessageApi.cpp
-#        service/MessageService.cpp
-#        utils/Jsonable.cpp)
+)
 
 set(HEADERS
         utils/types.h
@@ -36,9 +39,6 @@ set(HEADERS
         service/UserService.h
         service/MessageService.h
         service/GroupService.h
-#        utils/Jsonable.h
-
-        utils/utils.h
         broadcast/BroadCastThread.h
         broadcast/chatserver.h
         apis/GroupApi.h
@@ -46,21 +46,19 @@ set(HEADERS
         apis/MessageApi.h
         apis/SessionApi.h
         apis/UserApi.h
+)
 
-    )
+# 获取当前项目的绝对路径
+get_filename_component(PROJECT_PATH "${CMAKE_SOURCE_DIR}" ABSOLUTE)
+add_definitions(-DPROJECT_PATH="${PROJECT_PATH}")
 
-add_executable(Demo02 ${SOURCES} ${HEADERS})
+add_executable(IMback ${SOURCES} ${HEADERS})
 
-target_link_libraries(Demo02
+target_link_libraries(IMback
         Qt::Core
         Qt::Gui
         Qt::Widgets
         Qt::Network
         Qt::HttpServer
         Qt::Sql
-    )
-
-
-#
-#add_subdirectory(samplefiles/simpletest)
-#add_subdirectory(test)
+)

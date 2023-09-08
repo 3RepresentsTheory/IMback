@@ -1,23 +1,3 @@
--- CREATE TABLE friend (
---                         id INTEGER PRIMARY KEY AUTOINCREMENT,
---                         userId INTEGER,
---                         friendId INTEGER,
---                         FOREIGN KEY (userId) REFERENCES user (id),
---                         FOREIGN KEY (friendId) REFERENCES user (id)
--- );
---
--- CREATE TABLE friendRequest (
---                                id INTEGER PRIMARY KEY AUTOINCREMENT,
---                                userId INTEGER,
---                                timestamp TIMESTAMP default(datetime('now','localtime')),
---                                text TEXT,
---                                requestUserId INTEGER,
---                                status INTEGER default(0),
---                                FOREIGN KEY (userId) REFERENCES user (id),
---                                FOREIGN KEY (requestUserId) REFERENCES user (id)
--- );
-drop table groupChat;
-
 CREATE TABLE IF NOT EXISTS user(
                       id INTEGER PRIMARY KEY,
                       username TEXT,

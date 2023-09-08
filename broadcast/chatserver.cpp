@@ -219,13 +219,3 @@ std::optional<qint64> SocketSession::getIdByWs(QWebSocket *ws) {
         return std::nullopt;
 }
 
-//QVector<qint64> SocketSession::allOnlineUsers() {
-//    qDebug() << "all online users:\n";
-//    QVector<qint64> ret;
-//    QMap<id_t,wspt >::const_iterator it;
-//    for (it = id2ws.constBegin(); it != id2ws.constEnd(); ++it) {
-//        ret.append(it.key());
-//        qDebug() << it.key() << "with ws: " << it.value() << "\n";
-//    }
-//    return ret;
-//}
