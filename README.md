@@ -3,7 +3,7 @@
 这是[FluentChat](https://github.com/flwfdd/FluentChat)
 的后端项目IMback，目前是一个 sqlite + websocket + qt的简易后端服务器，绝大部分的网络组件均采用Qt，非常的“小学期”。
 
-由于最后时间不够所以之开发了sqlite版本，最终以`sqlite_ver`分支为主，如果有部署或者运行的问题麻烦提个issue!
+由于最后时间不够所以只开发了sqlite版本，最终以`sqlite_ver`分支为主，如果有部署或者运行的问题麻烦提个issue!
 
 ## 部署方法
 克隆仓库并切换分支:
