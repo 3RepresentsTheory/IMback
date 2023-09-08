@@ -9,7 +9,8 @@
 克隆仓库并切换分支:
 ```shell
 git clone https://github.com/3RepresentsTheory/IMback.git
-checkout sqlite_ver
+cd IMback
+git checkout sqlite_ver
 ```
 采用`Qt6.5.2` 的`MingW`，使用`QtCreator`打开项目中的`CMakeLists.txt`即可，启动后会自动在当前项目根目录建立后端数据库文件
 `IMBACK.db`。对于上传的文件会存放到`uploads`文件夹中
