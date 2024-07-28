@@ -2,6 +2,9 @@
 // Created by 28443 on 2023/8/24.
 //
 
+#include <QByteArray>
+#include <QCryptographicHash>
+#include <QString>
 #include "BaseDao.h"
 
 std::mutex DaoLock;
@@ -37,8 +40,21 @@ void initDatabase(){
     "        color TEXT,\n"
     "        avatar TEXT\n"
     ");\n";
-    string create_admin =
-    "insert or IGNORE into user (id,username,password,nickname,color,avatar)values(0,'admin','testuse','系统消息',0,'群');";
+
+    /*
+     * Set the admin password as `testuse`
+     * however, the admin user is likely to be deprecated
+     */
+
+    QByteArray hash_pass = QCryptographicHash::hash(
+            "testuse"
+            "FluentChat",
+            QCryptographicHash::Md5);
+    auto create_admin = QString(
+            "insert or IGNORE into user "
+            "(id,username,password,nickname,color,avatar)values(0,'admin','%" "1','系统消息',0,'群');")
+            .arg(hash_pass.toHex())
+            .toStdString();
 
     string create_group_metadata =
     "CREATE TABLE IF NOT EXISTS groupChat (\n"
